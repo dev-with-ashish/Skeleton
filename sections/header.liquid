@@ -1,56 +1,798 @@
-<header>
-  <h2 class="header__title">
-    {{ shop.name | link_to: routes.root_url }}
-  </h2>
+<header class="agh-header full-width">
+  <div class="header-container full-width">
+    <!-- Logo/Brand -->
+    <div class="header-brand">
+      <a href="{{ routes.root_url }}" class="brand-link">
+        <img
+          src="{{ 'AGH Logo GreenAsset 1@4x.png' | asset_url }}"
+          alt="Andra's Garden Heaven Logo"
+          class="brand-logo"
+          width="120"
+          height="40"
+        >
+      </a>
+    </div>
 
-  <div class="header__menu">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+    <!-- Desktop Navigation - HIDDEN ON MOBILE/TABLET -->
+    <nav class="header-nav desktop-nav">
+      {% for link in section.settings.menu.links %}
+        <a href="{{ link.url }}" class="nav-link{% if link.active %} active{% endif %}">{{ link.title }}</a>
+      {% endfor %}
+    </nav>
 
-  <div class="header__icons">
-    {% if shop.customer_accounts_enabled %}
-      {{ 'icon-account.svg' | inline_asset_content | link_to: routes.account_url }}
-    {% endif %}
+    <!-- Desktop Search Bar - ALWAYS VISIBLE ON LAPTOP/DESKTOP -->
+    <div class="header-search desktop-search">
+      <form action="{{ routes.search_url }}" method="get" class="search-form desktop-search-form">
+        <div class="search-input-group">
+          <input
+            type="search"
+            name="q"
+            placeholder="Search garden furniture..."
+            class="search-input desktop-search-input"
+            value="{{ search.terms | escape }}"
+          >
+          <button type="submit" class="search-btn desktop-search-btn" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
 
-    <a href="{{ routes.cart_url }}">
-      {% if cart.item_count > 0 %}
-        <sup>{{ cart.item_count }}</sup>
+    <!-- Header Icons -->
+    <div class="header-icons">
+      {% if shop.customer_accounts_enabled %}
+        <a href="{{ routes.account_url }}" class="icon-link" aria-label="Account">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" fill="currentColor"/>
+          </svg>
+        </a>
       {% endif %}
 
-      {{ 'icon-cart.svg' | inline_asset_content }}
-    </a>
+      <a href="{{ routes.cart_url }}" class="icon-link cart-link" aria-label="Cart">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5H5.21L4.27,3H1M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z" fill="currentColor"/>
+        </svg>
+        {% if cart.item_count > 0 %}
+          <span class="cart-count">{{ cart.item_count }}</span>
+        {% endif %}
+      </a>
+
+      <!-- Mobile Menu Toggle - VISIBLE ONLY ON MOBILE/TABLET -->
+      <button class="mobile-menu-toggle" aria-label="Open menu" aria-expanded="false" tabindex="0">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Backdrop -->
+  <div class="mobile-nav-backdrop"></div>
+  <!-- Mobile Navigation Overlay -->
+  <div class="mobile-nav-overlay" tabindex="-1" aria-modal="true" role="dialog">
+    <nav class="mobile-nav">
+      <button class="mobile-menu-close" aria-label="Close menu" tabindex="0">&times;</button>
+      <div class="mobile-search">
+        <form action="{{ routes.search_url }}" method="get" class="mobile-search-form">
+          <div class="search-input-group">
+            <input
+              type="search"
+              name="q"
+              placeholder="Find Your Peace..."
+              class="mobile-search-input"
+              value="{{ search.terms | escape }}"
+            >
+            <button type="submit" class="mobile-search-btn" aria-label="Search">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="mobile-menu-links">
+        <a href="/pages/about-us" class="mobile-nav-link">About</a>
+        <a href="/pages/contact-us" class="mobile-nav-link">Contact</a>
+        <a href="/collections/all" class="mobile-nav-link">Products</a>
+      </div>
+
+      <div class="mobile-menu-footer">
+        {% if shop.customer_accounts_enabled %}
+          <a href="{{ routes.account_url }}" class="mobile-account-link" tabindex="0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" fill="currentColor"/>
+            </svg>
+            Account
+          </a>
+        {% endif %}
+      </div>
+    </nav>
   </div>
 </header>
 
-{% stylesheet %}
-  header {
-    height: 5rem;
+<style>
+  /* CSS VARIABLES */
+  :root {
+    --green100: #e3f5d7;
+    --green200: #c4ecb1;
+    --green300: #8dc67c;
+    --green400: #558d4b;
+    --green: #1c4219;
+    --green600: #123812;
+    --green700: #0c2f0f;
+    --green800: #07260d;
+    --green900: #041f0b;
+    --white: #ffffff;
+    --heading-font: 'Inter', sans-serif;
+    --body-font: 'Inter', sans-serif;
+  }
+
+  /* HEADER STYLES - ENHANCED VERSION */
+  .agh-header {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background: rgba(227, 245, 215, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--green200);
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(28, 66, 25, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 2rem;
+    /* Remove justify-content: space-between; */
+    height: 80px;
+    transition: height 0.3s ease;
   }
-  header a {
-    position: relative;
-    text-decoration: none;
-    color: var(--color-foreground);
-  }
-  header a sup {
-    position: absolute;
-    left: 100%;
-    overflow: hidden;
-    max-width: var(--page-margin);
-  }
-  header svg {
-    width: 2rem;
-  }
-  header .header__menu,
-  header .header__icons {
+
+  .header-brand {
+    flex-shrink: 0;
     display: flex;
-    gap: 1rem;
+    align-items: center;
   }
-{% endstylesheet %}
+
+  .brand-logo {
+    height: 40px;
+    width: auto;
+    transition: transform 0.3s ease;
+  }
+
+  .brand-logo:hover {
+    transform: scale(1.05);
+  }
+
+  /* DESKTOP NAVIGATION - VISIBLE ON LAPTOPS/DESKTOPS */
+  .desktop-nav {
+    display: flex;
+    gap: 2.5rem;
+    margin: 0;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: var(--green);
+    font-weight: 500;
+    font-family: var(--heading-font);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem 0;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--green);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .nav-link:hover {
+    color: var(--green600);
+    transform: translateY(-2px);
+  }
+
+  /* DESKTOP SEARCH - VISIBLE ON LAPTOPS/DESKTOPS */
+  .desktop-search {
+    flex: 1;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    align-items: center;
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+  }
+
+  .desktop-search-form {
+    width: 100%;
+    max-width: none;
+    background: var(--white);
+    border-radius: 2rem;
+    box-shadow: 0 2px 8px rgba(28, 66, 25, 0.06);
+    padding: 0.2rem 0.5rem;
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    z-index: auto;
+    transition: none;
+    display: block;
+  }
+  .search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+  }
+  .desktop-search-input {
+    width: 100%;
+    padding: 1rem 4.5rem 1rem 1.2rem;
+    border: 2px solid var(--green200);
+    border-radius: 2rem;
+    background: var(--white);
+    color: var(--green);
+    font-family: var(--body-font);
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--green400);
+    box-shadow: 0 0 0 3px rgba(28, 66, 25, 0.1);
+  }
+
+  .search-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--green);
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.3s ease;
+  }
+
+  .search-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .icon-link {
+    color: var(--green);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem;
+    border-radius: 50%;
+  }
+
+  .icon-link:hover {
+    color: var(--green600);
+    background: rgba(28, 66, 25, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .cart-count {
+    background: var(--green);
+    color: var(--white);
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-weight: 600;
+  }
+
+  /* HAMBURGER MENU - HIDDEN BY DEFAULT */
+  .mobile-menu-toggle {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    gap: 4px;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .mobile-menu-toggle:hover {
+    background-color: rgba(28, 66, 25, 0.1);
+    transform: scale(1.05);
+  }
+
+  .hamburger-line {
+    width: 24px;
+    height: 3px;
+    background: var(--green);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+  }
+
+  .mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+
+  /* MOBILE NAVIGATION OVERLAY */
+  .mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 85vw;
+    max-width: 400px;
+    height: 100vh;
+    background: var(--white);
+    z-index: 9999;
+    border-radius: 1rem 0 0 1rem;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .mobile-nav-overlay.active {
+    transform: translateX(0);
+  }
+  .mobile-nav-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: none;
+  }
+  .mobile-nav-backdrop.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .mobile-nav {
+    padding: 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-search {
+    margin-bottom: 2rem;
+  }
+
+  .mobile-search-form {
+    width: 100%;
+  }
+  .search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+  }
+  .mobile-search-input {
+    width: 100%;
+    padding: 0.9rem 2.5rem 0.9rem 1.2rem;
+    border: 2px solid var(--green200);
+    border-radius: 2rem;
+    background: var(--white);
+    color: var(--green);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+  .mobile-search-input:focus {
+    outline: none;
+    border-color: var(--green400);
+    box-shadow: 0 0 0 3px rgba(28, 66, 25, 0.08);
+  }
+  .mobile-search-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--green400);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .mobile-search-btn:hover svg {
+    color: var(--green600);
+    transform: scale(1.1);
+  }
+  .mobile-menu-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mobile-nav-link {
+    text-decoration: none;
+    color: var(--green);
+    font-size: 1.2rem;
+    font-weight: 500;
+    font-family: var(--heading-font);
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--green200);
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding-left: 0.5rem;
+  }
+
+  .mobile-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--green);
+    transition: width 0.3s ease;
+  }
+
+  .mobile-nav-link:hover::after {
+    width: 100%;
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link:focus,
+  .mobile-nav-link.active {
+    color: var(--green600);
+    background: var(--green100);
+    border-radius: 0.5rem;
+    padding-left: 1.5rem;
+    outline: none;
+  }
+
+  .mobile-menu-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--green200);
+  }
+
+  .mobile-account-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--green);
+    text-decoration: none;
+    font-family: var(--heading-font);
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+    min-height: 48px;
+    padding-left: 0.5rem;
+  }
+
+  .mobile-account-link:hover {
+    color: var(--green600);
+    transform: translateX(0.5rem);
+  }
+
+  /* RESPONSIVE BREAKPOINTS - ENHANCED TRANSITIONS */
+
+  /* TABLETS (max-width: 1024px) - SHOW HAMBURGER */
+  @media screen and (max-width: 1024px) {
+    .desktop-nav {
+      display: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+
+    .desktop-search {
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+
+    .mobile-menu-toggle {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .header-container {
+      height: 70px;
+    }
+
+    .mobile-nav-overlay {
+      top: 70px;
+    }
+
+    .brand-logo {
+      height: 35px;
+    }
+  }
+
+  /* LAPTOPS AND DESKTOPS (min-width: 1025px) - HIDE HAMBURGER */
+  @media screen and (min-width: 1025px) {
+    .mobile-menu-toggle {
+      display: none !important;
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    .mobile-nav-overlay {
+      display: none !important;
+    }
+
+    .desktop-nav {
+      display: flex !important;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .desktop-search {
+      display: block !important;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  /* SMALL MOBILE (max-width: 480px) */
+  @media screen and (max-width: 480px) {
+    .header-container {
+      height: 60px;
+      padding: 0 0.75rem;
+    }
+
+    .brand-logo {
+      height: 30px;
+    }
+
+    .mobile-nav-overlay {
+      top: 60px;
+    }
+
+    .mobile-nav {
+      padding: 1.5rem;
+    }
+
+    .mobile-nav-link {
+      font-size: 1.1rem;
+      padding: 1rem 0;
+    }
+
+    .header-icons {
+      gap: 1rem;
+    }
+  }
+
+  /* EXTRA SMALL MOBILE (max-width: 360px) */
+  @media screen and (max-width: 360px) {
+    .header-container {
+      padding: 0 0.5rem;
+    }
+
+    .brand-logo {
+      height: 28px;
+    }
+
+    .mobile-nav {
+      padding: 1rem;
+    }
+  }
+
+  .mobile-menu-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: var(--green600);
+    font-size: 2.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 10001;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50%;
+    transition: background 0.2s;
+    line-height: 1;
+  }
+
+  .mobile-menu-close:hover {
+    background: var(--green100);
+    color: var(--green);
+  }
+
+  /* Remove absolute positioning and overlay styles for .desktop-search-form */
+  .desktop-search-form {
+    max-width: 420px;
+    margin: 0 auto;
+    width: 100%;
+    background: var(--white);
+    border-radius: 2rem;
+    box-shadow: 0 2px 8px rgba(28, 66, 25, 0.06);
+    padding: 0.2rem 0.5rem;
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    z-index: auto;
+    transition: none;
+    display: block;
+  }
+  .search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 80%;
+  }
+  .desktop-search-input {
+    width: 100%;
+    padding: 1rem 4.5rem 1rem 1.2rem;
+    border: 2px solid var(--green200);
+    border-radius: 2rem;
+    background: var(--white);
+    color: var(--green);
+    font-family: var(--body-font);
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+  .desktop-search-btn {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--green400);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .desktop-search-close-btn {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--green600);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    z-index: 2;
+  }
+</style>
+
+<script>
+  // ENHANCED MOBILE MENU FUNCTIONALITY
+  document.addEventListener('DOMContentLoaded', function () {
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileOverlay = document.querySelector('.mobile-nav-overlay');
+    const mobileBackdrop = document.querySelector('.mobile-nav-backdrop');
+    const closeBtn = document.querySelector('.mobile-menu-close');
+    const focusableSelectors = 'a, button, input, [tabindex]:not([tabindex="-1"])';
+    let lastFocusedElement = null;
+
+    function openMenu() {
+      mobileOverlay.classList.add('active');
+      mobileBackdrop.classList.add('active');
+      mobileOverlay.setAttribute('aria-hidden', 'false');
+      if (mobileToggle) mobileToggle.classList.add('active');
+      lastFocusedElement = document.activeElement;
+
+      // Focus first link
+      setTimeout(() => {
+        const firstLink = mobileOverlay.querySelector(focusableSelectors);
+        if (firstLink) firstLink.focus();
+      }, 100);
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      mobileOverlay.classList.remove('active');
+      mobileBackdrop.classList.remove('active');
+      mobileOverlay.setAttribute('aria-hidden', 'true');
+      if (mobileToggle) mobileToggle.classList.remove('active');
+      if (lastFocusedElement) lastFocusedElement.focus();
+      document.body.style.overflow = '';
+    }
+
+    if (mobileToggle && mobileOverlay && mobileBackdrop && closeBtn) {
+      mobileToggle.addEventListener('click', openMenu);
+      closeBtn.addEventListener('click', closeMenu);
+      mobileBackdrop.addEventListener('click', closeMenu);
+
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (mobileOverlay.classList.contains('active')) {
+          if (e.key === 'Escape') closeMenu();
+
+          // Focus trap
+          if (e.key === 'Tab') {
+            const focusableEls = Array.from(mobileOverlay.querySelectorAll(focusableSelectors)).filter(
+              (el) => !el.disabled && el.offsetParent !== null
+            );
+            if (focusableEls.length === 0) return;
+            const firstEl = focusableEls[0];
+            const lastEl = focusableEls[focusableEls.length - 1];
+            if (e.shiftKey && document.activeElement === firstEl) {
+              e.preventDefault();
+              lastEl.focus();
+            } else if (!e.shiftKey && document.activeElement === lastEl) {
+              e.preventDefault();
+              firstEl.focus();
+            }
+          }
+        }
+      });
+
+      // Close on link click
+      mobileOverlay.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+    }
+  });
+</script>
 
 {% schema %}
 {

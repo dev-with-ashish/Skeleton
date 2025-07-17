@@ -12,9 +12,14 @@
     "main": {
       "type": "cart",
       "settings": {}
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {}
     }
   },
   "order": [
-    "main"
+    "main",
+    "footer"
   ]
 }

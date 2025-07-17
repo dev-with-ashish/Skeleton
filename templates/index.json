@@ -9,12 +9,42 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
+    "hero-banner": {
+      "type": "hero-banner",
+      "settings": {}
+    },
+    "BelowFold": {
+      "type": "BelowFold",
+      "settings": {}
+    },
+    "featured-products": {
+      "type": "featured-products",
+      "settings": {}
+    },
+    "trust": {
+      "type": "trust",
+      "settings": {}
+    },
+    "about": {
+      "type": "about",
+      "settings": {}
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {}
+    },
+    "footer": {
+      "type": "footer",
       "settings": {}
     }
   },
   "order": [
-    "main"
+    "hero-banner",
+    "BelowFold",
+    "featured-products",
+    "trust",
+    "about",
+    "newsletter",
+    "footer"
   ]
 }

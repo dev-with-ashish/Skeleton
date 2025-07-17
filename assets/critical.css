@@ -4,6 +4,27 @@
 * {
   box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+:root {
+  --green100: #e3f5d7;
+  --green200: #c4ecb1;
+  --green300: #8dc67c;
+  --green400: #558d4b;
+
+  --green: #1c4219;
+  --green600: #123812;
+
+  --green700: #0c2f0f;
+  --green800: #07260d;
+
+  --green900: #041f0b;
+  --grey: #d0ccd0;
+  --white: #fbfcff;
+  --blue: #1c6e8c;
+  --black: #000;
+  --heading-font: "Futura Book", sans-serif;
+  --body-font: "Elgian", serif;
 }
 
 body {
@@ -11,6 +32,8 @@ body {
   flex-direction: column;
   margin: 0;
   min-height: 100svh;
+  background-color: #1c4219;
+  color: #fbfcff;
 }
 
 html:has(dialog[scroll-lock][open], details[scroll-lock][open]) {
@@ -31,21 +54,44 @@ input,
 textarea,
 select {
   font: inherit;
-  border-radius: var(--style-border-radius-inputs);
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--green200);
+  border-radius: 25px;
+  background: var(--white);
+  color: var(--green);
+  font-family: var(--body-font);
 }
 
 select {
-  background-color: var(--color-background);
-  color: currentcolor;
+  background-color: var(--white);
+  color: var(--blue);
 }
 
 dialog {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--white);
+  color: var(--blue);
 }
-
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading-font);
+}
 p {
   text-wrap: pretty;
+  font-family: var(--body-font);
+}
+a {
+  text-decoration: none;
+  color: var(--white);
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--blue);
 }
 p,
 h1,
@@ -73,11 +119,79 @@ p:empty {
 
 /** Theme styles below */
 body {
-  font-family: var(--font-primary--family);
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  font-family: var(--body-font);
+  background-color: var(--grey);
+  color: var(--green);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+/* Button Styles */
+.button {
+  font-family: var(--heading-font);
+  background-color: var(--green);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: none;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+}
+.shop-now {
+  background-color: var(--green900);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--white);
+  transition: all 0.3s ease-in-out;
+}
+.shop-now:hover {
+  background-color: var(--green300);
+  scale: 1.1;
+  text-decoration: none;
+
+  transition: all 0.3s ease-in-out;
 }
 
+.learn-more {
+  background-color: var(--green700);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+
+  text-decoration: none;
+  border: none;
+  transition: all 0.3s ease-in-out;
+}
+.learn-more:hover {
+  background-color: var(--green300);
+  scale: 1.1;
+  transition: all 0.3s ease-in-out;
+}
+
+.newsletter-button {
+  background-color: var(--blue);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: none;
+  transition: all 0.3s ease-in-out;
+}
+.newsletter-button:hover {
+  background-color: var(--green300);
+  scale: 1.1;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Reveals More Options for payments */
+.shopify-payment-button__more-options {
+  color: var(--green) !important;
+  text-decoration: none !important;
+}
+
+.shopify-payment-button__more-options:hover {
+  color: var(--green900) !important;
+  text-decoration: underline var(--blue) !important;
+}
 /** Section layout utilities */
 
 /**
@@ -97,8 +211,8 @@ body {
     calc(100% - var(--page-margin) * 2)
   );
   --content-margin: minmax(var(--page-margin), 1fr);
-  --content-grid: var(--content-margin) var(--content-width) var(--content-margin);
-
+  --content-grid: var(--content-margin) var(--content-width)
+    var(--content-margin);
   /* This is required to make <img> elements work as background images */
   position: relative;
   grid-template-columns: var(--content-grid);
@@ -114,4 +228,409 @@ body {
 /* Child elements that use the full-width utility class span the entire viewport. */
 .shopify-section > .full-width {
   grid-column: 1 / -1;
+}
+
+/* Section Headings Styles */
+
+.section-title {
+  color: var(--grey);
+}
+/* RESPONSIVE MQ 
+Aligns titles to center */
+@media screen and (max-width: 640px) {
+  .section-title {
+    text-align: center;
+  }
+}
+
+/* Product Grid */
+
+.product-grid {
+  background-color: var(--grey);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.BelowFoldImage:hover {
+  transform: scale(1.1) rotate(360deg);
+  transition: transform 4.5s ease-in-out;
+}
+
+/* Liquid Glass css */
+.glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(2px) saturate(180%);
+  backdrop-filter: blur(2px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2),
+    inset 0 4px 20px rgba(255, 255, 255, 0.3);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.glass::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  box-shadow: inset -10px -8px 0px -11px rgba(255, 255, 255, 1),
+    inset 0px -9px 0px -8px rgba(255, 255, 255, 1);
+  opacity: 0.6;
+  z-index: -1;
+  -webkit-filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+  filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+}
+
+/* ===== iOS SAFARI SPECIFIC FIXES FOR CRITICAL CSS ===== */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari viewport height fixes */
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* iOS Safari text rendering fixes */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS Safari flexbox fixes */
+  .shopify-section {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+  }
+
+  /* iOS Safari transform fixes */
+  .glass,
+  .glass-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* iOS Safari backdrop-filter fixes */
+  .glass,
+  .glass-card {
+    -webkit-backdrop-filter: blur(2px) saturate(180%);
+    backdrop-filter: blur(2px) saturate(180%);
+  }
+
+  /* iOS Safari button fixes */
+  .button,
+  .shop-now,
+  .learn-more,
+  .newsletter-button {
+    -webkit-appearance: none;
+    -webkit-border-radius: 1rem;
+    border-radius: 1rem;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* iOS Safari input fixes */
+  input,
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -webkit-border-radius: var(--style-border-radius-inputs);
+    border-radius: var(--style-border-radius-inputs);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+/* ===== iOS SAFARI SPECIFIC FIXES FOR CRITICAL CSS ===== */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari viewport height fixes */
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* iOS Safari text rendering fixes */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS Safari flexbox fixes */
+  .shopify-section {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+  }
+
+  /* iOS Safari transform fixes */
+  .glass,
+  .glass-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* iOS Safari backdrop-filter fixes */
+  .glass,
+  .glass-card {
+    -webkit-backdrop-filter: blur(2px) saturate(180%);
+    backdrop-filter: blur(2px) saturate(180%);
+  }
+
+  /* iOS Safari button fixes */
+  .button,
+  .shop-now,
+  .learn-more,
+  .newsletter-button {
+    -webkit-appearance: none;
+    -webkit-border-radius: 1rem;
+    border-radius: 1rem;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* iOS Safari input fixes */
+  input,
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -webkit-border-radius: var(--style-border-radius-inputs);
+    border-radius: var(--style-border-radius-inputs);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+/* ===== iOS SAFARI SPECIFIC FIXES FOR CRITICAL CSS ===== */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari viewport height fixes */
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* iOS Safari text rendering fixes */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS Safari flexbox fixes */
+  .shopify-section {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+  }
+
+  /* iOS Safari transform fixes */
+  .glass,
+  .glass-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* iOS Safari backdrop-filter fixes */
+  .glass,
+  .glass-card {
+    -webkit-backdrop-filter: blur(2px) saturate(180%);
+    backdrop-filter: blur(2px) saturate(180%);
+  }
+
+  /* iOS Safari button fixes */
+  .button,
+  .shop-now,
+  .learn-more,
+  .newsletter-button {
+    -webkit-appearance: none;
+    -webkit-border-radius: 1rem;
+    border-radius: 1rem;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* iOS Safari input fixes */
+  input,
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -webkit-border-radius: var(--style-border-radius-inputs);
+    border-radius: var(--style-border-radius-inputs);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+/* ===== iOS SAFARI SPECIFIC FIXES FOR CRITICAL CSS ===== */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari viewport height fixes */
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* iOS Safari text rendering fixes */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS Safari flexbox fixes */
+  .shopify-section {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+  }
+
+  /* iOS Safari transform fixes */
+  .glass,
+  .glass-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* iOS Safari backdrop-filter fixes */
+  .glass,
+  .glass-card {
+    -webkit-backdrop-filter: blur(2px) saturate(180%);
+    backdrop-filter: blur(2px) saturate(180%);
+  }
+
+  /* iOS Safari button fixes */
+  .button,
+  .shop-now,
+  .learn-more,
+  .newsletter-button {
+    -webkit-appearance: none;
+    -webkit-border-radius: 1rem;
+    border-radius: 1rem;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* iOS Safari input fixes */
+  input,
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -webkit-border-radius: var(--style-border-radius-inputs);
+    border-radius: var(--style-border-radius-inputs);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+/* ===== iOS SAFARI SPECIFIC FIXES FOR CRITICAL CSS ===== */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari viewport height fixes */
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* iOS Safari text rendering fixes */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS Safari flexbox fixes */
+  .shopify-section {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+  }
+
+  /* iOS Safari transform fixes */
+  .glass,
+  .glass-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* iOS Safari backdrop-filter fixes */
+  .glass,
+  .glass-card {
+    -webkit-backdrop-filter: blur(2px) saturate(180%);
+    backdrop-filter: blur(2px) saturate(180%);
+  }
+
+  /* iOS Safari button fixes */
+  .button,
+  .shop-now,
+  .learn-more,
+  .newsletter-button {
+    -webkit-appearance: none;
+    -webkit-border-radius: 1rem;
+    border-radius: 1rem;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* iOS Safari input fixes */
+  input,
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -webkit-border-radius: var(--style-border-radius-inputs);
+    border-radius: var(--style-border-radius-inputs);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+/* Glass Card css */
+.glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(2px) saturate(180%);
+  backdrop-filter: blur(2px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2),
+    inset 0 4px 20px rgba(255, 255, 255, 0.3);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  box-shadow: inset -10px -8px 0px -11px rgba(255, 255, 255, 1),
+    inset 0px -9px 0px -8px rgba(255, 255, 255, 1);
+  opacity: 0.6;
+  z-index: -1;
+  -webkit-filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+  filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
 }

@@ -9,12 +9,17 @@
  */
 {
   "sections": {
-    "main": {
+    "product": {
       "type": "product",
+      "settings": {}
+    },
+    "footer": {
+      "type": "footer",
       "settings": {}
     }
   },
   "order": [
-    "main"
+    "product",
+    "footer"
   ]
 }

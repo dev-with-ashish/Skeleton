@@ -12,9 +12,14 @@
     "main": {
       "type": "blog",
       "settings": {}
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {}
     }
   },
   "order": [
-    "main"
+    "main",
+    "footer"
   ]
 }
