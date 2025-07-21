@@ -28,20 +28,21 @@
     </div>
 
     <div class="header_inner_container3">
-      <div class="header__icons">
-        {% if shop.customer_accounts_enabled %}
-          <a href="{{ routes.account_url }}" class="header__icon-box">Account</a>
-        {% endif %}
-
-        <a href="{{ routes.cart_url }}" class="header__icon-box">
-          Cart
-          {% if cart.item_count > 0 %}
-            <sup>{{ cart.item_count }}</sup>
+      <div class="header__icons-box">
+        <div class="header__icons">
+          {% if shop.customer_accounts_enabled %}
+            <a href="{{ routes.account_url }}" class="header__icon-box">Account</a>
           {% endif %}
-        </a>
-        <form action="{{ routes.search_url }}" method="get" class="header__search-box">
-          <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-        </form>
+          <a href="{{ routes.cart_url }}" class="header__icon-box">
+            Cart
+            {% if cart.item_count > 0 %}
+              <sup>{{ cart.item_count }}</sup>
+            {% endif %}
+          </a>
+          <form action="{{ routes.search_url }}" method="get" class="header__search-box">
+            <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+          </form>
+        </div>
       </div>
     </div>
   </div>  
@@ -193,6 +194,14 @@
     border: 1px solid #ccc;
     font-size: 1rem;
     box-sizing: border-box;
+  }
+  .header__icons-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    align-items: flex-end;
   }
 {% endstylesheet %}
 
