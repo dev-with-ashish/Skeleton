@@ -6,10 +6,22 @@
       </h2>
     </div>  
     <div class="header_inner_container2">
-      <div class="header__menu">
-        {% for link in section.settings.menu.links %}
-          {{ link.title | link_to: link.url }}
-        {% endfor %}
+      <div class="header__menu-split">
+        <div class="header__menu-empty"></div>
+        <div class="header__menu-half">
+          {% assign menu_links = section.settings.menu.links %}
+          {% assign half = menu_links.size | divided_by: 2 %}
+          {% for link in menu_links limit: half %}
+            {{ link.title | link_to: link.url }}
+          {% endfor %}
+        </div>
+        <div class="header__menu-half">
+          {% assign menu_links = section.settings.menu.links %}
+          {% assign half = menu_links.size | divided_by: 2 %}
+          {% for link in menu_links offset: half %}
+            {{ link.title | link_to: link.url }}
+          {% endfor %}
+        </div>
       </div>
     </div>
 
@@ -91,6 +103,20 @@
   header .header__icons {
     display: flex;
     gap: 3rem;
+  }
+  header .header__menu-split {
+    display: flex;
+    width: 100%;
+    gap: 0;
+  }
+  header .header__menu-empty {
+    flex: 1;
+  }
+  header .header__menu-half {
+    flex: 1;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
   }
 {% endstylesheet %}
 
