@@ -197,6 +197,39 @@
     justify-content: flex-start;
     align-items: flex-end;
   }
+
+  header {
+  min-height: 7rem;
+  min-width: 769px;
+  display: flex;
+  align-items: flex-start;       /* ← align children to top, not center */
+  justify-content: space-between;/* ← keep your horizontal spacing */
+  padding-top: 1.5rem;           /* ← controls the vertical offset from header top */
+}
+
+.header_outer_container {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;       /* ← ensure containers all start at same top */
+  padding: 0;                     /* ← we’ve moved vertical spacing up to <header> */
+}
+
+.header_inner_container1,
+.header_inner_container2,
+.header_inner_container3 {
+  margin: 0;                      /* ← remove per‑container margins */
+  padding-right: 1rem;            /* ← corrected `margin_right` typo if you still need horizontal spacing */
+}
+
+/* If you need extra tweaks to nudge only those first elements, you can also do: */
+
+.header__title-link span:first-child,
+.header__menu-half a:first-child,
+.header__icon-box:first-child {
+  /* they’ll already line up at header’s 1.5rem from top, but if you want to nudge: */
+  /* position: relative; top: 0.1rem; */
+}
+
 {% endstylesheet %}
 
 {% schema %}
