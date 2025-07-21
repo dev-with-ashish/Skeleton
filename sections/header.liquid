@@ -39,6 +39,9 @@
             <sup>{{ cart.item_count }}</sup>
           {% endif %}
         </a>
+        <form action="{{ routes.search_url }}" method="get" class="header__search-box">
+          <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+        </form>
       </div>
     </div>
   </div>  
@@ -178,6 +181,17 @@
   .header__title-link span {
     display: block;
     width: 100%;
+  }
+  .header__search-box {
+    margin-top: 1rem;
+    width: 100%;
+  }
+  .header__search-box input[type="search"] {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
   }
 {% endstylesheet %}
 
