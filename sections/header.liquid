@@ -1,9 +1,11 @@
 <header>
   <div class="header_outer_container">
     <div class="header_inner_container1">
-      <h2 class="header__title">
-        {{ shop.name | link_to: routes.root_url }}
-      </h2>
+      {% assign words = shop.name | split: ' ' %}
+      <a href="{{ routes.root_url }}" class="header__title-link">
+        <span>{{ words[0] }}</span><br>
+        <span>{{ words[1] }}</span>
+      </a>
     </div>  
     <div class="header_inner_container2">
       <div class="header__menu-split">
@@ -155,6 +157,14 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
     margin_right: 1rem;
+  }
+  .header__title-link {
+    display: inline-block;
+    text-align: left;
+    line-height: 1.1;
+  }
+  .header__title-link span {
+    display: block;
   }
 {% endstylesheet %}
 
