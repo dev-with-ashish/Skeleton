@@ -122,7 +122,8 @@
     border-radius: 0.25rem;
     text-decoration: none;
     font-weight: 600;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     position: relative;
   }
   .header__icon-box sup {
@@ -155,13 +156,19 @@
     font-size: 1.2vw;
     color: var(--color-foreground);
     text-decoration: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
   }
   .header_inner_container1,
   .header_inner_container2,
   .header_inner_container3 {
     margin-top: 0;
     margin-bottom: 0;
-    margin-right: 1rem;
+    margin-right: 0;
+    padding: 0;
+    align-items: flex-start;
+    justify-content: flex-start;
   }
   .header__title-link {
     width: 100%;
@@ -174,9 +181,8 @@
     font-weight: bold;
     line-height: 1;
     text-align: left;
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-right: 1rem;
+    margin: 0;
+    padding: 0;
   }
   .header__title-link span {
     display: block;
