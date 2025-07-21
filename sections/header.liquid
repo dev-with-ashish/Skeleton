@@ -28,21 +28,17 @@
     </div>
 
     <div class="header_inner_container3">
-      <div class="header__icons-box">
-        <div class="header__icons">
-          {% if shop.customer_accounts_enabled %}
-            <a href="{{ routes.account_url }}" class="header__icon-box">Account</a>
+      <div class="header__icons">
+        {% if shop.customer_accounts_enabled %}
+          <a href="{{ routes.account_url }}" class="header__icon-box">Account</a>
+        {% endif %}
+
+        <a href="{{ routes.cart_url }}" class="header__icon-box">
+          Cart
+          {% if cart.item_count > 0 %}
+            <sup>{{ cart.item_count }}</sup>
           {% endif %}
-          <a href="{{ routes.cart_url }}" class="header__icon-box">
-            Cart
-            {% if cart.item_count > 0 %}
-              <sup>{{ cart.item_count }}</sup>
-            {% endif %}
-          </a>
-          <form action="{{ routes.search_url }}" method="get" class="header__search-box">
-            <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-          </form>
-        </div>
+        </a>
       </div>
     </div>
   </div>  
@@ -113,6 +109,12 @@
   }
   
   
+  header .header__icons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+  }
   .header__icon-box {
     background: #000;
     color: #fff;
@@ -150,7 +152,7 @@
     align-items: flex-start;
   }
   .header__menu-half a {
-    font-size: 2vw;
+    font-size: 1.2vw;
     color: var(--color-foreground);
     text-decoration: none;
   }
@@ -177,64 +179,6 @@
     display: block;
     width: 100%;
   }
-  .header__search-box {
-    margin-top: 0.5rem;
-    width: 100%;
-  }
-  .header__search-box input[type="search"] {
-    width: 100%;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.25rem;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    box-sizing: border-box;
-  }
-  .header__icons-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    justify-content: flex-start;
-    align-items: flex-end;
-  }
-
-  header {
-  min-height: 7rem;
-  min-width: 769px;
-  display: flex;
-  align-items: flex-start;       /* ← align children to top, not center */
-  justify-content: space-between;/* ← keep your horizontal spacing */
-  padding-top: 1.5rem;           /* ← controls the vertical offset from header top */
-}
-
-.header_outer_container {
-  width: 100%;
-  display: flex;
-  align-items: flex-start;       /* ← ensure containers all start at same top */
-  padding: 0;                     /* ← we’ve moved vertical spacing up to <header> */
-}
-
-.header_inner_container1,
-.header_inner_container2,
-.header_inner_container3 {
-  margin: 0;                      /* ← remove per‑container margins */
-  padding-right: 1rem;            /* ← corrected `margin_right` typo if you still need horizontal spacing */
-}
-
-/* If you need extra tweaks to nudge only those first elements, you can also do: */
-
-.header__title-link span:first-child,
-.header__menu-half a:first-child,
-.header__icon-box:first-child {
-  /* they’ll already line up at header’s 1.5rem from top, but if you want to nudge: */
-  /* position: relative; top: 0.1rem; */
-}
-/* in your existing stylesheet block */
-.header__icon-box:first-child {
-  /* match the box’s top‑padding: */
-  margin‑top: 0.5rem;
-}
-
 {% endstylesheet %}
 
 {% schema %}
