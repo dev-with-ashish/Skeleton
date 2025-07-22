@@ -49,14 +49,28 @@
   <div class="header__mobile-menu" onclick="if(event.target===this){document.body.classList.remove('mobile-menu-open')}">
     <div class="header__mobile-menu-content">
       <button class="header__mobile-close" aria-label="Close menu" onclick="document.body.classList.remove('mobile-menu-open')">&times;</button>
-      <!-- Menu -->
+      <!-- Duplicate all three inner containers for the mobile slide -->
+      <div class="mobile-inner mobile-title">
+        {% assign words = shop.name | split: ' ' %}
+        <a href="{{ routes.root_url }}" class="header__title-link">
+          <span>{{ words[0] }}</span>
+          <span>{{ words[1] }}</span>
+        </a>
+      </div>
       <div class="mobile-inner mobile-menu">
         {% assign menu_links = section.settings.menu.links %}
-        {% for link in menu_links %}
-          <a href="{{ link.url }}">{{ link.title }}</a>
-        {% endfor %}
+        {% assign half = menu_links.size | divided_by: 2 %}
+        <div class="menu-half">
+          {% for link in menu_links limit: half %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        </div>
+        <div class="menu-half">
+          {% for link in menu_links offset: half %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        </div>
       </div>
-      <!-- Icons -->
       <div class="mobile-inner mobile-icons">
         {% if shop.customer_accounts_enabled %}
           <a href="{{ routes.account_url }}" class="header__icon">Account</a>
