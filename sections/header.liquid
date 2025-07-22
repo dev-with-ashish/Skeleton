@@ -140,13 +140,16 @@
     color: #fff !important;
   }
 
-  .header__icon {
-    color: #000;
-  }
-  .header__icon sup {
-    background: #fff;
-    text-color: #000;
-  }
+  /* Only for 3rd container icon boxes */
+.inner--third .header__icon {
+  background-color: #fff;     /* white box */
+  color: #000 !important;     /* black text */
+}
+
+.inner--third .header__icon sup {
+  color: #000 !important;     /* keep counter black */
+}
+
 {% endstylesheet %}
 
 {% schema %}
