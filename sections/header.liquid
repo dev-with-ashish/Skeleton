@@ -1,3 +1,7 @@
+{% comment %}
+  Section: Custom 40‑40‑20 Header (all text forced white)
+{% endcomment %}
+
 <header>
   <div class="outer header-wrapper">
     <!-- 1st inner (40%): two‑word title, stacked & centered as one unit -->
@@ -47,13 +51,14 @@
   /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
   .header-wrapper {
     display: flex;
-    align-items: center;           /* baseline for all three groups */
+    align-items: center;
     justify-content: space-between;
     min-height: 7rem;
     width: 100%;
     padding: 0 1rem;
     background: #000;
   }
+
   .inner {
     display: flex;
     justify-content: left;
@@ -69,10 +74,9 @@
     flex-direction: column;
     text-decoration: none;
     align-items: left;
-    font-size: 2.8rem; /* adjust as needed */
+    font-size: 2.8rem;
     font-weight: bold;
     line-height: 1.1;
-    color: var(--color-foreground);
   }
   .header__title-link span {
     display: block;
@@ -87,13 +91,12 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;   /* group sits centered vertically */
-    align-items: left;       /* group sits centered horizontally */
+    justify-content: center;
+    align-items: left;
     gap: 0.5rem;
   }
   .menu-half a {
     text-decoration: none;
-    color: var(--color-foreground);
     font-size: 1rem;
   }
 
@@ -102,7 +105,7 @@
     flex: 0 0 20%;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-end;    /* ★ right‑align all its children */
+    align-items: flex-end;
     gap: 0.5rem;
   }
   .header__icon {
@@ -110,9 +113,7 @@
     align-items: flex-end;
     text-decoration: none;
     font-weight: 600;
-    color: var(--color-foreground);
-    background-color: #000;   /* ★ black box */
-    color: #fff;              /* ★ white text */
+    background-color: #000;
     padding: 1.5px 5px;
     border-radius: 3px;
     box-sizing: border-box;
@@ -131,6 +132,12 @@
     background: transparent;
     text-align: left;
     font: inherit;
+  }
+
+  /* Force all text inside to white without altering existing styles */
+  .header-wrapper,
+  .header-wrapper * {
+    color: #fff !important;
   }
 {% endstylesheet %}
 
