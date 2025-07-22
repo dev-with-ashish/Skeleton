@@ -1,14 +1,14 @@
 <header>
+  <!-- Title always visible -->
+  {% assign words = shop.name | split: ' ' %}
+  <div class="header__title-fixed">
+    <a href="{{ routes.root_url }}" class="header__title-link">
+      <span>{{ words[0] }}</span>
+      <span>{{ words[1] }}</span>
+    </a>
+  </div>
+  <!-- Main header content (menu and icons) -->
   <div class="outer header-wrapper">
-    <!-- 1st inner (40%): two‑word title, stacked & centered as one unit -->
-    <div class="inner inner--first">
-      {% assign words = shop.name | split: ' ' %}
-      <a href="{{ routes.root_url }}" class="header__title-link">
-        <span>{{ words[0] }}</span>
-        <span>{{ words[1] }}</span>
-      </a>
-    </div>
-
     <!-- 2nd inner (40%): two equal halves of your main menu, each half centered -->
     <div class="inner inner--second">
       {% assign menu_links = section.settings.menu.links %}
@@ -24,7 +24,6 @@
         {% endfor %}
       </div>
     </div>
-
     <!-- 3rd inner (20%): your three “icon” links, stacked & centered -->
     <div class="inner inner--third">
       {% if shop.customer_accounts_enabled %}
@@ -51,15 +50,12 @@
       <button class="header__mobile-close" aria-label="Close menu" onclick="document.body.classList.remove('mobile-menu-open')">&times;</button>
       <!-- Duplicate all three inner containers for the mobile slide -->
       <div class="mobile-inner mobile-title">
-        {% assign words = shop.name | split: ' ' %}
         <a href="{{ routes.root_url }}" class="header__title-link">
           <span>{{ words[0] }}</span>
           <span>{{ words[1] }}</span>
         </a>
       </div>
       <div class="mobile-inner mobile-menu">
-        {% assign menu_links = section.settings.menu.links %}
-        {% assign half = menu_links.size | divided_by: 2 %}
         <div class="menu-half">
           {% for link in menu_links limit: half %}
             <a href="{{ link.url }}">{{ link.title }}</a>
@@ -90,6 +86,27 @@
 </header>
 
 {% stylesheet %}
+.header__title-fixed {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+}
+.header__title-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  align-items: left;
+  font-size: 2.8rem;
+  font-weight: bold;
+  line-height: 1.1;
+  color: var(--color-foreground);
+}
+.header__title-link span {
+  display: block;
+  width: 100%;
+}
   /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
   .header-wrapper {
     display: flex;
@@ -273,6 +290,9 @@
   }
   body.mobile-menu-open .header__mobile-menu-content {
     transform: translateX(0);
+  }
+  .header__title-fixed {
+    display: flex;
   }
 }
 {% endstylesheet %}
