@@ -1,166 +1,147 @@
-{% comment %}
-  Section: Custom 40‑40‑20 Header (all text white)
-{% endcomment %}
-
-<header class="header-wrapper">
-  <!-- 1st inner (40%): two‑word title, stacked & left‑aligned -->
-  <div class="inner inner--first">
-    {% assign words = shop.name | split: ' ' %}
-    <a href="{{ routes.root_url }}" class="header__title-link">
-      <span>{{ words[0] }}</span>
-      <span>{{ words[1] }}</span>
-    </a>
-  </div>
-
-  <!-- 2nd inner (40%): two menu halves, each half left‑aligned -->
-  <div class="inner inner--second">
-    {% assign menu_links = section.settings.menu.links %}
-    {% assign half = menu_links.size | divided_by: 2 %}
-    <div class="menu-half">
-      {% for link in menu_links limit: half %}
-        <a href="{{ link.url }}" class="header__menu-link">{{ link.title }}</a>
-      {% endfor %}
+<header>
+  <div class="outer header-wrapper">
+    <!-- 1st inner (40%): two‑word title, stacked & centered as one unit -->
+    <div class="inner inner--first">
+      {% assign words = shop.name | split: ' ' %}
+      <a href="{{ routes.root_url }}" class="header__title-link">
+        <span>{{ words[0] }}</span>
+        <span>{{ words[1] }}</span>
+      </a>
     </div>
-    <div class="menu-half">
-      {% for link in menu_links offset: half %}
-        <a href="{{ link.url }}" class="header__menu-link">{{ link.title }}</a>
-      {% endfor %}
-    </div>
-  </div>
 
-  <!-- 3rd inner (20%): boxed, right‑aligned icons & search -->
-  <div class="inner inner--third">
-    {% if shop.customer_accounts_enabled %}
-      <a href="{{ routes.account_url }}" class="header__icon">Account</a>
-    {% endif %}
-    <a href="{{ routes.cart_url }}" class="header__icon">
-      Cart
-      {% if cart.item_count > 0 %}
-        <sup>{{ cart.item_count }}</sup>
+    <!-- 2nd inner (40%): two equal halves of your main menu, each half centered -->
+    <div class="inner inner--second">
+      {% assign menu_links = section.settings.menu.links %}
+      {% assign half = menu_links.size | divided_by: 2 %}
+      <div class="menu-half">
+        {% for link in menu_links limit: half %}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {% endfor %}
+      </div>
+      <div class="menu-half">
+        {% for link in menu_links offset: half %}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 3rd inner (20%): your three “icon” links, stacked & centered -->
+    <div class="inner inner--third">
+      {% if shop.customer_accounts_enabled %}
+        <a href="{{ routes.account_url }}" class="header__icon">Account</a>
       {% endif %}
-    </a>
-    <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
-      <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-    </form>
+      <a href="{{ routes.cart_url }}" class="header__icon">
+        Cart
+        {% if cart.item_count > 0 %}
+          <sup>{{ cart.item_count }}</sup>
+        {% endif %}
+      </a>
+      <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
+        <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+      </form>
+    </div>
   </div>
 </header>
 
 {% stylesheet %}
-  /* Outer flex: 40% / 40% / 20% columns, black bg, all text white */
+  /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
   .header-wrapper {
     display: flex;
-    align-items: center;
+    align-items: center;           /* baseline for all three groups */
     justify-content: space-between;
-    width: 100%;
     min-height: 7rem;
+    width: 100%;
     padding: 0 1rem;
-    background-color: #000;
-    color: #fff;
+    background: #000;
   }
-
   .inner {
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    justify-content: left;
+    align-items: left;
   }
   .inner--first  { flex: 0 0 40%; }
   .inner--second { flex: 0 0 40%; }
-  .inner--third  {
-    flex: 0 0 20%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 0.5rem;
-  }
+  .inner--third  { flex: 0 0 20%; flex-direction: column; }
 
-  /* Title (first column) */
+  /* 1st inner: two stacked words, centered */
   .header__title-link {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     text-decoration: none;
-    font-size: 2.8rem;
+    align-items: left;
+    font-size: 2.8rem; /* adjust as needed */
     font-weight: bold;
     line-height: 1.1;
-    color: #fff;
+    color: var(--color-foreground);
   }
   .header__title-link span {
+    display: block;
     width: 100%;
   }
 
-  /* Menu (second column) */
+  /* 2nd inner: split into two halves, each half a vertical list of links centered */
+  .inner--second {
+    display: flex;
+  }
   .menu-half {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: center;   /* group sits centered vertically */
+    align-items: left;       /* group sits centered horizontally */
     gap: 0.5rem;
   }
-  .header__menu-link {
+  .menu-half a {
     text-decoration: none;
-    color: #fff;
+    color: var(--color-foreground);
     font-size: 1rem;
   }
 
-  /* Icons & search (third column) */
+  /* 3rd inner: icons stacked & centered as one group */
+  .inner--third {
+    flex: 0 0 20%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;    /* ★ right‑align all its children */
+    gap: 0.5rem;
+  }
   .header__icon {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     text-decoration: none;
     font-weight: 600;
-    background-color: #000;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-    white-space: nowrap;
+    color: var(--color-foreground);
+    background-color: #000;   /* ★ black box */
+    color: #fff;              /* ★ white text */
+    padding: 1.5px 5px;
+    border-radius: 3px;
     box-sizing: border-box;
-    max-width: 100%;
+    max-width: 50%;
   }
   .header__icon sup {
     margin-left: 0.3em;
     font-size: 0.8em;
     background: #fff;
-    color: #000; /* keep counter legible */
+    color: #000;
     border-radius: 50%;
     padding: 0 0.3em;
-  }
-
-  /* Search box styling */
-  .header__search-box {
-    display: flex;
-    background-color: #000;
-    border-radius: 0.25rem;
   }
   .header__search-box input[type="search"] {
     border: none;
     background: transparent;
-    color: #fff;
-    text-align: right;
+    text-align: left;
     font: inherit;
-    padding: 0.5rem 1rem;
-    width: 100%;
-  }
-  .header__search-box input::placeholder {
-    color: #fff;
-    opacity: 0.7;
   }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "Custom 40‑40‑20 Header",
+  "name": "t:general.header",
   "settings": [
     {
       "type": "link_list",
       "id": "menu",
-      "label": "Menu"
-    }
-  ],
-  "presets": [
-    {
-      "name": "40‑40‑20 Header"
+      "label": "t:labels.menu"
     }
   ]
 }
