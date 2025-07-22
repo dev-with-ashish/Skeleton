@@ -1,5 +1,6 @@
 <header>
   <div class="header_outer_container">
+    <!-- 1. Title column -->
     <div class="header_inner_container1">
       {% assign words = shop.name | split: ' ' %}
       <a href="{{ routes.root_url }}" class="header__title-link">
@@ -8,6 +9,7 @@
       </a>
     </div>
 
+    <!-- 2. Menu column -->
     <div class="header_inner_container2">
       <div class="header__menu-split">
         <div class="header__menu-empty"></div>
@@ -28,6 +30,7 @@
       </div>
     </div>
 
+    <!-- 3. Icons/Search column -->
     <div class="header_inner_container3">
       {% if shop.customer_accounts_enabled %}
         <a href="{{ routes.account_url }}" class="header__icon-box">Account</a>
@@ -46,24 +49,22 @@
 </header>
 
 {% stylesheet %}
-  /* 1. Fixed header height */
+  /* Fixed header height */
   header {
     height: 7rem;
     min-width: 769px;
-    display: flex;
-    align-items: flex-start;
     margin: 2rem;
   }
 
   .header_outer_container {
     width: 100%;
-    height: 100%;
+    height: 100%;            /* inherit the 7rem */
     display: flex;
     justify-content: space-between;
     align-items: stretch;
   }
 
-  /* 2. Make each inner container full height */
+  /* Make all three inner containers exactly 7rem tall */
   .header_inner_container1,
   .header_inner_container2,
   .header_inner_container3 {
@@ -71,22 +72,17 @@
     display: flex;
   }
 
-  .header_inner_container1 {
-    flex: 0 0 40%;
-  }
-
-  .header_inner_container2 {
-    flex: 0 0 30%;
-  }
-
+  /* Column widths */
+  .header_inner_container1 { flex: 0 0 40%; }
+  .header_inner_container2 { flex: 0 0 30%; }
   .header_inner_container3 {
     flex: 0 0 30%;
     flex-direction: column;
-    justify-content: space-between; /* first icon top, last icon bottom */
-    align-items: flex-end;          /* align boxes to the right */
+    justify-content: space-between;  /* first item top, last item bottom */
+    align-items: flex-end;
   }
 
-  /* 3. Title: two spans hugging top & bottom, font auto‑scaling */
+  /* 1. Title: spans hug top & bottom, fill height */
   .header__title-link {
     height: 100%;
     display: flex;
@@ -94,29 +90,27 @@
     justify-content: space-between;
     font-size: clamp(2.5rem, 5vw, 4rem);
     line-height: 1;
+    font-weight: bold;
     color: var(--color-foreground);
     text-decoration: none;
-    font-weight: bold;
   }
   .header__title-link span {
     display: block;
     width: 100%;
   }
 
-  /* 4. Menu: split into two halves, links top & bottom */
+  /* 2. Menu: split box fills full height */
   .header__menu-split {
     width: 100%;
     height: 100%;
     display: flex;
   }
-  .header__menu-empty {
-    flex: 1;
-  }
+  .header__menu-empty { flex: 1; }
   .header__menu-half {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-between;  /* first link top, last link bottom */
     align-items: flex-start;
   }
   .header__menu-half a {
@@ -127,35 +121,32 @@
     padding: 0;
   }
 
-  /* 5. Icon boxes: inline‑flex for content height, spaced by container */
+  /* 3. Action boxes: fill group container height */
   .header__icon-box {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    text-decoration: none;
-    font-weight: 600;
     border: 1px solid #000;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    text-decoration: none;
   }
   .header__icon-box sup {
+    margin-left: 0.5em;
+    padding: 0 0.4em;
+    font-size: 0.8em;
     background: #fff;
     color: #000;
     border-radius: 50%;
-    padding: 0 0.4em;
-    font-size: 0.8em;
-    margin-left: 0.5em;
   }
 
-  /* 6. Search box styling */
-  .header__search-box {
-    padding: 0.5rem 1rem;
-  }
   .header__search-box input[type="search"] {
+    width: 100%;
     border: none;
     background: transparent;
     font-size: inherit;
     line-height: 1;
-    width: 100%;
   }
 {% endstylesheet %}
 
