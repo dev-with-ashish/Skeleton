@@ -49,14 +49,6 @@
   <div class="header__mobile-menu" onclick="if(event.target===this){document.body.classList.remove('mobile-menu-open')}">
     <div class="header__mobile-menu-content">
       <button class="header__mobile-close" aria-label="Close menu" onclick="document.body.classList.remove('mobile-menu-open')">&times;</button>
-      <!-- Title -->
-      <div class="mobile-inner mobile-title">
-        {% assign words = shop.name | split: ' ' %}
-        <a href="{{ routes.root_url }}" class="header__title-link">
-          <span>{{ words[0] }}</span>
-          <span>{{ words[1] }}</span>
-        </a>
-      </div>
       <!-- Menu -->
       <div class="mobile-inner mobile-menu">
         {% assign menu_links = section.settings.menu.links %}
