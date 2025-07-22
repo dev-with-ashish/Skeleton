@@ -48,25 +48,26 @@
 </header>
 
 {% stylesheet %}
-  /* 1. Fix header to exact height and stretch children */
+  /* 1. Fixed header height */
   header {
-    height: 7rem;               /* fixed header height */
+    height: 7rem;
     min-width: 769px;
     display: flex;
     justify-content: flex-start;
-    align-items: flex-start;    /* content top‑aligned */
+    align-items: flex-start;
     margin: 2rem;
   }
 
+  /* 2. Stretch all three inner containers to full header height */
   .header_outer_container {
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: stretch;       /* stretch inner containers to full header height */
+    align-items: stretch;
   }
 
-  /* ensure all three inner containers fill that height */
+  /* 3. Make each inner container fill 100% of that height */
   .header_inner_container1,
   .header_inner_container2,
   .header_inner_container3 {
@@ -75,50 +76,48 @@
     flex-direction: column;
   }
 
-  /* 2. First column: 40% */
+  /* 4. First column (logo/title): make the link fill the height and center its text */
   .header_inner_container1 {
     flex: 0 0 40%;
     justify-content: flex-start;
     align-items: flex-start;
   }
-
   .header__title-link {
+    height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     color: var(--color-foreground);
     text-decoration: none;
     font-size: 5vw;
     font-weight: bold;
     line-height: 1.1;
   }
-
   .header__title-link span {
     display: block;
     width: 100%;
   }
 
-  /* 3. Second column: 30% split into two 15% halves */
+  /* 5. Second column (menu): fill height and keep your split layout */
   .header_inner_container2 {
     flex: 0 0 30%;
   }
-
   .header__menu-split {
     width: 100%;
+    height: 100%;
     display: flex;
   }
-
   .header__menu-empty {
     flex: 1;
   }
-
   .header__menu-half {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;   /* first link top, last link bottom */
+    justify-content: space-between;
     align-items: flex-start;
+    height: 100%;
   }
-
   .header__menu-half a {
     font-size: 2vw;
     color: var(--color-foreground);
@@ -126,24 +125,24 @@
     width: 100%;
   }
 
-  /* 4. Third column: 30% with three stacked “icons” */
+  /* 6. Third column (icons/search): spread icons top‑to‑bottom and let each box fill equally */
   .header_inner_container3 {
     flex: 0 0 30%;
-    justify-content: space-between;   /* icons span top‑to‑bottom */
+    justify-content: space-between;
     align-items: flex-end;
     padding-bottom: 1rem;
   }
-
   .header__icon-box {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
     text-decoration: none;
     font-weight: 600;
-    display: flex;
-    align-items: flex-start;
     border: 1px solid #000;
   }
-
   .header__icon-box sup {
     background: #fff;
     color: #000;
@@ -152,11 +151,9 @@
     font-size: 0.8em;
     margin-left: 0.5em;
   }
-
   .header__search-box {
     width: auto;
   }
-
   .header__search-box input[type="search"] {
     width: 100%;
     border: none;
