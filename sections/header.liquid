@@ -1,7 +1,3 @@
-{% comment %}
-  Section: Custom 40‑40‑20 Header (all text forced white)
-{% endcomment %}
-
 <header>
   <div class="outer header-wrapper">
     <!-- 1st inner (40%): two‑word title, stacked & centered as one unit -->
@@ -51,19 +47,17 @@
   /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
   .header-wrapper {
     display: flex;
-    align-items: center;
+    align-items: center;           /* baseline for all three groups */
     justify-content: space-between;
     min-height: 7rem;
     width: 100%;
-    padding: 0 0rem;
+    padding: 0 1rem;
     background: #000;
   }
-
   .inner {
     display: flex;
     justify-content: left;
     align-items: left;
-    padding: 0 1rem;
   }
   .inner--first  { flex: 0 0 40%; }
   .inner--second { flex: 0 0 40%; }
@@ -75,9 +69,10 @@
     flex-direction: column;
     text-decoration: none;
     align-items: left;
-    font-size: 2.8rem;
+    font-size: 2.8rem; /* adjust as needed */
     font-weight: bold;
     line-height: 1.1;
+    color: var(--color-foreground);
   }
   .header__title-link span {
     display: block;
@@ -92,12 +87,13 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: left;
+    justify-content: center;   /* group sits centered vertically */
+    align-items: left;       /* group sits centered horizontally */
     gap: 0.5rem;
   }
   .menu-half a {
     text-decoration: none;
+    color: var(--color-foreground);
     font-size: 1rem;
   }
 
@@ -106,7 +102,7 @@
     flex: 0 0 20%;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-end;
+    align-items: flex-end;    /* ★ right‑align all its children */
     gap: 0.5rem;
   }
   .header__icon {
@@ -114,8 +110,9 @@
     align-items: flex-end;
     text-decoration: none;
     font-weight: 600;
-    background-color: #fff;
-    color: #000;
+    color: var(--color-foreground);
+    background-color: #000;   /* ★ black box */
+    color: #fff;              /* ★ white text */
     padding: 1.5px 5px;
     border-radius: 3px;
     box-sizing: border-box;
@@ -125,6 +122,7 @@
     margin-left: 0.3em;
     font-size: 0.8em;
     background: #fff;
+    color: #000;
     border-radius: 50%;
     padding: 0 0.3em;
   }
@@ -134,23 +132,6 @@
     text-align: left;
     font: inherit;
   }
-
-  /* Force all text inside to white without altering existing styles */
-  .header-wrapper,
-  .header-wrapper * {
-    color: #fff !important;
-  }
-
-  /* Only for 3rd container icon boxes */
-.inner--third .header__icon {
-  background-color: #fff;     /* white box */
-  color: #000 !important;     /* black text */
-}
-
-.inner--third .header__icon sup {
-  color: #000 !important;     /* keep counter black */
-}
-
 {% endstylesheet %}
 
 {% schema %}
