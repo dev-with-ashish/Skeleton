@@ -1,179 +1,57 @@
-<header>
-  <div class="header_outer_container">
-    <div class="header_inner_container1">
-      {% assign words = shop.name | split: ' ' %}
-      <a href="{{ routes.root_url }}" class="header__title-link">
-        <span>{{ words[0] }}</span>
-        <span>{{ words[1] }}</span>
-      </a>
-    </div>
+<header class="site-header navbar navbar-expand-xl py-3">
+  <div class="container-fluid">
+    <div class="row w-100 gx-3 align-items-start">
 
-    <div class="header_inner_container2">
-      <div class="header__menu-split">
-        <div class="header__menu-empty"></div>
-        <div class="header__menu-half">
-          {% assign menu_links = section.settings.menu.links %}
-          {% assign half = menu_links.size | divided_by: 2 %}
-          {% for link in menu_links limit: half %}
-            {{ link.title | link_to: link.url }}
-          {% endfor %}
-        </div>
-        <div class="header__menu-half">
-          {% assign menu_links = section.settings.menu.links %}
-          {% assign half = menu_links.size | divided_by: 2 %}
-          {% for link in menu_links offset: half %}
-            {{ link.title | link_to: link.url }}
-          {% endfor %}
+      <!-- 1st column: ~41% on desktop; stacks full‑width on mobile -->
+      <div class="header_inner_container1 col-12 col-md-5 d-flex flex-column justify-content-center align-items-start">
+        {% assign words = shop.name | split: ' ' %}
+        <a href="{{ routes.root_url }}" class="header__title-link text-decoration-none text-uppercase">
+          <span>{{ words[0] }}</span>
+          <span>{{ words[1] }}</span>
+        </a>
+      </div>
+
+      <!-- 2nd column: ~33%; splits into two equal halves -->
+      <div class="header_inner_container2 col-12 col-md-4 d-flex">
+        <div class="header__menu-split w-100 d-flex">
+          <div class="header__menu-empty flex-grow-1"></div>
+
+          <div class="header__menu-half d-flex flex-column justify-content-between">
+            {% assign menu_links = section.settings.menu.links %}
+            {% assign half = menu_links.size | divided_by: 2 %}
+            {% for link in menu_links limit: half %}
+              <a href="{{ link.url }}" class="nav-link p-0 m-0">{{ link.title }}</a>
+            {% endfor %}
+          </div>
+
+          <div class="header__menu-half d-flex flex-column justify-content-between">
+            {% assign menu_links = section.settings.menu.links %}
+            {% assign half = menu_links.size | divided_by: 2 %}
+            {% for link in menu_links offset: half %}
+              <a href="{{ link.url }}" class="nav-link p-0 m-0">{{ link.title }}</a>
+            {% endfor %}
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="header_inner_container3">
-      {% if shop.customer_accounts_enabled %}
-        <a href="{{ routes.account_url }}" class="header__icon-box">
-          Account
-        </a>
-      {% endif %}
-      <a href="{{ routes.cart_url }}" class="header__icon-box">
-        Cart
-        {% if cart.item_count > 0 %}
-          <sup>{{ cart.item_count }}</sup>
+      <!-- 3rd column: ~25%; stacks icons full height -->
+      <div class="header_inner_container3 col-12 col-md-3 d-flex flex-column justify-content-between align-items-end">
+        {% if shop.customer_accounts_enabled %}
+          <a href="{{ routes.account_url }}" class="header__icon-box btn btn-outline-dark d-inline-flex align-items-center">
+            Account
+          </a>
         {% endif %}
-      </a>
-      <form action="{{ routes.search_url }}" method="get" class="header__icon-box header__search-box">
-        <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-      </form>
+        <a href="{{ routes.cart_url }}" class="header__icon-box btn btn-outline-dark d-inline-flex align-items-center">
+          Cart
+          {% if cart.item_count > 0 %}
+            <sup class="badge bg-light text-dark ms-2">{{ cart.item_count }}</sup>
+          {% endif %}
+        </a>
+        <form action="{{ routes.search_url }}" method="get" class="header__search-box d-inline-flex align-items-center">
+          <input type="search" name="q" placeholder="Search…" aria-label="Search" class="form-control form-control-sm border-0" />
+        </form>
+      </div>
+
     </div>
   </div>
 </header>
-
-{% stylesheet %}
-  /* 1. Fixed header height and top alignment */
-  header {
-    min-height: 7rem;
-    min-width: 769px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    margin: 2rem;
-  }
-
-  .header_outer_container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  /* 2. First column: 40% */
-  .header_inner_container1 {
-    flex: 0 0 40%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .header__title-link {
-    display: flex;
-    flex-direction: column;
-    color: var(--color-foreground);
-    text-decoration: none;
-    font-size: 5vw;
-    font-weight: bold;
-    line-height: 1.1;
-  }
-
-  .header__title-link span {
-    display: block;
-    width: 100%;
-  }
-
-  /* 3. Second column: 30% split into two 15% halves, menus fill full height */
-  .header_inner_container2 {
-    flex: 0 0 30%;
-    display: flex;
-    height: 100%;                     /* ← ensure this column fills the 7rem */
-    padding-bottom: 1rem;
-  }
-
-  .header__menu-split {
-    width: 100%;
-    height: 100%;                     /* ← propagate full height */
-    display: flex;
-  }
-
-  .header__menu-empty {
-    flex: 1;
-  }
-
-  .header__menu-half {
-    flex: 1;                          /* each is 15% of outer width */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;   /* first link ﬂush top, last link ﬂush bottom */
-    align-items: flex-start;
-    height: 100%;                     /* ← menus now stretch full 7rem */
-  }
-
-  .header__menu-half a {
-    font-size: 2vw;
-    color: var(--color-foreground);
-    text-decoration: none;
-    width: 100%;
-  }
-
-  /* 4. Third column: 30% with three stacked “icons” */
-  .header_inner_container3 {
-    flex: 0 0 30%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;   /* icons span top-to-bottom */
-    align-items: flex-end;
-    padding-bottom: 1rem;
-  }
-
-  .header__icon-box {
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    text-decoration: none;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    border: 1px solid #000;
-  }
-
-  .header__icon-box sup {
-    background: #fff;
-    color: #000;
-    border-radius: 50%;
-    padding: 0 0.4em;
-    font-size: 0.8em;
-    margin-left: 0.5em;
-  }
-
-  .header__search-box {
-    width: auto;
-  }
-
-  .header__search-box input[type="search"] {
-    width: 100%;
-    border: none;
-    background: transparent;
-  }
-{% endstylesheet %}
-
-{% schema %}
-{
-  "name": "t:general.header",
-  "settings": [
-    {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
-    }
-  ]
-}
-{% endschema %}
