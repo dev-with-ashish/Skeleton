@@ -48,16 +48,15 @@
 </header>
 
 {% stylesheet %}
-  /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
-  .header-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 7rem;
-    width: 100%;
-    padding: 0 0rem;
-    background: #000;
-  }
+  /* at the bottom of your stylesheet */
+header .outer.header-wrapper {
+  max-width: none;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+
 
   .inner {
     display: flex;
