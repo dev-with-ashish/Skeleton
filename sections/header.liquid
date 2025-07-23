@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <!-- 3rd inner (20%): desktop only + mobile hamburger -->
+    <!-- 3rd inner (20%): desktop only -->
     <div class="inner inner--third desktop-show">
       {% if shop.customer_accounts_enabled %}
         <a href="{{ routes.account_url }}" class="header__icon">Account</a>
@@ -82,10 +82,7 @@
 </header>
 
 {% stylesheet %}
-  /* ————————————————
-     Desktop & common styles
-     (exactly as before)
-     ———————————————— */
+  /* Desktop & common styles (unchanged) */
   .header-wrapper {
     display: flex;
     align-items: center;
@@ -163,21 +160,16 @@
     font: inherit;
   }
 
-  /* ————————————————
-     Show/hide helpers
-     ———————————————— */
+  /* Show/hide helpers */
   .desktop-show { display: flex; }
-  .mobile-only { display: none; }
+  .mobile-only  { display: none; }
 
-  /* ————————————————
-     Mobile styles (≤768px)
-     ———————————————— */
+  /* Mobile styles (≤768px) */
   @media screen and (max-width: 768px) {
-    /* swap visibility */
     .desktop-show { display: none !important; }
     .mobile-only  { display: block !important; }
 
-    /* style hamburger */
+    /* Hamburger */
     #mobile-nav-toggle {
       font-size: 2rem;
       background: none;
@@ -187,21 +179,22 @@
       color: var(--color-foreground);
     }
 
-    /* off‑canvas panel */
+    /* Off‑canvas panel */
     .mobile-nav {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 80%;
-      max-width: 300px;
-      height: 100vh;
-      background: var(--color-background, #fff);
-      box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      z-index: 1000;
+      position: fixed !important;
+      top: 0 !important;
+      right: -100% !important;
+      width: 80% !important;
+      max-width: 300px !important;
+      height: 100vh !important;
+      background: var(--color-background, #fff) !important;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.3) !important;
+      transition: right 0.3s ease-out !important;
+      z-index: 99999 !important;
     }
-    .mobile-nav.open { transform: translateX(0); }
+    .mobile-nav.open {
+      right: 0 !important;
+    }
 
     .mobile-nav__content {
       display: flex;
@@ -229,7 +222,6 @@
     document.addEventListener('DOMContentLoaded', function() {
       const toggleBtn = document.getElementById('mobile-nav-toggle');
       const mobileNav = document.querySelector('.mobile-nav');
-
       if (!toggleBtn || !mobileNav) return;
 
       toggleBtn.addEventListener('click', function() {
