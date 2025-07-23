@@ -226,11 +226,16 @@
 
 {% javascript %}
   <script>
-    document
-      .getElementById('mobile-nav-toggle')
-      .addEventListener('click', function() {
-        document.querySelector('.mobile-nav').classList.toggle('open');
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleBtn = document.getElementById('mobile-nav-toggle');
+      const mobileNav = document.querySelector('.mobile-nav');
+
+      if (!toggleBtn || !mobileNav) return;
+
+      toggleBtn.addEventListener('click', function() {
+        mobileNav.classList.toggle('open');
       });
+    });
   </script>
 {% endjavascript %}
 
