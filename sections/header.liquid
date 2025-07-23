@@ -178,24 +178,6 @@
       color: var(--color-foreground);
     }
 
-    .header__title-fixed {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      z-index: 1001;
-      background: #fff;
-      padding: 0.5rem 1rem;
-      box-sizing: border-box;
-    }
-    .header-wrapper {
-      margin-top: 4.5rem;
-    }
-    .mobile-nav {
-      top: 4.5rem;
-      height: calc(100vh - 4.5rem);
-    }
-
     .mobile-nav {
       position: fixed;
       top: 0;
@@ -206,7 +188,7 @@
       background: var(--color-background, #fff);
       box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
       transition: right 0.3s ease-out;
-      z-index: 1000;
+      z-index: 99999;
     }
 
     .mobile-nav.open {
