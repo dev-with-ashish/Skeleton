@@ -25,43 +25,29 @@
       </div>
     </div>
 
-    <!-- 3rd inner (20%): hamburger toggle on mobile, icons hidden -->
+    <!-- 3rd inner (20%): your three “icon” links, stacked & centered -->
     <div class="inner inner--third">
-      <button class="header__hamburger" aria-label="Toggle menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      {% if shop.customer_accounts_enabled %}
+        <a href="{{ routes.account_url }}" class="header__icon">Account</a>
+      {% endif %}
+      <a href="{{ routes.cart_url }}" class="header__icon">
+        Cart
+        {% if cart.item_count > 0 %}
+          <sup>{{ cart.item_count }}</sup>
+        {% endif %}
+      </a>
+      <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
+        <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+      </form>
     </div>
   </div>
 </header>
-
-<!-- Mobile drawer: hidden by default, slides in from right -->
-<div class="mobile-drawer" aria-hidden="true">
-  <nav class="mobile-drawer__menu">
-    {% assign menu_links = section.settings.menu.links %}
-    {% for link in menu_links %}
-      <a href="{{ link.url }}">{{ link.title }}</a>
-    {% endfor %}
-  </nav>
-  <div class="mobile-drawer__icons">
-    {% if shop.customer_accounts_enabled %}
-      <a href="{{ routes.account_url }}">Account</a>
-    {% endif %}
-    <a href="{{ routes.cart_url }}">
-      Cart{% if cart.item_count > 0 %}<sup>{{ cart.item_count }}</sup>{% endif %}
-    </a>
-    <form action="{{ routes.search_url }}" method="get">
-      <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-    </form>
-  </div>
-</div>
 
 {% stylesheet %}
   /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
   .header-wrapper {
     display: flex;
-    align-items: center;
+    align-items: center;           /* baseline for all three groups */
     justify-content: space-between;
     min-height: 7rem;
     width: 100%;
@@ -82,7 +68,7 @@
     flex-direction: column;
     text-decoration: none;
     align-items: left;
-    font-size: 2.8rem;
+    font-size: 2.8rem; /* adjust as needed */
     font-weight: bold;
     line-height: 1.1;
     color: var(--color-foreground);
@@ -92,7 +78,7 @@
     width: 100%;
   }
 
-  /* 2nd inner: split into two halves, each a vertical list */
+  /* 2nd inner: split into two halves, each half a vertical list of links centered */
   .inner--second {
     display: flex;
   }
@@ -100,8 +86,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: left;
+    justify-content: center;   /* group sits centered vertically */
+    align-items: left;       /* group sits centered horizontally */
     gap: 0.5rem;
   }
   .menu-half a {
@@ -110,12 +96,12 @@
     font-size: 1rem;
   }
 
-  /* 3rd inner (desktop): icons stacked & right‑aligned */
+  /* 3rd inner: icons stacked & centered as one group */
   .inner--third {
     flex: 0 0 20%;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-end;
+    align-items: flex-end;    /* ★ right‑align all its children */
     gap: 0.5rem;
   }
   .header__icon {
@@ -123,8 +109,9 @@
     align-items: flex-end;
     text-decoration: none;
     font-weight: 600;
-    background-color: #000;
-    color: #fff;
+    color: var(--color-foreground);
+    background-color: #000;   /* ★ black box */
+    color: #fff;              /* ★ white text */
     padding: 1.5px 5px;
     border-radius: 3px;
     box-sizing: border-box;
@@ -144,87 +131,7 @@
     text-align: left;
     font: inherit;
   }
-
-  /* === mobile adjustments === */
-  @media screen and (max-width: 768px) {
-    /* hide original menu & icons */
-    .inner--second > *,
-    .inner--third > * {
-      display: none;
-    }
-
-    /* show only hamburger */
-    .header__hamburger {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      width: 24px;
-      height: 20px;
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-    }
-    .header__hamburger span {
-      display: block;
-      height: 2px;
-      background: var(--color-foreground);
-    }
-
-    /* drawer panel */
-    .mobile-drawer {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 80%;
-      max-width: 300px;
-      height: 100%;
-      background: var(--color-background);
-      box-shadow: -4px 0 12px rgba(0,0,0,0.1);
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      z-index: 1000;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    /* slide-in state */
-    .mobile-drawer--open {
-      transform: translateX(0);
-    }
-
-    .mobile-drawer__menu a,
-    .mobile-drawer__icons a {
-      display: block;
-      text-decoration: none;
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-      color: var(--color-foreground);
-    }
-    .mobile-drawer__icons form {
-      margin-top: 0.5rem;
-    }
-    .mobile-drawer__icons input {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      font: inherit;
-    }
-  }
 {% endstylesheet %}
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var btn    = document.querySelector('.header__hamburger');
-    var drawer = document.querySelector('.mobile-drawer');
-    btn.addEventListener('click', function() {
-      var isOpen = drawer.classList.toggle('mobile-drawer--open');
-      drawer.setAttribute('aria-hidden', !isOpen);
-    });
-  });
-</script>
 
 {% schema %}
 {
