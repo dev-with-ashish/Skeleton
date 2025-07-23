@@ -49,6 +49,7 @@
     <!-- Off‑canvas mobile nav: mobile only -->
     <div class="mobile-nav mobile-only" id="mobile-nav">
       <div class="mobile-nav__content">
+        <button class="mobile-nav__close-btn" aria-label="Close menu" type="button">&times;</button>
         {% assign menu_links = section.settings.menu.links %}
         {% assign half = menu_links.size | divided_by: 2 %}
         <div class="menu-half">
@@ -182,15 +183,15 @@
 
     .mobile-nav {
       position: fixed;
-      top: 0;
-      right: -100%;
-      width: 80%;
-      max-width: 100vh;
-      height: 100vh;
+      top: 0; /* or top: 4.5rem; if you want it below the header */
+      left: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh; /* or calc(100vh - header height) if header is fixed */
+      z-index: 99999;
       background: var(--color-background, #fff);
       box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
       transition: right 0.3s ease-out;
-      z-index: 99999;
     }
 
     .mobile-nav.open {
@@ -288,6 +289,14 @@
     toggleBtn.addEventListener('click', function () {
       const isOpen = mobileNav.classList.toggle('open');
       toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Delegate close button event after DOM is ready
+    mobileNav.addEventListener('click', function (e) {
+      if (e.target.classList.contains('mobile-nav__close-btn')) {
+        mobileNav.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+      }
     });
   });
 </script>
