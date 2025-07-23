@@ -49,7 +49,7 @@
     <!-- Off‑canvas mobile nav: mobile only -->
     <div class="mobile-nav mobile-only" id="mobile-nav">
       <div class="mobile-nav__content">
-        <button class="mobile-nav__close-btn" aria-label="Close menu" type="button">&times;</button>
+        <button class="mobile-nav__close-btn" id="mobile-nav-close-btn" aria-label="Close menu" type="button">&times;</button>
         {% assign menu_links = section.settings.menu.links %}
         {% assign half = menu_links.size | divided_by: 2 %}
         <div class="menu-half">
@@ -283,6 +283,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('mobile-nav-toggle');
     const mobileNav = document.getElementById('mobile-nav');
+    const closeBtn = document.getElementById('mobile-nav-close-btn');
 
     if (!toggleBtn || !mobileNav) return;
 
@@ -291,13 +292,12 @@
       toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
-    // Delegate close button event after DOM is ready
-    mobileNav.addEventListener('click', function (e) {
-      if (e.target.classList.contains('mobile-nav__close-btn')) {
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
         mobileNav.classList.remove('open');
         toggleBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
+      });
+    }
   });
 </script>
 
