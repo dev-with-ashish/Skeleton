@@ -279,6 +279,19 @@
       border: 1px solid #ccc;
       box-sizing: border-box;
     }
+
+    .mobile-nav__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-foreground);
+  z-index: 100000;
+}
+
   }
 {% endstylesheet %}
 
@@ -286,6 +299,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('mobile-nav-toggle');
     const mobileNav = document.getElementById('mobile-nav');
+    const closeBtn = document.getElementById('mobile-nav-close');
 
     if (!toggleBtn || !mobileNav) return;
 
@@ -293,8 +307,16 @@
       const isOpen = mobileNav.classList.toggle('open');
       toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        mobileNav.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+      });
+    }
   });
 </script>
+
 
 {% schema %}
 {
