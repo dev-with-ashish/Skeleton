@@ -1,6 +1,6 @@
 <header>
   <div class="outer header-wrapper">
-    <!-- 1st inner (40%): two‑word title, stacked & centered as one unit -->
+    <!-- 1st inner (40%): two‑word title, stacked & centered -->
     <div class="inner inner--first">
       {% assign words = shop.name | split: ' ' %}
       <a href="{{ routes.root_url }}" class="header__title-link">
@@ -9,8 +9,8 @@
       </a>
     </div>
 
-    <!-- 2nd inner (40%): two equal halves of your main menu, each half centered -->
-    <div class="inner inner--second">
+    <!-- 2nd inner (40%): desktop only -->
+    <div class="inner inner--second desktop-show">
       {% assign menu_links = section.settings.menu.links %}
       {% assign half = menu_links.size | divided_by: 2 %}
       <div class="menu-half">
@@ -25,8 +25,8 @@
       </div>
     </div>
 
-    <!-- 3rd inner (20%): your three “icon” links, stacked & centered -->
-    <div class="inner inner--third">
+    <!-- 3rd inner (20%): desktop only + mobile hamburger -->
+    <div class="inner inner--third desktop-show">
       {% if shop.customer_accounts_enabled %}
         <a href="{{ routes.account_url }}" class="header__icon">Account</a>
       {% endif %}
@@ -40,14 +40,55 @@
         <input type="search" name="q" placeholder="Search…" aria-label="Search" />
       </form>
     </div>
+
+    <!-- Hamburger toggle: mobile only -->
+    <button id="mobile-nav-toggle" class="mobile-only" aria-label="Open menu">
+      ☰
+    </button>
+
+    <!-- Off‑canvas mobile nav: mobile only -->
+    <div class="mobile-nav mobile-only">
+      <div class="mobile-nav__content">
+        <!-- duplicate of 2nd inner -->
+        {% assign menu_links = section.settings.menu.links %}
+        {% assign half = menu_links.size | divided_by: 2 %}
+        <div class="menu-half">
+          {% for link in menu_links limit: half %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        </div>
+        <div class="menu-half">
+          {% for link in menu_links offset: half %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        </div>
+
+        <!-- duplicate of 3rd inner -->
+        {% if shop.customer_accounts_enabled %}
+          <a href="{{ routes.account_url }}" class="header__icon">Account</a>
+        {% endif %}
+        <a href="{{ routes.cart_url }}" class="header__icon">
+          Cart
+          {% if cart.item_count > 0 %}
+            <sup>{{ cart.item_count }}</sup>
+          {% endif %}
+        </a>
+        <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
+          <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+        </form>
+      </div>
+    </div>
   </div>
 </header>
 
 {% stylesheet %}
-  /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
+  /* ————————————————
+     Desktop & common styles
+     (exactly as before)
+     ———————————————— */
   .header-wrapper {
     display: flex;
-    align-items: center;           /* baseline for all three groups */
+    align-items: center;
     justify-content: space-between;
     min-height: 7rem;
     width: 100%;
@@ -62,32 +103,25 @@
   .inner--second { flex: 0 0 40%; }
   .inner--third  { flex: 0 0 20%; flex-direction: column; }
 
-  /* 1st inner: two stacked words, centered */
   .header__title-link {
     display: flex;
     flex-direction: column;
     text-decoration: none;
     align-items: left;
-    font-size: 2.8rem; /* adjust as needed */
+    font-size: 2.8rem;
     font-weight: bold;
     line-height: 1.1;
     color: var(--color-foreground);
   }
-  .header__title-link span {
-    display: block;
-    width: 100%;
-  }
+  .header__title-link span { display: block; width: 100%; }
 
-  /* 2nd inner: split into two halves, each half a vertical list of links centered */
-  .inner--second {
-    display: flex;
-  }
+  .inner--second { display: flex; }
   .menu-half {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;   /* group sits centered vertically */
-    align-items: left;       /* group sits centered horizontally */
+    justify-content: center;
+    align-items: left;
     gap: 0.5rem;
   }
   .menu-half a {
@@ -96,12 +130,10 @@
     font-size: 1rem;
   }
 
-  /* 3rd inner: icons stacked & centered as one group */
   .inner--third {
-    flex: 0 0 20%;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-end;    /* ★ right‑align all its children */
+    align-items: flex-end;
     gap: 0.5rem;
   }
   .header__icon {
@@ -109,9 +141,8 @@
     align-items: flex-end;
     text-decoration: none;
     font-weight: 600;
-    color: var(--color-foreground);
-    background-color: #000;   /* ★ black box */
-    color: #fff;              /* ★ white text */
+    background-color: #000;
+    color: #fff;
     padding: 1.5px 5px;
     border-radius: 3px;
     box-sizing: border-box;
@@ -131,7 +162,77 @@
     text-align: left;
     font: inherit;
   }
+
+  /* ————————————————
+     Show/hide helpers
+     ———————————————— */
+  .desktop-show { display: flex; }
+  .mobile-only { display: none; }
+
+  /* ————————————————
+     Mobile styles (≤768px)
+     ———————————————— */
+  @media screen and (max-width: 768px) {
+    /* swap visibility */
+    .desktop-show { display: none !important; }
+    .mobile-only  { display: block !important; }
+
+    /* style hamburger */
+    #mobile-nav-toggle {
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      color: var(--color-foreground);
+    }
+
+    /* off‑canvas panel */
+    .mobile-nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background: var(--color-background, #fff);
+      box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    .mobile-nav.open { transform: translateX(0); }
+
+    .mobile-nav__content {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      gap: 1rem;
+    }
+    .mobile-nav__content .menu-half {
+      flex: none;
+      gap: 0.5rem;
+    }
+    .mobile-nav__content a {
+      text-decoration: none;
+      color: var(--color-foreground);
+      font-size: 1rem;
+    }
+    .mobile-nav__content .header__search-box {
+      padding-top: 0.5rem;
+    }
+  }
 {% endstylesheet %}
+
+{% javascript %}
+  <script>
+    document
+      .getElementById('mobile-nav-toggle')
+      .addEventListener('click', function() {
+        document.querySelector('.mobile-nav').classList.toggle('open');
+      });
+  </script>
+{% endjavascript %}
 
 {% schema %}
 {
