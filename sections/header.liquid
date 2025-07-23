@@ -42,14 +42,13 @@
     </div>
 
     <!-- Hamburger toggle: mobile only -->
-    <button id="mobile-nav-toggle" class="mobile-only" aria-label="Open menu">
+    <button id="mobile-nav-toggle" class="mobile-only" aria-label="Open menu" aria-expanded="false">
       ☰
     </button>
 
     <!-- Off‑canvas mobile nav: mobile only -->
-    <div class="mobile-nav mobile-only">
+    <div class="mobile-nav mobile-only" id="mobile-nav">
       <div class="mobile-nav__content">
-        <!-- duplicate of 2nd inner -->
         {% assign menu_links = section.settings.menu.links %}
         {% assign half = menu_links.size | divided_by: 2 %}
         <div class="menu-half">
@@ -63,7 +62,6 @@
           {% endfor %}
         </div>
 
-        <!-- duplicate of 3rd inner -->
         {% if shop.customer_accounts_enabled %}
           <a href="{{ routes.account_url }}" class="header__icon">Account</a>
         {% endif %}
@@ -82,7 +80,6 @@
 </header>
 
 {% stylesheet %}
-  /* Desktop & common styles (unchanged) */
   .header-wrapper {
     display: flex;
     align-items: center;
@@ -98,7 +95,13 @@
   }
   .inner--first  { flex: 0 0 40%; }
   .inner--second { flex: 0 0 40%; }
-  .inner--third  { flex: 0 0 20%; flex-direction: column; }
+  .inner--third  {
+    flex: 0 0 20%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
 
   .header__title-link {
     display: flex;
@@ -110,9 +113,11 @@
     line-height: 1.1;
     color: var(--color-foreground);
   }
-  .header__title-link span { display: block; width: 100%; }
+  .header__title-link span {
+    display: block;
+    width: 100%;
+  }
 
-  .inner--second { display: flex; }
   .menu-half {
     flex: 1;
     display: flex;
@@ -127,12 +132,6 @@
     font-size: 1rem;
   }
 
-  .inner--third {
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 0.5rem;
-  }
   .header__icon {
     display: flex;
     align-items: flex-end;
@@ -153,6 +152,7 @@
     border-radius: 50%;
     padding: 0 0.3em;
   }
+
   .header__search-box input[type="search"] {
     border: none;
     background: transparent;
@@ -160,16 +160,15 @@
     font: inherit;
   }
 
-  /* Show/hide helpers */
+  /* Visibility helpers */
   .desktop-show { display: flex; }
-  .mobile-only  { display: none; }
+  .mobile-only { display: none; }
 
-  /* Mobile styles (≤768px) */
+  /* Mobile styles */
   @media screen and (max-width: 768px) {
     .desktop-show { display: none !important; }
     .mobile-only  { display: block !important; }
 
-    /* Hamburger */
     #mobile-nav-toggle {
       font-size: 2rem;
       background: none;
@@ -179,21 +178,21 @@
       color: var(--color-foreground);
     }
 
-    /* Off‑canvas panel */
     .mobile-nav {
-      position: fixed !important;
-      top: 0 !important;
-      right: -100% !important;
-      width: 80% !important;
-      max-width: 300px !important;
-      height: 100vh !important;
-      background: var(--color-background, #fff) !important;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.3) !important;
-      transition: right 0.3s ease-out !important;
-      z-index: 99999 !important;
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background: var(--color-background, #fff);
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+      transition: right 0.3s ease-out;
+      z-index: 99999;
     }
+
     .mobile-nav.open {
-      right: 0 !important;
+      right: 0;
     }
 
     .mobile-nav__content {
@@ -202,15 +201,18 @@
       padding: 1rem;
       gap: 1rem;
     }
+
     .mobile-nav__content .menu-half {
       flex: none;
       gap: 0.5rem;
     }
+
     .mobile-nav__content a {
       text-decoration: none;
       color: var(--color-foreground);
       font-size: 1rem;
     }
+
     .mobile-nav__content .header__search-box {
       padding-top: 0.5rem;
     }
@@ -219,13 +221,15 @@
 
 {% javascript %}
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const toggleBtn = document.getElementById('mobile-nav-toggle');
-      const mobileNav = document.querySelector('.mobile-nav');
+      const mobileNav = document.getElementById('mobile-nav');
+
       if (!toggleBtn || !mobileNav) return;
 
-      toggleBtn.addEventListener('click', function() {
-        mobileNav.classList.toggle('open');
+      toggleBtn.addEventListener('click', function () {
+        const isOpen = mobileNav.classList.toggle('open');
+        toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       });
     });
   </script>
