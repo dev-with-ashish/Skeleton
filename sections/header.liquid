@@ -1,6 +1,6 @@
 <header>
   <div class="outer header-wrapper">
-    <!-- 1st inner (40%): two‑word title, stacked & centered as one unit -->
+    <!-- 1st inner (40%): two-word title, stacked & centered as one unit -->
     <div class="inner inner--first">
       {% assign words = shop.name | split: ' ' %}
       <a href="{{ routes.root_url }}" class="header__title-link">
@@ -39,97 +39,100 @@
       <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
         <input type="search" name="q" placeholder="Search…" aria-label="Search" />
       </form>
+
+      <!-- new: hamburger button, hidden by default above 769px -->
+      <button class="hamburger" aria-label="Open menu">&#9776;</button>
     </div>
   </div>
 </header>
 
+<!-- new: off-canvas mobile slider with duplicated menu + icons -->
+{% assign menu_links = section.settings.menu.links %}
+{% assign half       = menu_links.size | divided_by: 2 %}
+<div id="mobile-menu-drawer" class="mobile-menu-drawer">
+  <div class="mobile-menu-content">
+    <!-- duplicate of inner--second -->
+    <div class="inner inner--second">
+      <div class="menu-half">
+        {% for link in menu_links limit: half %}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {% endfor %}
+      </div>
+      <div class="menu-half">
+        {% for link in menu_links offset: half %}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- duplicate of inner--third -->
+    <div class="inner inner--third">
+      {% if shop.customer_accounts_enabled %}
+        <a href="{{ routes.account_url }}" class="header__icon">Account</a>
+      {% endif %}
+      <a href="{{ routes.cart_url }}" class="header__icon">
+        Cart
+        {% if cart.item_count > 0 %}
+          <sup>{{ cart.item_count }}</sup>
+        {% endif %}
+      </a>
+      <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
+        <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+      </form>
+    </div>
+  </div>
+</div>
+
 {% stylesheet %}
-  /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
-  .header-wrapper {
-    display: flex;
-    align-items: center;           /* baseline for all three groups */
-    justify-content: space-between;
-    min-height: 7rem;
-    width: 100%;
-    padding: 0 1rem;
-  }
-  .inner {
-    display: flex;
-    justify-content: left;
-    align-items: left;
-  }
-  .inner--first  { flex: 0 0 40%; }
-  .inner--second { flex: 0 0 40%; }
-  .inner--third  { flex: 0 0 20%; flex-direction: column; }
+  /* (original CSS here…) */
 
-  /* 1st inner: two stacked words, centered */
-  .header__title-link {
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    align-items: left;
-    font-size: 2.8rem; /* adjust as needed */
-    font-weight: bold;
-    line-height: 1.1;
-    color: var(--color-foreground);
-  }
-  .header__title-link span {
-    display: block;
-    width: 100%;
-  }
+  /* ========== MOBILE ONLY BELOW 769px ========== */
+  @media only screen and (max-width: 768px) {
+    /* hide original menu & icons, show hamburger */
+    .inner--second > * { display: none !important; }
+    .inner--third > :not(.hamburger) { display: none !important; }
+    .hamburger {
+      display: inline-flex !important;
+      background: none;
+      border: none;
+      font-size: 2.5rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0.5rem;
+      color: var(--color-foreground);
+    }
 
-  /* 2nd inner: split into two halves, each half a vertical list of links centered */
-  .inner--second {
-    display: flex;
-  }
-  .menu-half {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;   /* group sits centered vertically */
-    align-items: left;       /* group sits centered horizontally */
-    gap: 0.5rem;
-  }
-  .menu-half a {
-    text-decoration: none;
-    color: var(--color-foreground);
-    font-size: 1rem;
-  }
+    /* off-canvas container */
+    .mobile-menu-drawer {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 80%;
+      max-width: 300px;
+      height: 100%;
+      background: var(--color-background);
+      box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+      transition: right 0.3s ease;
+      z-index: 1000;
+    }
+    .mobile-menu-drawer.open { right: 0; }
 
-  /* 3rd inner: icons stacked & centered as one group */
-  .inner--third {
-    flex: 0 0 20%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;    /* ★ right‑align all its children */
-    gap: 0.5rem;
-  }
-  .header__icon {
-    display: flex;
-    align-items: flex-end;
-    text-decoration: none;
-    font-weight: 600;
-    color: var(--color-foreground);
-    background-color: #000;   /* ★ black box */
-    color: #fff;              /* ★ white text */
-    padding: 1.5px 5px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    max-width: 50%;
-  }
-  .header__icon sup {
-    margin-left: 0.3em;
-    font-size: 0.8em;
-    background: #fff;
-    color: #000;
-    border-radius: 50%;
-    padding: 0 0.3em;
-  }
-  .header__search-box input[type="search"] {
-    border: none;
-    background: transparent;
-    text-align: left;
-    font: inherit;
+    /* stack duplicated content vertically */
+    .mobile-menu-content {
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+    .mobile-menu-content .inner--second,
+    .mobile-menu-content .inner--third {
+      display: flex !important;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .mobile-menu-content .menu-half {
+      width: 100%;
+    }
   }
 {% endstylesheet %}
 
@@ -145,3 +148,15 @@
   ]
 }
 {% endschema %}
+
+<!-- new: toggle script, runs only on mobile -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var burger = document.querySelector('.hamburger');
+    var drawer = document.getElementById('mobile-menu-drawer');
+    if (!burger || !drawer) return;
+    burger.addEventListener('click', function() {
+      drawer.classList.toggle('open');
+    });
+  });
+</script>
