@@ -182,15 +182,15 @@
 
     .mobile-nav {
       position: fixed;
-      top: 0;
-      right: -100%;
-      width: 80%;
-      max-width: 100vh;
-      height: 100vh;
+      top: 0; /* or top: 4.5rem; if you want it below the header */
+      left: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh; /* or calc(100vh - header height) if header is fixed */
+      z-index: 99999;
       background: var(--color-background, #fff);
       box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
       transition: right 0.3s ease-out;
-      z-index: 99999;
     }
 
     .mobile-nav.open {
