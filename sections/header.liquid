@@ -49,6 +49,10 @@
     <!-- Off‑canvas mobile nav: mobile only -->
     <div class="mobile-nav mobile-only" id="mobile-nav">
       <div class="mobile-nav__content">
+        <button id="mobile-nav-close" class="mobile-nav__close" aria-label="Close menu">
+  ×
+</button>
+
         {% assign menu_links = section.settings.menu.links %}
         {% assign half = menu_links.size | divided_by: 2 %}
         <div class="menu-half">
