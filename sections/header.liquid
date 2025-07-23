@@ -46,10 +46,17 @@
 </header>
 
 {% stylesheet %}
+  /* Hide mobile elements by default on desktop */
+  .mobile-menu-toggle,
+  #mobile-overlay,
+  #mobile-slider {
+    display: none;
+  }
+
   /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
   .header-wrapper {
     display: flex;
-    align-items: center;           /* baseline for all three groups */
+    align-items: center;
     justify-content: space-between;
     min-height: 7rem;
     width: 100%;
@@ -70,7 +77,7 @@
     flex-direction: column;
     text-decoration: none;
     align-items: left;
-    font-size: 2.8rem; /* adjust as needed */
+    font-size: 2.8rem;
     font-weight: bold;
     line-height: 1.1;
     color: var(--color-foreground);
@@ -80,16 +87,14 @@
     width: 100%;
   }
 
-  /* 2nd inner: split into two halves, each half a vertical list of links centered */
-  .inner--second {
-    display: flex;
-  }
+  /* 2nd inner: split into two halves */
+  .inner--second { display: flex; }
   .menu-half {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;   /* group sits centered vertically */
-    align-items: left;       /* group sits centered horizontally */
+    justify-content: center;
+    align-items: left;
     gap: 0.5rem;
   }
   .menu-half a {
@@ -98,12 +103,12 @@
     font-size: 1rem;
   }
 
-  /* 3rd inner: icons stacked & centered as one group */
+  /* 3rd inner: icons stacked */
   .inner--third {
     flex: 0 0 20%;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-end;    /* ★ right‑align all its children */
+    align-items: flex-end;
     gap: 0.5rem;
   }
   .header__icon {
@@ -111,12 +116,10 @@
     align-items: flex-end;
     text-decoration: none;
     font-weight: 600;
-    color: var(--color-foreground);
-    background-color: #000;   /* ★ black box */
-    color: #fff;              /* ★ white text */
+    background-color: #000;
+    color: #fff;
     padding: 1.5px 5px;
     border-radius: 3px;
-    box-sizing: border-box;
     max-width: 50%;
   }
   .header__icon sup {
@@ -130,93 +133,22 @@
   .header__search-box input[type="search"] {
     border: none;
     background: transparent;
-    text-align: left;
     font: inherit;
   }
 
-  /* Mobile-specific styles for devices below 769px */
+  /* Mobile-specific styles */
   @media (max-width: 768px) {
-    /* Hide original contents of 2nd and 3rd inner containers */
-    .inner--second > * { display: none !important; }
-    .inner--third > *:not(.mobile-menu-toggle) { display: none !important; }
-
-    /* Show hamburger toggle */
-    .mobile-menu-toggle {
-      display: block;
-      background: none;
-      border: none;
-      font-size: 2.5rem;
-      cursor: pointer;
-      color: var(--color-foreground);
-      align-self: flex-end;
-    }
-
-    /* Overlay behind slider */
-    #mobile-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      transition: opacity 0.3s ease;
-    }
-    #mobile-overlay.open {
-      display: block;
-      opacity: 1;
-    }
-
-    /* Slider panel */
-    #mobile-slider {
-      position: fixed;
-      top: 0; right: -100%;
-      width: 80%; max-width: 300px;
-      height: 100%;
-      background: var(--color-background);
-      box-shadow: -2px 0 8px rgba(0,0,0,0.2);
-      transition: right 0.3s ease;
-      z-index: 1000;
-      overflow-y: auto;
-    }
-    #mobile-slider.open {
-      right: 0;
-    }
-    .mobile-slider__panel {
-      padding: 1rem;
-      position: relative;
-    }
-    .mobile-slider__close {
-      background: none;
-      border: none;
-      font-size: 2rem;
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      cursor: pointer;
-      color: var(--color-foreground);
-    }
-    .mobile-slider__nav {
-      margin-top: 3rem;
-    }
-    .mobile-slider__links {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .mobile-slider__links li {
-      margin: 1rem 0;
-    }
-    .mobile-slider__links a {
-      text-decoration: none;
-      color: var(--color-foreground);
-      font-size: 1.2rem;
-    }
-    .mobile-slider__icons {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+    .mobile-menu-toggle { display: block; }
+    #mobile-overlay { display: block; opacity: 0; transition: opacity 0.3s; }
+    #mobile-overlay.open { opacity: 1; }
+    #mobile-slider { display: block; position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background: var(--color-background); box-shadow: -2px 0 8px rgba(0,0,0,0.2); transition: right 0.3s; overflow-y: auto; }
+    #mobile-slider.open { right: 0; }
+    .mobile-slider__panel { padding: 1rem; position: relative; }
+    .mobile-slider__close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--color-foreground); }
+    .mobile-slider__links { list-style: none; padding: 0; margin-top: 3rem; }
+    .mobile-slider__links li { margin: 1rem 0; }
+    .mobile-slider__links a { text-decoration: none; font-size: 1.2rem; color: var(--color-foreground); }
+    .mobile-slider__icons { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
   }
 {% endstylesheet %}
 
@@ -225,25 +157,22 @@
 <div id="mobile-slider">
   <div class="mobile-slider__panel">
     <button id="mobile-slider-close" class="mobile-slider__close" aria-label="Close menu">&times;</button>
-    <nav class="mobile-slider__nav">
-      <ul class="mobile-slider__links">
-        {% assign menu_links = section.settings.menu.links %}
-        {% for link in menu_links %}
-          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-        {% endfor %}
-      </ul>
-      <div class="mobile-slider__icons">
-        {% if shop.customer_accounts_enabled %}
-          <a href="{{ routes.account_url }}" class="header__icon">Account</a>
-        {% endif %}
-        <a href="{{ routes.cart_url }}" class="header__icon">
-          Cart{% if cart.item_count > 0 %}<sup>{{ cart.item_count }}</sup>{% endif %}
-        </a>
-        <form action="{{ routes.search_url }}" method="get" class="header__search-box">
-          <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-        </form>
-      </div>
-    </nav>
+    <ul class="mobile-slider__links">
+      {% for link in section.settings.menu.links %}
+        <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+      {% endfor %}
+    </ul>
+    <div class="mobile-slider__icons">
+      {% if shop.customer_accounts_enabled %}
+        <a href="{{ routes.account_url }}" class="header__icon">Account</a>
+      {% endif %}
+      <a href="{{ routes.cart_url }}" class="header__icon">
+        Cart{% if cart.item_count > 0 %}<sup>{{ cart.item_count }}</sup>{% endif %}
+      </a>
+      <form action="{{ routes.search_url }}" method="get" class="header__search-box">
+        <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+      </form>
+    </div>
   </div>
 </div>
 
@@ -273,11 +202,7 @@
 {
   "name": "t:general.header",
   "settings": [
-    {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
-    }
+    { "type": "link_list", "id": "menu", "label": "t:labels.menu" }
   ]
 }
 {% endschema %}
