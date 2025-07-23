@@ -48,6 +48,7 @@
 
     <!-- Off‑canvas mobile nav: mobile only -->
     <div class="mobile-nav mobile-only" id="mobile-nav">
+      <button class="mobile-nav__close-btn" aria-label="Close menu" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</button>
       <div class="mobile-nav__content">
         {% assign menu_links = section.settings.menu.links %}
         {% assign half = menu_links.size | divided_by: 2 %}
