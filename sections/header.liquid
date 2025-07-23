@@ -198,18 +198,21 @@
     .mobile-nav__content {
       display: flex;
       flex-direction: column;
-      height: 100%;
       padding: 0 1rem;
+      gap: 0;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
     }
 
-    .mobile-nav__content > .menu-half,
-    .mobile-nav__content > .mobile-icons {
-      flex: 1 1 0;
+    .mobile-nav__content > * {
+      width: 90%;
+      max-width: 350px;
+      margin: 0 auto 0.5rem auto;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      margin: 0;
     }
 
     .mobile-nav__content .menu-half,
@@ -223,10 +226,10 @@
       flex-direction: column;
       gap: 0;
       align-items: center;
-      margin-bottom: -2;
+      margin-bottom: 0;
     }
     .mobile-nav__content .menu-half + .menu-half {
-      margin-top: -4rem;
+      margin-top: -2rem;
     }
     .mobile-nav__content a {
       text-decoration: none;
