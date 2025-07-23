@@ -39,170 +39,123 @@
       <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
         <input type="search" name="q" placeholder="Search…" aria-label="Search" />
       </form>
-      <!-- Mobile menu toggle button -->
-      <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Open menu">&#9776;</button>
+
+      <!-- NEW: Hamburger toggle (hidden by default, shown <769px) -->
+      <button id="hamburgerToggle" class="header__hamburger" aria-label="Open menu" type="button">
+        <!-- simple three‑bar icon -->
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <rect y="4" width="24" height="2"/>
+          <rect y="11" width="24" height="2"/>
+          <rect y="18" width="24" height="2"/>
+        </svg>
+      </button>
     </div>
   </div>
 </header>
 
 {% stylesheet %}
-  /* Hide mobile elements by default on desktop */
-  .mobile-menu-toggle,
-  #mobile-overlay,
-  #mobile-slider {
-    display: none;
-  }
+  /* —— your existing CSS above —— */
 
-  /* Outer flex, 40‑40‑20 widths, all groups baseline‑aligned */
-  .header-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 7rem;
-    width: 100%;
-    padding: 0 1rem;
-  }
-  .inner {
-    display: flex;
-    justify-content: left;
-    align-items: left;
-  }
-  .inner--first  { flex: 0 0 40%; }
-  .inner--second { flex: 0 0 40%; }
-  .inner--third  { flex: 0 0 20%; flex-direction: column; }
+  /* —— MOBILE‑ONLY ADDITIONS —— */
+  @media screen and (max-width: 768px) {
+    /* hide original menu & icons on small screens */
+    .inner--second > * { display: none !important; }
+    .inner--third > * { display: none !important; }
 
-  /* 1st inner: two stacked words, centered */
-  .header__title-link {
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    align-items: left;
-    font-size: 2.8rem;
-    font-weight: bold;
-    line-height: 1.1;
-    color: var(--color-foreground);
-  }
-  .header__title-link span {
-    display: block;
-    width: 100%;
-  }
+    /* show hamburger */
+    .header__hamburger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      color: var(--color-foreground);
+    }
 
-  /* 2nd inner: split into two halves */
-  .inner--second { display: flex; }
-  .menu-half {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: left;
-    gap: 0.5rem;
-  }
-  .menu-half a {
-    text-decoration: none;
-    color: var(--color-foreground);
-    font-size: 1rem;
-  }
+    /* slider panel—starts hidden off‑screen */
+    .mobile-slider {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; right: 0;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background: var(--color-background);
+      box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+      padding: 1rem;
+      z-index: 999;
+    }
+    .mobile-slider.open {
+      transform: translateX(0);
+    }
 
-  /* 3rd inner: icons stacked */
-  .inner--third {
-    flex: 0 0 20%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 0.5rem;
-  }
-  .header__icon {
-    display: flex;
-    align-items: flex-end;
-    text-decoration: none;
-    font-weight: 600;
-    background-color: #000;
-    color: #fff;
-    padding: 1.5px 5px;
-    border-radius: 3px;
-    max-width: 50%;
-  }
-  .header__icon sup {
-    margin-left: 0.3em;
-    font-size: 0.8em;
-    background: #fff;
-    color: #000;
-    border-radius: 50%;
-    padding: 0 0.3em;
-  }
-  .header__search-box input[type="search"] {
-    border: none;
-    background: transparent;
-    font: inherit;
-  }
+    /* stack menu links vertically */
+    .mobile-slider .menu-half,
+    .mobile-slider .mobile-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
 
-  /* Mobile-specific styles */
-  @media (max-width: 768px) {
-    .mobile-menu-toggle { display: block; }
-    #mobile-overlay { display: block; opacity: 0; transition: opacity 0.3s; }
-    #mobile-overlay.open { opacity: 1; }
-    #mobile-slider { display: block; position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background: var(--color-background); box-shadow: -2px 0 8px rgba(0,0,0,0.2); transition: right 0.3s; overflow-y: auto; }
-    #mobile-slider.open { right: 0; }
-    .mobile-slider__panel { padding: 1rem; position: relative; }
-    .mobile-slider__close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--color-foreground); }
-    .mobile-slider__links { list-style: none; padding: 0; margin-top: 3rem; }
-    .mobile-slider__links li { margin: 1rem 0; }
-    .mobile-slider__links a { text-decoration: none; font-size: 1.2rem; color: var(--color-foreground); }
-    .mobile-slider__icons { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+    /* style links in slider */
+    .mobile-slider a {
+      text-decoration: none;
+      font-size: 1.1rem;
+      color: var(--color-foreground);
+    }
   }
 {% endstylesheet %}
 
-<!-- Mobile slider markup -->
-<div id="mobile-overlay"></div>
-<div id="mobile-slider">
-  <div class="mobile-slider__panel">
-    <button id="mobile-slider-close" class="mobile-slider__close" aria-label="Close menu">&times;</button>
-    <ul class="mobile-slider__links">
-      {% for link in section.settings.menu.links %}
-        <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-      {% endfor %}
-    </ul>
-    <div class="mobile-slider__icons">
-      {% if shop.customer_accounts_enabled %}
-        <a href="{{ routes.account_url }}" class="header__icon">Account</a>
+<!-- NEW: Mobile slider markup (sits at the end of your section) -->
+<div class="mobile-slider" id="mobileSlider">
+  <!-- duplicate of inner--second content -->
+  <div class="mobile-menu">
+    {% for link in menu_links %}
+      <a href="{{ link.url }}">{{ link.title }}</a>
+    {% endfor %}
+  </div>
+  <!-- duplicate of inner--third content -->
+  <div class="mobile-icons" style="margin-top:2rem;">
+    {% if shop.customer_accounts_enabled %}
+      <a href="{{ routes.account_url }}" class="header__icon">Account</a>
+    {% endif %}
+    <a href="{{ routes.cart_url }}" class="header__icon">
+      Cart
+      {% if cart.item_count > 0 %}
+        <sup>{{ cart.item_count }}</sup>
       {% endif %}
-      <a href="{{ routes.cart_url }}" class="header__icon">
-        Cart{% if cart.item_count > 0 %}<sup>{{ cart.item_count }}</sup>{% endif %}
-      </a>
-      <form action="{{ routes.search_url }}" method="get" class="header__search-box">
-        <input type="search" name="q" placeholder="Search…" aria-label="Search" />
-      </form>
-    </div>
+    </a>
+    <form action="{{ routes.search_url }}" method="get" class="header__icon header__search-box">
+      <input type="search" name="q" placeholder="Search…" aria-label="Search" />
+    </form>
   </div>
 </div>
 
-{% javascript %}
+<!-- NEW: JS to toggle the slider -->
+<script>
   document.addEventListener('DOMContentLoaded', function() {
-    var toggle = document.getElementById('mobile-menu-toggle');
-    var slider = document.getElementById('mobile-slider');
-    var overlay = document.getElementById('mobile-overlay');
-    var closeBtn = document.getElementById('mobile-slider-close');
-
+    var toggle = document.getElementById('hamburgerToggle');
+    var panel  = document.getElementById('mobileSlider');
     toggle.addEventListener('click', function() {
-      slider.classList.toggle('open');
-      overlay.classList.toggle('open');
-    });
-    closeBtn.addEventListener('click', function() {
-      slider.classList.remove('open');
-      overlay.classList.remove('open');
-    });
-    overlay.addEventListener('click', function() {
-      slider.classList.remove('open');
-      overlay.classList.remove('open');
+      panel.classList.toggle('open');
     });
   });
-{% endjavascript %}
+</script>
 
 {% schema %}
 {
   "name": "t:general.header",
   "settings": [
-    { "type": "link_list", "id": "menu", "label": "t:labels.menu" }
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:labels.menu"
+    }
   ]
 }
 {% endschema %}
