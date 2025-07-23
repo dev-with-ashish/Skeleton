@@ -275,6 +275,18 @@
       box-sizing: border-box;
     }
   }
+
+  /* Add close button styles for mobile slider */
+.mobile-nav__close {
+  background: none;
+  border: none;
+  font-size: 2.2rem;
+  color: var(--color-foreground);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  align-self: flex-end;
+  margin-bottom: 1rem;
+}
 {% endstylesheet %}
 
 <script>
@@ -304,14 +316,3 @@
 }
 {% endschema %}
 
-/* Add close button styles for mobile slider */
-.mobile-nav__close {
-  background: none;
-  border: none;
-  font-size: 2.2rem;
-  color: var(--color-foreground);
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  align-self: flex-end;
-  margin-bottom: 1rem;
-}
