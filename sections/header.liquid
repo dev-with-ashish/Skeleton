@@ -171,6 +171,19 @@
     .desktop-show { display: none !important; }
     .mobile-only  { display: block !important; }
 
+    .header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 7rem;
+  width: 100%;
+  padding: 0 1rem;
+  position: relative; /* 👈 ADD THIS */
+  z-index: 999999;     /* stays above the slider */
+  background-color: var(--color-background, #fff); /* optional: helps visibility */
+}
+
+
     #mobile-nav-toggle {
       font-size: 6rem;
       background: none;
