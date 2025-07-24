@@ -17,9 +17,15 @@
       "settings": {
         "menu": "main-menu-1"
       }
+    },
+    "custom_section_JFBJJ7": {
+      "type": "custom-section",
+      "name": "t:general.custom_section",
+      "settings": {}
     }
   },
   "order": [
-    "header"
+    "header",
+    "custom_section_JFBJJ7"
   ]
 }

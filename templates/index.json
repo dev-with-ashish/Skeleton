@@ -11,55 +11,6 @@
   "sections": {
     "175335773360f08bd0": {
       "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_2a3a626_BjxAkR": {
-          "type": "ai_gen_block_2a3a626",
-          "settings": {
-            "header_style": "logo_center_nav_sides",
-            "logo_text": "Your Store",
-            "logo_height": 40,
-            "logo_text_size": 24,
-            "nav_text_1": "Home",
-            "nav_link_1": "",
-            "nav_text_2": "Shop",
-            "nav_link_2": "",
-            "nav_text_3": "About",
-            "nav_link_3": "",
-            "nav_text_4": "Contact",
-            "nav_link_4": "",
-            "nav_text_5": "",
-            "nav_link_5": "",
-            "nav_text_6": "",
-            "nav_link_6": "",
-            "nav_text_7": "",
-            "nav_link_7": "",
-            "nav_text_8": "",
-            "nav_link_8": "",
-            "nav_text_9": "",
-            "nav_link_9": "",
-            "nav_text_10": "",
-            "nav_link_10": "",
-            "nav_text_size": 16,
-            "nav_font_weight": "400",
-            "nav_spacing": 20,
-            "nav_border_radius": 4,
-            "background_color": "#ffffff",
-            "text_color": "#000000",
-            "text_hover_color": "#666666",
-            "nav_hover_bg": "#f5f5f5",
-            "border_color": "#e5e5e5",
-            "boxed_bg_color": "#ffffff",
-            "padding_vertical": 20,
-            "padding_horizontal": 20,
-            "border_width": 1,
-            "boxed_border_radius": 12
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_2a3a626_BjxAkR"
-      ],
       "settings": {}
     },
     "custom_section_6hJpc8": {
@@ -215,7 +166,9 @@
       ],
       "custom_css": [],
       "name": "t:general.custom_section",
-      "settings": {}
+      "settings": {
+        "background_image": "shopify://shop_images/StarWars.jpg"
+      }
     }
   },
   "order": [
