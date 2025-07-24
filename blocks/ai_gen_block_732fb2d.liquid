@@ -69,7 +69,20 @@
     opacity: 0.8;
     pointer-events: none;
     animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
-    border: {{ block.settings.neon_border_thickness | default: 8 }}px solid transparent;
+    box-sizing: border-box;
+    /* Mask to show only the border area */
+    -webkit-mask:
+      radial-gradient(
+        circle,
+        transparent calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px),
+        black calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px)
+      );
+    mask:
+      radial-gradient(
+        circle,
+        transparent calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px),
+        black calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px)
+      );
   }
   .ai-hero-card-{{ ai_gen_id }} > * {
     position: relative;
@@ -228,7 +241,19 @@
       right: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
       bottom: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
       border-radius: calc({{ block.settings.mobile_card_border_radius }}px + {{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px);
-      border: {{ block.settings.mobile_neon_border_thickness | default: 6 }}px solid transparent;
+      box-sizing: border-box;
+      -webkit-mask:
+        radial-gradient(
+          circle,
+          transparent calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px),
+          black calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px)
+        );
+      mask:
+        radial-gradient(
+          circle,
+          transparent calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px),
+          black calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px)
+        );
     }
 
     .ai-hero-card-{{ ai_gen_id }}:hover {
