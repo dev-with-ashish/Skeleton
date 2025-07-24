@@ -1,4 +1,9 @@
-<div class="custom-section full-width">
+<div class="custom-section full-width"
+  style="
+    padding: {{ section.settings.padding_top | default: 0 }}px {{ section.settings.padding_right | default: 0 }}px {{ section.settings.padding_bottom | default: 0 }}px {{ section.settings.padding_left | default: 0 }}px;
+    margin: {{ section.settings.margin_top | default: 0 }}px {{ section.settings.margin_right | default: 0 }}px {{ section.settings.margin_bottom | default: 0 }}px {{ section.settings.margin_left | default: 0 }}px;
+  "
+>
   {% if section.settings.background_image %}
     <div class="custom-section__background">
       {{ section.settings.background_image | image_url: width: 2000 | image_tag }}
@@ -49,6 +54,86 @@
       "type": "image_picker",
       "id": "background_image",
       "label": "t:labels.background"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "Padding right",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "Padding left",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Margin top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right",
+      "label": "Margin right",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_left",
+      "label": "Margin left",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 0
     }
   ],
   "presets": [
