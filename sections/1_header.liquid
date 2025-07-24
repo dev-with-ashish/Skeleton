@@ -6,9 +6,17 @@
 {% assign ai_gen_id = section.id | replace: '_', '' | downcase %}
 
 {% style %}
+  body, .shopify-section, .shopify-section-header {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
   .ai-header-{{ ai_gen_id }} {
     position: relative;
-    width: 100%;
+    width: 100vw;
+    min-width: 100vw;
+    left: 0;
+    right: 0;
+    margin: 0;
     background-color: {{ section.settings.background_color }};
     border-bottom: {{ section.settings.border_width }}px solid {{ section.settings.border_color }};
     z-index: 100;
