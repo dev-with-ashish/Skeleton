@@ -27,7 +27,7 @@
         "logo_text": "Your Store",
         "logo_height": 40,
         "logo_text_size": 24,
-        "menu": "",
+        "menu": "main-menu-1",
         "menu_text_size": 16,
         "menu_spacing": 20,
         "show_search": true,
