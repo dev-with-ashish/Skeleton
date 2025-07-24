@@ -17,10 +17,8 @@
   .ai-header-container-{{ ai_gen_id }} {
     {% case section.settings.header_width %}
       {% when 'full_width' %}
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0; /* or padding: 0 16px; for a small gutter */
+        max-width: 100%;
+        padding: 0 20px;
       {% when 'container' %}
         max-width: 1200px;
         margin: 0 auto;
@@ -94,7 +92,7 @@
     text-decoration: none;
     font-size: {{ section.settings.menu_text_size }}px;
     padding: 8px 12px;
-    display: block;
+    display: section;
     transition: color 0.3s ease;
   }
 
@@ -562,7 +560,7 @@
 
   @media screen and (min-width: 768px) {
     .ai-header-nav-{{ ai_gen_id }} {
-      display: block;
+      display: section;
     }
     
     .ai-header-mobile-toggle-{{ ai_gen_id }} {
