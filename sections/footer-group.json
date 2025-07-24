@@ -13,8 +13,9 @@
   "sections": {
     "footer": {
       "type": "footer",
+      "disabled": true,
       "settings": {
-        "menu": "",
+        "menu": "main-menu-1",
         "show_payment_icons": true
       }
     }
