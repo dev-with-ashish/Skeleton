@@ -6,14 +6,6 @@
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
-  @keyframes ai-rgb-neon-{{ ai_gen_id }} {
-    0% {
-      filter: hue-rotate(0deg);
-    }
-    100% {
-      filter: hue-rotate(360deg);
-    }
-  }
   .ai-hero-section-{{ ai_gen_id }} {
     display: flex;
     align-items: center;
@@ -39,37 +31,13 @@
   }
 
   .ai-hero-card-{{ ai_gen_id }} {
-    position: relative;
+    position: absolute;
     width: {{ block.settings.card_width }}px;
     height: {{ block.settings.card_height }}px;
     border-radius: {{ block.settings.card_border_radius }}px;
     box-shadow: {{ block.settings.card_shadow_x }}px {{ block.settings.card_shadow_y }}px {{ block.settings.card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.card_shadow_opacity }});
     overflow: hidden;
     transition: transform 0.3s ease;
-    overflow: visible;
-  }
-  .ai-hero-card-{{ ai_gen_id }}::before {
-    content: '';
-    position: absolute;
-    top: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
-    left: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
-    width: calc(100% + 2 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
-    height: calc(100% + 2 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
-    border-radius: calc({{ block.settings.card_border_radius }}px + {{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px);
-    z-index: 0;
-    pointer-events: none;
-    opacity: 1;
-    background: rgba(255,0,255,0.1); /* DEBUG: Remove or change after confirming visibility */
-    box-shadow:
-      0 0 {{ block.settings.neon_border_thickness | default: 8 }}px 2px #ff00cc,
-      0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 2) 4px #3333ff,
-      0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 3) 8px #00ffcc,
-      0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 4) 12px #ffcc00;
-    animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
-  }
-  .ai-hero-card-{{ ai_gen_id }} > * {
-    position: relative;
-    z-index: 1;
   }
 
   .ai-hero-card-{{ ai_gen_id }}:hover {
@@ -217,23 +185,6 @@
       height: {{ block.settings.mobile_card_height }}px;
       border-radius: {{ block.settings.mobile_card_border_radius }}px;
       box-shadow: {{ block.settings.mobile_card_shadow_x }}px {{ block.settings.mobile_card_shadow_y }}px {{ block.settings.mobile_card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.mobile_card_shadow_opacity }});
-      position: relative;
-      overflow: visible;
-    }
-    .ai-hero-card-{{ ai_gen_id }}::before {
-      top: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
-      left: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
-      width: calc(100% + 2 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
-      height: calc(100% + 2 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
-      border-radius: calc({{ block.settings.mobile_card_border_radius }}px + {{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px);
-      box-shadow:
-        0 0 {{ block.settings.mobile_neon_border_thickness | default: 6 }}px 2px #ff00cc,
-        0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 2) 4px #3333ff,
-        0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 3) 8px #00ffcc,
-        0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 4) 12px #ffcc00;
-      animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
-      z-index: 0;
-      background: rgba(255,0,255,0.1); /* DEBUG: Remove or change after confirming visibility */
     }
 
     .ai-hero-card-{{ ai_gen_id }}:hover {
@@ -1118,30 +1069,6 @@
     },
     {
       "type": "header",
-      "content": "Neon Border"
-    },
-    {
-      "type": "range",
-      "id": "neon_border_thickness",
-      "min": 2,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "label": "Neon border thickness",
-      "default": 8
-    },
-    {
-      "type": "range",
-      "id": "neon_border_gap",
-      "min": 0,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "label": "Gap between neon and card edge",
-      "default": 8
-    },
-    {
-      "type": "header",
       "content": "Mobile - Section Layout"
     },
     {
@@ -1770,30 +1697,6 @@
       "unit": "px",
       "label": "Mobile button border width",
       "default": 0
-    },
-    {
-      "type": "header",
-      "content": "Mobile - Neon Border"
-    },
-    {
-      "type": "range",
-      "id": "mobile_neon_border_thickness",
-      "min": 1,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile neon border thickness",
-      "default": 6
-    },
-    {
-      "type": "range",
-      "id": "mobile_neon_border_gap",
-      "min": 0,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Mobile gap between neon and card edge",
-      "default": 6
     }
   ],
   "presets": [
