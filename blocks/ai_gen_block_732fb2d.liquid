@@ -6,6 +6,14 @@
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
+  @keyframes ai-rgb-neon-{{ ai_gen_id }} {
+    0% {
+      filter: hue-rotate(0deg);
+    }
+    100% {
+      filter: hue-rotate(360deg);
+    }
+  }
   .ai-hero-section-{{ ai_gen_id }} {
     display: flex;
     align-items: center;
@@ -38,6 +46,33 @@
     box-shadow: {{ block.settings.card_shadow_x }}px {{ block.settings.card_shadow_y }}px {{ block.settings.card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.card_shadow_opacity }});
     overflow: hidden;
     transition: transform 0.3s ease;
+    z-index: 1;
+  }
+  .ai-hero-card-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border-radius: calc({{ block.settings.card_border_radius }}px + 8px);
+    background: conic-gradient(
+      from 0deg,
+      #ff00cc,
+      #3333ff,
+      #00ffcc,
+      #ffcc00,
+      #ff00cc
+    );
+    z-index: 2;
+    filter: blur(6px) brightness(1.5);
+    opacity: 0.8;
+    pointer-events: none;
+    animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
+  }
+  .ai-hero-card-{{ ai_gen_id }} > * {
+    position: relative;
+    z-index: 3;
   }
 
   .ai-hero-card-{{ ai_gen_id }}:hover {
@@ -185,6 +220,9 @@
       height: {{ block.settings.mobile_card_height }}px;
       border-radius: {{ block.settings.mobile_card_border_radius }}px;
       box-shadow: {{ block.settings.mobile_card_shadow_x }}px {{ block.settings.mobile_card_shadow_y }}px {{ block.settings.mobile_card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.mobile_card_shadow_opacity }});
+    }
+    .ai-hero-card-{{ ai_gen_id }}::before {
+      border-radius: calc({{ block.settings.mobile_card_border_radius }}px + 8px);
     }
 
     .ai-hero-card-{{ ai_gen_id }}:hover {
