@@ -583,6 +583,12 @@
   }
 {% endstyle %}
 
+{% if section.settings.theme == 'dark' %}
+  <style>
+    body { background: #1a1a1a !important; }
+  </style>
+{% endif %}
+
 <header-component-{{ ai_gen_id }} class="ai-header-{{ ai_gen_id }}" {{ section.shopify_attributes }}>
   <div class="ai-header-container-{{ ai_gen_id }}">
     <div class="ai-header-content-{{ ai_gen_id }}">
