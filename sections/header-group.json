@@ -11,18 +11,11 @@
   "type": "header",
   "name": "t:general.header",
   "sections": {
-    "header": {
+    "header_qg9GTT": {
       "type": "header",
-      "disabled": true,
-      "settings": {
-        "menu": "main-menu-1"
-      }
-    },
-    "1_header_pW6Bgd": {
-      "type": "1_header",
       "name": "Advanced Header",
       "settings": {
-        "header_width": "full_width",
+        "header_width": "container",
         "theme": "dark",
         "logo_text": "Your Store",
         "logo_height": 40,
@@ -54,10 +47,58 @@
         "mobile_text_color": "#333333",
         "mobile_text_hover_color": "#007bff"
       }
+    },
+    "custom_section_3J3QwK": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_ad61d97_y9aqkx": {
+          "type": "ai_gen_block_ad61d97",
+          "name": "Advanced Header",
+          "settings": {
+            "header_width": "container",
+            "theme": "custom",
+            "logo_text": "Your Store",
+            "logo_height": 40,
+            "logo_text_size": 24,
+            "menu": "main-menu-1",
+            "menu_text_size": 16,
+            "menu_spacing": 20,
+            "show_search": true,
+            "show_account": true,
+            "show_cart": true,
+            "action_button_style": "minimal",
+            "action_button_size": 40,
+            "action_icon_size": 20,
+            "action_spacing": 15,
+            "header_style": "style_1",
+            "header_height": 80,
+            "border_width": 1,
+            "mobile_animation": "slide_right",
+            "mobile_text_size": 24,
+            "background_color": "#ffffff",
+            "gradient_color": "#f8f9fa",
+            "text_color": "#333333",
+            "text_hover_color": "#000000",
+            "accent_color": "#007bff",
+            "border_color": "#e9ecef",
+            "action_bg_color": "#f8f9fa",
+            "action_hover_bg_color": "#e9ecef",
+            "mobile_bg_color": "#ffffff",
+            "mobile_text_color": "#333333",
+            "mobile_text_hover_color": "#007bff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_ad61d97_y9aqkx"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {}
     }
   },
   "order": [
-    "header",
-    "1_header_pW6Bgd"
+    "header_qg9GTT",
+    "custom_section_3J3QwK"
   ]
 }
