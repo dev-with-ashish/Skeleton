@@ -711,7 +711,9 @@
 </header-component-{{ ai_gen_id }}>
 
 <script>
-(function() {
+if (!customElements.get('header-component-{{ ai_gen_id }}')) {
+  class HeaderComponent{{ ai_gen_id }} extends HTMLElement {
+    (function() {
   class HeaderComponent{{ ai_gen_id }} extends HTMLElement {
     constructor() {
       super();
@@ -824,7 +826,10 @@
   }
 
   customElements.define('header-component-{{ ai_gen_id }}', HeaderComponent{{ ai_gen_id }});
-})();
+})();  }
+
+  customElements.define('header-component-{{ ai_gen_id }}', HeaderComponent{{ ai_gen_id }});
+} 
 </script>
 
 {% schema %}
