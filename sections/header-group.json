@@ -20,6 +20,48 @@
     },
     "custom_section_JFBJJ7": {
       "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_ad61d97_gf9X9b": {
+          "type": "ai_gen_block_ad61d97",
+          "settings": {
+            "header_width": "full_width",
+            "theme": "dark",
+            "logo_text": "Your Store",
+            "logo_height": 40,
+            "logo_text_size": 24,
+            "menu": "main-menu-1",
+            "menu_text_size": 16,
+            "menu_spacing": 20,
+            "show_search": true,
+            "show_account": true,
+            "show_cart": true,
+            "action_button_style": "minimal",
+            "action_button_size": 40,
+            "action_icon_size": 20,
+            "action_spacing": 15,
+            "header_style": "style_1",
+            "header_height": 80,
+            "border_width": 1,
+            "mobile_animation": "slide_left",
+            "mobile_text_size": 24,
+            "background_color": "#ffffff",
+            "gradient_color": "#f8f9fa",
+            "text_color": "#333333",
+            "text_hover_color": "#000000",
+            "accent_color": "#007bff",
+            "border_color": "#e9ecef",
+            "action_bg_color": "#f8f9fa",
+            "action_hover_bg_color": "#e9ecef",
+            "mobile_bg_color": "#ffffff",
+            "mobile_text_color": "#333333",
+            "mobile_text_hover_color": "#007bff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_ad61d97_gf9X9b"
+      ],
       "name": "t:general.custom_section",
       "settings": {}
     }
