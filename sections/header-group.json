@@ -64,7 +64,17 @@
         "ai_gen_block_ad61d97_y9aqkx"
       ],
       "name": "t:general.custom_section",
-      "settings": {}
+      "settings": {
+        "theme": "dark",
+        "padding_top": 0,
+        "padding_right": 0,
+        "padding_bottom": 0,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
