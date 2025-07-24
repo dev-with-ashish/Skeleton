@@ -51,11 +51,11 @@
   .ai-hero-card-{{ ai_gen_id }}::before {
     content: '';
     position: absolute;
-    top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
-    border-radius: calc({{ block.settings.card_border_radius }}px + 25px);
+    top: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
+    left: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
+    right: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
+    bottom: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
+    border-radius: calc({{ block.settings.card_border_radius }}px + {{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px);
     background: conic-gradient(
       from 0deg,
       #ff00cc,
@@ -69,6 +69,7 @@
     opacity: 0.8;
     pointer-events: none;
     animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
+    border: {{ block.settings.neon_border_thickness | default: 8 }}px solid transparent;
   }
   .ai-hero-card-{{ ai_gen_id }} > * {
     position: relative;
@@ -222,7 +223,12 @@
       box-shadow: {{ block.settings.mobile_card_shadow_x }}px {{ block.settings.mobile_card_shadow_y }}px {{ block.settings.mobile_card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.mobile_card_shadow_opacity }});
     }
     .ai-hero-card-{{ ai_gen_id }}::before {
-      border-radius: calc({{ block.settings.mobile_card_border_radius }}px + 8px);
+      top: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
+      left: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
+      right: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
+      bottom: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
+      border-radius: calc({{ block.settings.mobile_card_border_radius }}px + {{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px);
+      border: {{ block.settings.mobile_neon_border_thickness | default: 6 }}px solid transparent;
     }
 
     .ai-hero-card-{{ ai_gen_id }}:hover {
@@ -1107,6 +1113,30 @@
     },
     {
       "type": "header",
+      "content": "Neon Border"
+    },
+    {
+      "type": "range",
+      "id": "neon_border_thickness",
+      "min": 2,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Neon border thickness",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "neon_border_gap",
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap between neon and card edge",
+      "default": 8
+    },
+    {
+      "type": "header",
       "content": "Mobile - Section Layout"
     },
     {
@@ -1735,6 +1765,30 @@
       "unit": "px",
       "label": "Mobile button border width",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Mobile - Neon Border"
+    },
+    {
+      "type": "range",
+      "id": "mobile_neon_border_thickness",
+      "min": 1,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile neon border thickness",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "mobile_neon_border_gap",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile gap between neon and card edge",
+      "default": 6
     }
   ],
   "presets": [
