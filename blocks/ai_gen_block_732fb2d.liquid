@@ -88,6 +88,17 @@
     gap: {{ block.settings.content_spacing }}px;
     margin: {{ block.settings.content_margin_top }}px {{ block.settings.content_margin_right }}px {{ block.settings.content_margin_bottom }}px {{ block.settings.content_margin_left }}px;
     padding: {{ block.settings.content_padding_top }}px {{ block.settings.content_padding_right }}px {{ block.settings.content_padding_bottom }}px {{ block.settings.content_padding_left }}px;
+    {% case block.settings.content_alignment %}
+      {% when 'center' %}
+        align-items: center;
+        text-align: center;
+      {% when 'right' %}
+        align-items: flex-end;
+        text-align: right;
+      {% else %}
+        align-items: flex-start;
+        text-align: left;
+    {% endcase %}
   }
 
   .ai-hero-headline-{{ ai_gen_id }} {
@@ -178,6 +189,17 @@
       margin: {{ block.settings.mobile_content_margin_top }}px {{ block.settings.mobile_content_margin_right }}px {{ block.settings.mobile_content_margin_bottom }}px {{ block.settings.mobile_content_margin_left }}px;
       padding: {{ block.settings.mobile_content_padding_top }}px {{ block.settings.mobile_content_padding_right }}px {{ block.settings.mobile_content_padding_bottom }}px {{ block.settings.mobile_content_padding_left }}px;
       gap: {{ block.settings.mobile_content_spacing }}px;
+      {% case block.settings.mobile_content_alignment %}
+        {% when 'center' %}
+          align-items: center;
+          text-align: center;
+        {% when 'right' %}
+          align-items: flex-end;
+          text-align: right;
+        {% else %}
+          align-items: flex-start;
+          text-align: left;
+      {% endcase %}
     }
 
     .ai-hero-card-{{ ai_gen_id }} {
@@ -1068,6 +1090,17 @@
       "default": 0
     },
     {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment (desktop)",
+      "options": [
+        {"value": "left", "label": "Left"},
+        {"value": "center", "label": "Center"},
+        {"value": "right", "label": "Right"}
+      ],
+      "default": "left"
+    },
+    {
       "type": "header",
       "content": "Mobile - Section Layout"
     },
@@ -1697,6 +1730,17 @@
       "unit": "px",
       "label": "Mobile button border width",
       "default": 0
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_alignment",
+      "label": "Content alignment (mobile)",
+      "options": [
+        {"value": "left", "label": "Left"},
+        {"value": "center", "label": "Center"},
+        {"value": "right", "label": "Right"}
+      ],
+      "default": "center"
     }
   ],
   "presets": [
