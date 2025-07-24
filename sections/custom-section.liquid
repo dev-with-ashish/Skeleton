@@ -1,10 +1,10 @@
-<div class="custom-section full-width"
+<div class="custom-section full-width theme-{{ section.settings.theme }}"
   style="
     padding: {{ section.settings.padding_top | default: 0 }}px {{ section.settings.padding_right | default: 0 }}px {{ section.settings.padding_bottom | default: 0 }}px {{ section.settings.padding_left | default: 0 }}px;
     margin: {{ section.settings.margin_top | default: 0 }}px {{ section.settings.margin_right | default: 0 }}px {{ section.settings.margin_bottom | default: 0 }}px {{ section.settings.margin_left | default: 0 }}px;
   "
 >
-  {% if section.settings.background_image %}
+  {% if section.settings.theme == 'image' and section.settings.background_image %}
     <div class="custom-section__background">
       {{ section.settings.background_image | image_url: width: 2000 | image_tag }}
     </div>
@@ -20,6 +20,18 @@
     position: relative;
     overflow: hidden;
     width: 100%;
+  }
+  .custom-section.theme-light {
+    background: #fff;
+    color: #222;
+  }
+  .custom-section.theme-dark {
+    background: #181818;
+    color: #fff;
+  }
+  .custom-section.theme-image {
+    background: transparent;
+    color: #fff;
   }
   .custom-section__background {
     position: absolute;
@@ -50,6 +62,17 @@
   "name": "t:general.custom_section",
   "blocks": [{ "type": "@theme" }],
   "settings": [
+    {
+      "type": "select",
+      "id": "theme",
+      "label": "Theme",
+      "options": [
+        {"value": "light", "label": "Light"},
+        {"value": "dark", "label": "Dark"},
+        {"value": "image", "label": "Image"}
+      ],
+      "default": "light"
+    },
     {
       "type": "image_picker",
       "id": "background_image",
