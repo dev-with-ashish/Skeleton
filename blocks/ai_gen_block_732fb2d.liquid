@@ -39,14 +39,14 @@
   }
 
   .ai-hero-card-{{ ai_gen_id }} {
-    position: absolute;
+    position: relative;
     width: {{ block.settings.card_width }}px;
     height: {{ block.settings.card_height }}px;
     border-radius: {{ block.settings.card_border_radius }}px;
     box-shadow: {{ block.settings.card_shadow_x }}px {{ block.settings.card_shadow_y }}px {{ block.settings.card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.card_shadow_opacity }});
     overflow: hidden;
     transition: transform 0.3s ease;
-    z-index: 1;
+    overflow: visible;
   }
   .ai-hero-card-{{ ai_gen_id }}::before {
     content: '';
@@ -56,10 +56,10 @@
     width: calc(100% + 2 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
     height: calc(100% + 2 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
     border-radius: calc({{ block.settings.card_border_radius }}px + {{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px);
-    z-index: 2;
+    z-index: 0;
     pointer-events: none;
     opacity: 1;
-    background: transparent;
+    background: rgba(255,0,255,0.1); /* DEBUG: Remove or change after confirming visibility */
     box-shadow:
       0 0 {{ block.settings.neon_border_thickness | default: 8 }}px 2px #ff00cc,
       0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 2) 4px #3333ff,
@@ -69,7 +69,7 @@
   }
   .ai-hero-card-{{ ai_gen_id }} > * {
     position: relative;
-    z-index: 3;
+    z-index: 1;
   }
 
   .ai-hero-card-{{ ai_gen_id }}:hover {
@@ -217,6 +217,8 @@
       height: {{ block.settings.mobile_card_height }}px;
       border-radius: {{ block.settings.mobile_card_border_radius }}px;
       box-shadow: {{ block.settings.mobile_card_shadow_x }}px {{ block.settings.mobile_card_shadow_y }}px {{ block.settings.mobile_card_shadow_blur }}px rgba(0, 0, 0, {{ block.settings.mobile_card_shadow_opacity }});
+      position: relative;
+      overflow: visible;
     }
     .ai-hero-card-{{ ai_gen_id }}::before {
       top: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
@@ -230,6 +232,8 @@
         0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 3) 8px #00ffcc,
         0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 4) 12px #ffcc00;
       animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
+      z-index: 0;
+      background: rgba(255,0,255,0.1); /* DEBUG: Remove or change after confirming visibility */
     }
 
     .ai-hero-card-{{ ai_gen_id }}:hover {
