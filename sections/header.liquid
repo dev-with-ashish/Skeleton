@@ -3,19 +3,19 @@
     header section with log and menu link options 15 different style of header with slider on mobile having different animation option to select menu (which menu to show in this header), option to set width of the header like full width, default, container option to select theme of the menu dark light, add account cart and search button with different styling option, theme not responding correctly correct it
 
 {% enddoc %}
-{% assign ai_gen_id = section.id | replace: '_', '' | downcase %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
   .ai-header-{{ ai_gen_id }} {
     position: relative;
     width: 100%;
-    background-color: {{ section.settings.background_color }};
-    border-bottom: {{ section.settings.border_width }}px solid {{ section.settings.border_color }};
+    background-color: {{ block.settings.background_color }};
+    border-bottom: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
     z-index: 100;
   }
 
   .ai-header-container-{{ ai_gen_id }} {
-    {% case section.settings.header_width %}
+    {% case block.settings.header_width %}
       {% when 'full_width' %}
         max-width: 100%;
         padding: 0 20px;
@@ -34,7 +34,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: {{ section.settings.header_height }}px;
+    min-height: {{ block.settings.header_height }}px;
     position: relative;
   }
 
@@ -45,13 +45,13 @@
   }
 
   .ai-header-logo-{{ ai_gen_id }} img {
-    max-height: {{ section.settings.logo_height }}px;
+    max-height: {{ block.settings.logo_height }}px;
     width: auto;
   }
 
   .ai-header-logo-placeholder-{{ ai_gen_id }} {
-    width: {{ section.settings.logo_height }}px;
-    height: {{ section.settings.logo_height }}px;
+    width: {{ block.settings.logo_height }}px;
+    height: {{ block.settings.logo_height }}px;
     background-color: #f4f4f4;
     border-radius: 4px;
     display: flex;
@@ -66,9 +66,9 @@
   }
 
   .ai-header-logo-text-{{ ai_gen_id }} {
-    font-size: {{ section.settings.logo_text_size }}px;
+    font-size: {{ block.settings.logo_text_size }}px;
     font-weight: 600;
-    color: {{ section.settings.text_color }};
+    color: {{ block.settings.text_color }};
     text-decoration: none;}
 
   .ai-header-nav-{{ ai_gen_id }} {
@@ -80,7 +80,7 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    gap: {{ section.settings.menu_spacing }}px;
+    gap: {{ block.settings.menu_spacing }}px;
   }
 
   .ai-header-nav-item-{{ ai_gen_id }} {
@@ -88,22 +88,22 @@
   }
 
   .ai-header-nav-link-{{ ai_gen_id }} {
-    color: {{ section.settings.text_color }};
+    color: {{ block.settings.text_color }};
     text-decoration: none;
-    font-size: {{ section.settings.menu_text_size }}px;
+    font-size: {{ block.settings.menu_text_size }}px;
     padding: 8px 12px;
     display: block;
     transition: color 0.3s ease;
   }
 
   .ai-header-nav-link-{{ ai_gen_id }}:hover {
-    color: {{ section.settings.text_hover_color }};
+    color: {{ block.settings.text_hover_color }};
   }
 
   .ai-header-actions-{{ ai_gen_id }} {
     display: flex;
     align-items: center;
-    gap: {{ section.settings.action_spacing }}px;
+    gap: {{ block.settings.action_spacing }}px;
     z-index: 102;
   }
 
@@ -111,53 +111,53 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: {{ section.settings.action_button_size }}px;
-    height: {{ section.settings.action_button_size }}px;
+    width: {{ block.settings.action_button_size }}px;
+    height: {{ block.settings.action_button_size }}px;
     background: none;
     border: none;
     cursor: pointer;
-    color: {{ section.settings.text_color }};
+    color: {{ block.settings.text_color }};
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
   }
 
   .ai-header-action-btn-{{ ai_gen_id }} svg {
-    width: {{ section.settings.action_icon_size }}px;
-    height: {{ section.settings.action_icon_size }}px;
+    width: {{ block.settings.action_icon_size }}px;
+    height: {{ block.settings.action_icon_size }}px;
   }
 
   .ai-header-action-btn-{{ ai_gen_id }}:hover {
-    color: {{ section.settings.text_hover_color }};
+    color: {{ block.settings.text_hover_color }};
   }
 
   {% comment %} Action Button Styles {% endcomment %}
-  {% case section.settings.action_button_style %}
+  {% case block.settings.action_button_style %}
     {% when 'rounded' %}
       .ai-header-action-btn-{{ ai_gen_id }} {
         border-radius: 50%;
-        background-color: {{ section.settings.action_bg_color }};
+        background-color: {{ block.settings.action_bg_color }};
       }
       .ai-header-action-btn-{{ ai_gen_id }}:hover {
-        background-color: {{ section.settings.action_hover_bg_color }};
+        background-color: {{ block.settings.action_hover_bg_color }};
         transform: scale(1.1);
       }
     {% when 'square' %}
       .ai-header-action-btn-{{ ai_gen_id }} {
         border-radius: 4px;
-        background-color: {{ section.settings.action_bg_color }};
+        background-color: {{ block.settings.action_bg_color }};
       }
       .ai-header-action-btn-{{ ai_gen_id }}:hover {
-        background-color: {{ section.settings.action_hover_bg_color }};
+        background-color: {{ block.settings.action_hover_bg_color }};
       }
     {% when 'outlined' %}
       .ai-header-action-btn-{{ ai_gen_id }} {
-        border: 2px solid {{ section.settings.text_color }};
+        border: 2px solid {{ block.settings.text_color }};
         border-radius: 4px;
       }
       .ai-header-action-btn-{{ ai_gen_id }}:hover {
-        background-color: {{ section.settings.text_color }};
-        color: {{ section.settings.background_color }};
+        background-color: {{ block.settings.text_color }};
+        color: {{ block.settings.background_color }};
       }
     {% when 'minimal' %}
       .ai-header-action-btn-{{ ai_gen_id }}:hover {
@@ -169,7 +169,7 @@
     position: absolute;
     top: -8px;
     right: -8px;
-    background-color: {{ section.settings.accent_color }};
+    background-color: {{ block.settings.accent_color }};
     color: white;
     border-radius: 50%;
     width: 18px;
@@ -186,8 +186,8 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: {{ section.settings.background_color }};
-    border-bottom: 1px solid {{ section.settings.border_color }};
+    background-color: {{ block.settings.background_color }};
+    border-bottom: 1px solid {{ block.settings.border_color }};
     padding: 20px;
     transform: translateY(-100%);
     opacity: 0;
@@ -204,11 +204,11 @@
   .ai-header-search-input-{{ ai_gen_id }} {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid {{ section.settings.border_color }};
+    border: 1px solid {{ block.settings.border_color }};
     border-radius: 4px;
     font-size: 16px;
-    background-color: {{ section.settings.background_color }};
-    color: {{ section.settings.text_color }};
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
   }
 
   .ai-header-mobile-toggle-{{ ai_gen_id }} {
@@ -227,7 +227,7 @@
   .ai-header-mobile-toggle-line-{{ ai_gen_id }} {
     width: 100%;
     height: 2px;
-    background-color: {{ section.settings.text_color }};
+    background-color: {{ block.settings.text_color }};
     margin: 2px 0;
     transition: all 0.3s ease;
     transform-origin: center;
@@ -251,7 +251,7 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    background-color: {{ section.settings.mobile_bg_color }};
+    background-color: {{ block.settings.mobile_bg_color }};
     z-index: 101;
     display: flex;
     flex-direction: column;
@@ -285,9 +285,9 @@
   }
 
   .ai-header-mobile-menu-link-{{ ai_gen_id }} {
-    color: {{ section.settings.mobile_text_color }};
+    color: {{ block.settings.mobile_text_color }};
     text-decoration: none;
-    font-size: {{ section.settings.mobile_text_size }}px;
+    font-size: {{ block.settings.mobile_text_size }}px;
     font-weight: 500;
     display: block;
     padding: 15px 30px;
@@ -295,7 +295,7 @@
   }
 
   .ai-header-mobile-menu-link-{{ ai_gen_id }}:hover {
-    color: {{ section.settings.mobile_text_hover_color }};
+    color: {{ block.settings.mobile_text_hover_color }};
   }
 
   .ai-header-mobile-actions-{{ ai_gen_id }} {
@@ -305,7 +305,7 @@
   }
 
   {% comment %} Theme Variations - Override custom colors when theme is selected {% endcomment %}
-  {% if section.settings.theme == 'dark' %}
+  {% if block.settings.theme == 'dark' %}
     .ai-header-{{ ai_gen_id }} {
       background-color: #1a1a1a !important;
       border-color: #333 !important;
@@ -340,7 +340,7 @@
     .ai-header-mobile-menu-link-{{ ai_gen_id }}:hover {
       color: #cccccc !important;
     }
-  {% elsif section.settings.theme == 'light' %}
+  {% elsif block.settings.theme == 'light' %}
     .ai-header-{{ ai_gen_id }} {
       background-color: #ffffff !important;
       border-color: #e9ecef !important;
@@ -378,7 +378,7 @@
   {% endif %}
 
   {% comment %} Header Style Variations {% endcomment %}
-  {% case section.settings.header_style %}
+  {% case block.settings.header_style %}
     {% when 'style_1' %}
       .ai-header-content-{{ ai_gen_id }} {
         justify-content: space-between;
@@ -417,7 +417,7 @@
       }
     {% when 'style_6' %}
       .ai-header-{{ ai_gen_id }} {
-        background: linear-gradient(90deg, {{ section.settings.background_color }}, {{ section.settings.gradient_color }});
+        background: linear-gradient(90deg, {{ block.settings.background_color }}, {{ block.settings.gradient_color }});
       }
     {% when 'style_7' %}
       .ai-header-content-{{ ai_gen_id }} {
@@ -432,12 +432,12 @@
         background-color: rgba(255,255,255,0.1);}
     {% when 'style_9' %}
       .ai-header-content-{{ ai_gen_id }} {
-        border-left: 4px solid {{ section.settings.accent_color }};
+        border-left: 4px solid {{ block.settings.accent_color }};
         padding-left: 24px;
       }
     {% when 'style_10' %}
       .ai-header-{{ ai_gen_id }} {
-        border-top: 4px solid {{ section.settings.accent_color }};
+        border-top: 4px solid {{ block.settings.accent_color }};
       }
     {% when 'style_11' %}
       .ai-header-nav-link-{{ ai_gen_id }} {
@@ -450,7 +450,7 @@
         left: 50%;
         width: 0;
         height: 2px;
-        background-color: {{ section.settings.accent_color }};
+        background-color: {{ block.settings.accent_color }};
         transition: all 0.3s ease;
         transform: translateX(-50%);
       }
@@ -469,10 +469,10 @@
       .ai-header-{{ ai_gen_id }} {
         background: repeating-linear-gradient(
           45deg,
-          {{ section.settings.background_color }},
-          {{ section.settings.background_color }} 10px,
-          {{ section.settings.gradient_color }} 10px,
-          {{ section.settings.gradient_color }} 20px
+          {{ block.settings.background_color }},
+          {{ block.settings.background_color }} 10px,
+          {{ block.settings.gradient_color }} 10px,
+          {{ block.settings.gradient_color }} 20px
         );
       }
     {% when 'style_14' %}
@@ -488,13 +488,13 @@
       }
     {% when 'style_15' %}
       .ai-header-content-{{ ai_gen_id }} {
-        background: radial-gradient(circle at center, {{ section.settings.background_color }}, {{ section.settings.gradient_color }});
+        background: radial-gradient(circle at center, {{ block.settings.background_color }}, {{ block.settings.gradient_color }});
         border-radius: 0 0 50% 50%;
         padding: 20px 30px 40px;
       }{% endcase %}
 
   {% comment %} Mobile Animation Variations {% endcomment %}
-  {% case section.settings.mobile_animation %}
+  {% case block.settings.mobile_animation %}
     {% when 'slide_right' %}
       .ai-header-mobile-menu-{{ ai_gen_id }} {
         transform: translateX(-100%);
@@ -583,21 +583,21 @@
   }
 {% endstyle %}
 
-<header-component-{{ ai_gen_id }} class="ai-header-{{ ai_gen_id }}" {{ section.shopify_attributes }}>
+<header-component-{{ ai_gen_id }} class="ai-header-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
   <div class="ai-header-container-{{ ai_gen_id }}">
     <div class="ai-header-content-{{ ai_gen_id }}">
       <div class="ai-header-logo-{{ ai_gen_id }}">
-        {% if section.settings.logo %}<a href="/">
+        {% if block.settings.logo %}<a href="/">
             <img 
-              src="{{ section.settings.logo | image_url: width: 300 }}" 
+              src="{{ block.settings.logo | image_url: width: 300 }}" 
               alt="{{ shop.name }}"
-              width="{{ section.settings.logo_height }}"
-              height="{{ section.settings.logo_height }}"
+              width="{{ block.settings.logo_height }}"
+              height="{{ block.settings.logo_height }}"
               loading="lazy"
             >
           </a>
-        {% elsif section.settings.logo_text != blank %}
-          <a href="/" class="ai-header-logo-text-{{ ai_gen_id }}">{{ section.settings.logo_text }}</a>
+        {% elsif block.settings.logo_text != blank %}
+          <a href="/" class="ai-header-logo-text-{{ ai_gen_id }}">{{ block.settings.logo_text }}</a>
         {% else %}
           <a href="/">
             <div class="ai-header-logo-placeholder-{{ ai_gen_id }}">
@@ -607,10 +607,10 @@
         {% endif %}
       </div>
 
-      {% if section.settings.menu != blank %}
+      {% if block.settings.menu != blank %}
         <nav class="ai-header-nav-{{ ai_gen_id }}">
           <ul class="ai-header-nav-list-{{ ai_gen_id }}">
-            {% for link in linklists[section.settings.menu].links %}
+            {% for link in linklists[block.settings.menu].links %}
               <li class="ai-header-nav-item-{{ ai_gen_id }}">
                 <a href="{{ link.url }}" class="ai-header-nav-link-{{ ai_gen_id }}">{{ link.title }}</a>
               </li>
@@ -618,7 +618,7 @@
           </ul>
         </nav>
       {% endif %}<div class="ai-header-actions-{{ ai_gen_id }}">
-        {% if section.settings.show_search %}
+        {% if block.settings.show_search %}
           <button class="ai-header-action-btn-{{ ai_gen_id }} ai-header-search-btn-{{ ai_gen_id }}" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -626,7 +626,7 @@
           </button>
         {% endif %}
 
-        {% if section.settings.show_account %}
+        {% if block.settings.show_account %}
           <a href="/account" class="ai-header-action-btn-{{ ai_gen_id }}" aria-label="Account">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -634,7 +634,7 @@
           </a>
         {% endif %}
 
-        {% if section.settings.show_cart %}
+        {% if block.settings.show_cart %}
           <a href="/cart" class="ai-header-action-btn-{{ ai_gen_id }}" aria-label="Cart">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
@@ -653,7 +653,7 @@
       </button>
     </div>
 
-    {% if section.settings.show_search %}
+    {% if block.settings.show_search %}
       <div class="ai-header-search-form-{{ ai_gen_id }}">
         <form action="/search" method="get">
           <input 
@@ -668,10 +668,10 @@
     {% endif %}
   </div>
 
-  {% if section.settings.menu != blank %}
+  {% if block.settings.menu != blank %}
     <div class="ai-header-mobile-menu-{{ ai_gen_id }}">
       <ul class="ai-header-mobile-menu-list-{{ ai_gen_id }}">
-        {% for link in linklists[section.settings.menu].links %}
+        {% for link in linklists[block.settings.menu].links %}
           <li class="ai-header-mobile-menu-item-{{ ai_gen_id }}">
             <a href="{{ link.url }}" class="ai-header-mobile-menu-link-{{ ai_gen_id }}">{{ link.title }}</a>
           </li>
@@ -679,7 +679,7 @@
       </ul>
 
       <div class="ai-header-mobile-actions-{{ ai_gen_id }}">
-        {% if section.settings.show_search %}
+        {% if block.settings.show_search %}
           <button class="ai-header-action-btn-{{ ai_gen_id }} ai-header-mobile-search-btn-{{ ai_gen_id }}" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -687,7 +687,7 @@
           </button>
         {% endif %}
 
-        {% if section.settings.show_account %}
+        {% if block.settings.show_account %}
           <a href="/account" class="ai-header-action-btn-{{ ai_gen_id }}" aria-label="Account">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -695,7 +695,7 @@
           </a>
         {% endif %}
 
-        {% if section.settings.show_cart %}
+        {% if block.settings.show_cart %}
           <a href="/cart" class="ai-header-action-btn-{{ ai_gen_id }}" aria-label="Cart">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
