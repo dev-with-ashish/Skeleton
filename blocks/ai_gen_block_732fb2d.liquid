@@ -53,36 +53,19 @@
     position: absolute;
     top: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
     left: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
-    right: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
-    bottom: calc(-1 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
+    width: calc(100% + 2 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
+    height: calc(100% + 2 * ({{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px));
     border-radius: calc({{ block.settings.card_border_radius }}px + {{ block.settings.neon_border_gap | default: 8 }}px + {{ block.settings.neon_border_thickness | default: 8 }}px);
-    background: conic-gradient(
-      from 0deg,
-      #ff00cc,
-      #3333ff,
-      #00ffcc,
-      #ffcc00,
-      #ff00cc
-    );
     z-index: 2;
-    filter: blur(6px) brightness(1.5);
-    opacity: 0.8;
     pointer-events: none;
+    opacity: 1;
+    background: transparent;
+    box-shadow:
+      0 0 {{ block.settings.neon_border_thickness | default: 8 }}px 2px #ff00cc,
+      0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 2) 4px #3333ff,
+      0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 3) 8px #00ffcc,
+      0 0 calc({{ block.settings.neon_border_thickness | default: 8 }}px * 4) 12px #ffcc00;
     animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
-    box-sizing: border-box;
-    /* Mask to show only the border area */
-    -webkit-mask:
-      radial-gradient(
-        circle,
-        transparent calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px),
-        black calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px)
-      );
-    mask:
-      radial-gradient(
-        circle,
-        transparent calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px),
-        black calc(100% - {{ block.settings.neon_border_thickness | default: 8 }}px)
-      );
   }
   .ai-hero-card-{{ ai_gen_id }} > * {
     position: relative;
@@ -238,22 +221,15 @@
     .ai-hero-card-{{ ai_gen_id }}::before {
       top: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
       left: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
-      right: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
-      bottom: calc(-1 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
+      width: calc(100% + 2 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
+      height: calc(100% + 2 * ({{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px));
       border-radius: calc({{ block.settings.mobile_card_border_radius }}px + {{ block.settings.mobile_neon_border_gap | default: 6 }}px + {{ block.settings.mobile_neon_border_thickness | default: 6 }}px);
-      box-sizing: border-box;
-      -webkit-mask:
-        radial-gradient(
-          circle,
-          transparent calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px),
-          black calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px)
-        );
-      mask:
-        radial-gradient(
-          circle,
-          transparent calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px),
-          black calc(100% - {{ block.settings.mobile_neon_border_thickness | default: 6 }}px)
-        );
+      box-shadow:
+        0 0 {{ block.settings.mobile_neon_border_thickness | default: 6 }}px 2px #ff00cc,
+        0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 2) 4px #3333ff,
+        0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 3) 8px #00ffcc,
+        0 0 calc({{ block.settings.mobile_neon_border_thickness | default: 6 }}px * 4) 12px #ffcc00;
+      animation: ai-rgb-neon-{{ ai_gen_id }} 3s linear infinite;
     }
 
     .ai-hero-card-{{ ai_gen_id }}:hover {
