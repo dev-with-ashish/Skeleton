@@ -88,16 +88,24 @@
     gap: {{ block.settings.content_spacing }}px;
     margin: {{ block.settings.content_margin_top }}px {{ block.settings.content_margin_right }}px {{ block.settings.content_margin_bottom }}px {{ block.settings.content_margin_left }}px;
     padding: {{ block.settings.content_padding_top }}px {{ block.settings.content_padding_right }}px {{ block.settings.content_padding_bottom }}px {{ block.settings.content_padding_left }}px;
+    max-width: 600px;
+    width: 100%;
     {% case block.settings.content_alignment %}
       {% when 'center' %}
         align-items: center;
         text-align: center;
+        margin-left: auto;
+        margin-right: auto;
       {% when 'right' %}
         align-items: flex-end;
         text-align: right;
+        margin-left: auto;
+        margin-right: 0;
       {% else %}
         align-items: flex-start;
         text-align: left;
+        margin-left: 0;
+        margin-right: auto;
     {% endcase %}
   }
 
@@ -189,16 +197,24 @@
       margin: {{ block.settings.mobile_content_margin_top }}px {{ block.settings.mobile_content_margin_right }}px {{ block.settings.mobile_content_margin_bottom }}px {{ block.settings.mobile_content_margin_left }}px;
       padding: {{ block.settings.mobile_content_padding_top }}px {{ block.settings.mobile_content_padding_right }}px {{ block.settings.mobile_content_padding_bottom }}px {{ block.settings.mobile_content_padding_left }}px;
       gap: {{ block.settings.mobile_content_spacing }}px;
+      max-width: 100%;
+      width: 100%;
       {% case block.settings.mobile_content_alignment %}
         {% when 'center' %}
           align-items: center;
           text-align: center;
+          margin-left: auto;
+          margin-right: auto;
         {% when 'right' %}
           align-items: flex-end;
           text-align: right;
+          margin-left: auto;
+          margin-right: 0;
         {% else %}
           align-items: flex-start;
           text-align: left;
+          margin-left: 0;
+          margin-right: auto;
       {% endcase %}
     }
 
