@@ -17,16 +17,18 @@
   .ai-header-container-{{ ai_gen_id }} {
     {% case section.settings.header_width %}
       {% when 'full_width' %}
-        max-width: 100%;
-        padding: 0 0.1px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0; /* or padding: 0 16px; for a small gutter */
       {% when 'container' %}
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 0.1px;
+        padding: 0 20px;
       {% when 'default' %}
         max-width: 1440px;
         margin: 0 auto;
-        padding: 0 0.1px;
+        padding: 0 40px;
     {% endcase %}
   }
 
