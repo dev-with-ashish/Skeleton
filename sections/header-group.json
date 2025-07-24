@@ -13,6 +13,7 @@
   "sections": {
     "header_qg9GTT": {
       "type": "header",
+      "disabled": true,
       "name": "Advanced Header",
       "settings": {
         "menu": "main-menu-1"
