@@ -179,45 +179,61 @@
         "margin_left": 0
       }
     },
-    "custom_section_XpHxE6": {
+    "custom_section_w6j6Ez": {
       "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_2505e73_iykc3E": {
+          "type": "ai_gen_block_2505e73",
+          "settings": {
+            "item_1_date": "2020",
+            "item_1_title": "Company Founded",
+            "item_1_description": "Our journey began with a simple idea to make a difference.",
+            "item_2_date": "2021",
+            "item_2_title": "First Product Launch",
+            "item_2_description": "We launched our flagship product to great success.",
+            "item_3_date": "2022",
+            "item_3_title": "Global Expansion",
+            "item_3_description": "Expanded operations to serve customers worldwide.",
+            "item_4_date": "",
+            "item_4_title": "",
+            "item_4_description": "",
+            "item_5_date": "",
+            "item_5_title": "",
+            "item_5_description": "",
+            "item_6_date": "",
+            "item_6_title": "",
+            "item_6_description": "",
+            "section_padding": 60,
+            "item_spacing": 40,
+            "card_padding": 25,
+            "card_border_radius": 8,
+            "line_inactive_color": "#e0e0e0",
+            "line_active_color": "#007acc",
+            "dot_size": 16,
+            "dot_inactive_color": "#cccccc",
+            "dot_active_color": "#007acc",
+            "background_color": "#ffffff",
+            "card_background_color": "#ffffff",
+            "date_color": "#007acc",
+            "title_color": "#333333",
+            "text_color": "#666666",
+            "date_font_size": 14,
+            "title_font_size": 24,
+            "text_font_size": 16
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_2505e73_iykc3E"
+      ],
       "name": "t:general.custom_section",
       "settings": {
-        "theme": "dark",
+        "theme": "light",
         "padding_top": 40,
-        "padding_right": 40,
+        "padding_right": 0,
         "padding_bottom": 40,
-        "padding_left": 40,
-        "margin_top": 0,
-        "margin_right": 0,
-        "margin_bottom": 0,
-        "margin_left": 0
-      }
-    },
-    "custom_section_U87efh": {
-      "type": "custom-section",
-      "name": "t:general.custom_section",
-      "settings": {
-        "theme": "dark",
-        "padding_top": 40,
-        "padding_right": 40,
-        "padding_bottom": 40,
-        "padding_left": 40,
-        "margin_top": 0,
-        "margin_right": 0,
-        "margin_bottom": 0,
-        "margin_left": 0
-      }
-    },
-    "custom_section_tiq6Px": {
-      "type": "custom-section",
-      "name": "t:general.custom_section",
-      "settings": {
-        "theme": "dark",
-        "padding_top": 40,
-        "padding_right": 40,
-        "padding_bottom": 40,
-        "padding_left": 40,
+        "padding_left": 0,
         "margin_top": 0,
         "margin_right": 0,
         "margin_bottom": 0,
@@ -228,8 +244,6 @@
   "order": [
     "175335773360f08bd0",
     "custom_section_6hJpc8",
-    "custom_section_XpHxE6",
-    "custom_section_U87efh",
-    "custom_section_tiq6Px"
+    "custom_section_w6j6Ez"
   ]
 }
