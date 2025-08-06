@@ -1,6 +1,698 @@
+{% doc %}
+  @prompt
+    a 3d showcase section with a main scene area and a thumbnail aeaa which will show the scene as thumbnail 1 scene a 3d metal poster 1mm in thickness generate the first scene best metal poster 1 mm using three.js, let it render a product last media as the poster front and a image as poster back add option to select product and back image
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-3d-showcase-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding }}px 20px;
+  }
+
+  .ai-3d-showcase-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 20px;height: {{ block.settings.showcase_height }}px;
+  }
+
+  .ai-3d-main-scene-{{ ai_gen_id }} {
+    position: relative;
+    background: {{ block.settings.scene_background }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-3d-main-scene-{{ ai_gen_id }} canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .ai-3d-thumbnails-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ai-3d-thumbnail-{{ ai_gen_id }} {
+    width: 100%;
+    height: 150px;
+    background: {{ block.settings.thumbnail_background }};
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color0.3s ease;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-3d-thumbnail-{{ ai_gen_id }}.active {
+    border-color: {{ block.settings.active_color }};
+  }
+
+  .ai-3d-thumbnail-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.hover_color }};
+  }
+
+  .ai-3d-thumbnail-{{ ai_gen_id }} canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .ai-3d-controls-{{ ai_gen_id }} {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+  }
+
+  .ai-3d-control-btn-{{ ai_gen_id }} {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .ai-3d-control-btn-{{ ai_gen_id }}:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  .ai-3d-loading-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: {{ block.settings.text_color }};
+    font-size: 16px;
+  }
+
+  .ai-3d-product-info-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    max-width: 200px;
+  }
+
+  .ai-3d-product-title-{{ ai_gen_id }} {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .ai-3d-product-price-{{ ai_gen_id }} {
+    font-size: 14px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-3d-showcase-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+      height: auto;
+    }
+
+    .ai-3d-main-scene-{{ ai_gen_id }} {
+      height: 400px;
+    }
+
+    .ai-3d-thumbnails-{{ ai_gen_id }} {
+      flex-direction: row;
+      overflow-x: auto;padding: 10px 0;
+    }
+
+    .ai-3d-thumbnail-{{ ai_gen_id }} {
+      min-width: 120px;
+      height: 100px;
+    }
+  }
+{% endstyle %}
+
+<ai-3d-showcase-{{ ai_gen_id }}
+  class="ai-3d-showcase-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+  data-product-id="{% if block.settings.featured_product %}{{ block.settings.featured_product.id }}{% endif %}"
+  data-back-image="{% if block.settings.back_image %}{{ block.settings.back_image | image_url: width: 1024 }}{% endif %}"
+>
+  <div class="ai-3d-showcase-container-{{ ai_gen_id }}">
+    <div class="ai-3d-main-scene-{{ ai_gen_id }}" id="ai-main-scene-{{ ai_gen_id }}">
+      <div class="ai-3d-loading-{{ ai_gen_id }}">Loading 3D Scene...</div>
+      <div class="ai-3d-controls-{{ ai_gen_id }}">
+        <button class="ai-3d-control-btn-{{ ai_gen_id }}" id="ai-reset-camera-{{ ai_gen_id }}">Reset</button>
+        <button class="ai-3d-control-btn-{{ ai_gen_id }}" id="ai-auto-rotate-{{ ai_gen_id }}">Auto Rotate</button>
+        <button class="ai-3d-control-btn-{{ ai_gen_id }}" id="ai-flip-poster-{{ ai_gen_id }}">Flip</button>
+      </div>
+      {% if block.settings.featured_product and block.settings.show_product_info %}
+        <div class="ai-3d-product-info-{{ ai_gen_id }}">
+          <div class="ai-3d-product-title-{{ ai_gen_id }}">{{ block.settings.featured_product.title }}</div>
+          <div class="ai-3d-product-price-{{ ai_gen_id }}">{{ block.settings.featured_product.price | money }}</div>
+        </div>
+      {% endif %}</div>
+    
+    <div class="ai-3d-thumbnails-{{ ai_gen_id }}">
+      <div class="ai-3d-thumbnail-{{ ai_gen_id }} active" data-scene="metal-poster">
+        <div class="ai-3d-loading-{{ ai_gen_id }}">Loading...</div>
+      </div>
+    </div>
+  </div>
+</ai-3d-showcase-{{ ai_gen_id }}>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  class AI3DShowcase{{ ai_gen_id }} extends HTMLElement {
+    constructor() {
+      super();
+      this.currentScene = 'metal-poster';
+      this.autoRotate = false;
+      this.isFlipped = false;
+      this.scenes = {};
+      this.textures = {};
+    }
+
+    connectedCallback() {
+      this.initializeThreeJS();
+      this.setupEventListeners();
+      this.loadTextures();
+    }
+
+    initializeThreeJS() {
+      const mainContainer = this.querySelector('#ai-main-scene-{{ ai_gen_id }}');
+      const thumbnailContainer = this.querySelector('.ai-3d-thumbnail-{{ ai_gen_id }}[data-scene="metal-poster"]');
+
+      this.mainScene = new THREE.Scene();
+      this.thumbnailScene = new THREE.Scene();
+
+      this.camera = new THREE.PerspectiveCamera(75, mainContainer.offsetWidth / mainContainer.offsetHeight, 0.1, 1000);
+      this.thumbnailCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      this.renderer.setSize(mainContainer.offsetWidth, mainContainer.offsetHeight);
+      this.renderer.setClearColor(0x{{ block.settings.scene_background | remove: '#' }}, 1);
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      this.thumbnailRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      this.thumbnailRenderer.setSize(thumbnailContainer.offsetWidth, thumbnailContainer.offsetHeight);
+      this.thumbnailRenderer.setClearColor(0x{{ block.settings.thumbnail_background | remove: '#' }}, 1);
+
+      mainContainer.appendChild(this.renderer.domElement);
+      thumbnailContainer.appendChild(this.thumbnailRenderer.domElement);
+
+      this.setupControls();
+      this.setupLighting();
+
+      this.camera.position.set(0, 0, 5);
+      this.thumbnailCamera.position.set(0, 0, 3);
+
+      this.animate();
+    }
+
+    setupControls() {
+      this.mouse = { x: 0, y: 0 };
+      this.isMouseDown = false;
+      this.rotation = { x: 0, y: 0 };
+
+      const mainContainer = this.querySelector('#ai-main-scene-{{ ai_gen_id }}');
+
+      mainContainer.addEventListener('mousedown', (e) => {
+        this.isMouseDown = true;
+        this.mouse.x = e.clientX;
+        this.mouse.y = e.clientY;
+      });
+
+      mainContainer.addEventListener('mousemove', (e) => {
+        if (!this.isMouseDown) return;
+
+        const deltaX = e.clientX - this.mouse.x;
+        const deltaY = e.clientY - this.mouse.y;
+
+        this.rotation.y += deltaX * 0.01;
+        this.rotation.x += deltaY * 0.01;
+
+        this.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.rotation.x));
+
+        this.mouse.x = e.clientX;
+        this.mouse.y = e.clientY;
+      });
+
+      mainContainer.addEventListener('mouseup', () => {
+        this.isMouseDown = false;
+      });
+
+      mainContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        this.camera.position.z += e.deltaY * 0.01;
+        this.camera.position.z = Math.max(2, Math.min(10, this.camera.position.z));
+      });
+    }
+
+    setupLighting() {
+      const ambientLight = new THREE.AmbientLight(0xffffff, {{ block.settings.ambient_light }});
+      this.mainScene.add(ambientLight);
+      this.thumbnailScene.add(ambientLight.clone());
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, {{ block.settings.directional_light }});
+      directionalLight.position.set(5, 5, 5);
+      directionalLight.castShadow = true;
+      directionalLight.shadow.mapSize.width = 2048;
+      directionalLight.shadow.mapSize.height = 2048;
+      this.mainScene.add(directionalLight);
+
+      const thumbnailLight = directionalLight.clone();
+      this.thumbnailScene.add(thumbnailLight);
+
+      const pointLight = new THREE.PointLight(0xffffff, {{ block.settings.point_light }}, 100);
+      pointLight.position.set(-5, 5, 5);
+      this.mainScene.add(pointLight);
+      this.thumbnailScene.add(pointLight.clone());
+    }
+
+    loadTextures() {
+      const textureLoader = new THREE.TextureLoader();
+      const productId = this.getAttribute('data-product-id');
+      const backImageUrl = this.getAttribute('data-back-image');
+
+      {% if block.settings.featured_product %}
+        {% assign last_media = block.settings.featured_product.media | last %}
+        {% if last_media %}
+          const frontImageUrl = '{{ last_media | image_url: width: 1024 }}';
+          textureLoader.load(frontImageUrl, (texture) => {
+            texture.flipY = false;
+            this.textures.front = texture;
+            this.checkTexturesLoaded();
+          });
+        {% endif %}
+      {% endif %}
+
+      if (backImageUrl) {
+        textureLoader.load(backImageUrl, (texture) => {
+          texture.flipY = false;
+          this.textures.back = texture;
+          this.checkTexturesLoaded();
+        });
+      } else {
+        this.checkTexturesLoaded();
+      }
+    }
+
+    checkTexturesLoaded() {
+      if (this.textures.front || Object.keys(this.textures).length > 0) {
+        this.createMetalPosterScene();
+      }
+    }
+
+    createMetalPosterScene() {
+      const posterGroup = new THREE.Group();
+      const thumbnailGroup = new THREE.Group();
+
+      const posterWidth = {{ block.settings.poster_width }};
+      const posterHeight = {{ block.settings.poster_height }};
+      const posterThickness = 0.001;
+
+      const posterGeometry = new THREE.BoxGeometry(posterWidth, posterHeight, posterThickness);
+      const frontMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x{{ block.settings.metal_color | remove: '#' }},
+        metalness: {{ block.settings.metalness }},
+        roughness: {{ block.settings.roughness }},
+        clearcoat: {{ block.settings.clearcoat }},
+        clearcoatRoughness: 0.1,
+        reflectivity: 1.0,
+        envMapIntensity: 1.0,
+        map: this.textures.front || null
+      });
+
+      const backMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x{{ block.settings.metal_color | remove: '#' }},
+        metalness: {{ block.settings.metalness }},
+        roughness: {{ block.settings.roughness }},
+        clearcoat: {{ block.settings.clearcoat }},
+        clearcoatRoughness: 0.1,
+        reflectivity: 1.0,
+        envMapIntensity: 1.0,
+        map: this.textures.back || null
+      });
+
+      const sideMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x{{ block.settings.metal_color | remove: '#' }},
+        metalness: {{ block.settings.metalness }},
+        roughness: {{ block.settings.roughness }}
+      });
+
+      const materials = [
+        sideMaterial,
+        sideMaterial,
+        sideMaterial,
+        sideMaterial,
+        frontMaterial,
+        backMaterial
+      ];
+
+      const poster = new THREE.Mesh(posterGeometry, materials);
+      poster.castShadow = true;
+      poster.receiveShadow = true;
+
+      const frameGeometry = new THREE.BoxGeometry(posterWidth + 0.1, posterHeight + 0.1, 0.02);
+      const frameMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x{{ block.settings.frame_color | remove: '#' }},
+        metalness: 0.8,
+        roughness: 0.2
+      });
+
+      const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+      frame.position.z = -0.01;
+      frame.castShadow = true;
+
+      posterGroup.add(poster);
+      posterGroup.add(frame);
+
+      const thumbnailPoster = poster.clone();
+      const thumbnailFrame = frame.clone();
+      thumbnailGroup.add(thumbnailPoster);
+      thumbnailGroup.add(thumbnailFrame);
+
+      this.mainScene.add(posterGroup);
+      this.thumbnailScene.add(thumbnailGroup);
+
+      this.scenes['metal-poster'] = {
+        main: posterGroup,
+        thumbnail: thumbnailGroup,
+        poster: poster,
+        thumbnailPoster: thumbnailPoster
+      };
+
+      this.querySelector('.ai-3d-loading-{{ ai_gen_id }}').style.display = 'none';
+    }
+
+    flipPoster() {
+      if (this.scenes['metal-poster']) {
+        this.isFlipped = !this.isFlipped;
+        const targetRotation = this.isFlipped ? Math.PI : 0;
+        
+        const poster = this.scenes['metal-poster'].poster;
+        const thumbnailPoster = this.scenes['metal-poster'].thumbnailPoster;
+        
+        this.animateFlip(poster, targetRotation);
+        this.animateFlip(thumbnailPoster, targetRotation);
+      }
+    }
+
+    animateFlip(object, targetRotation) {
+      const startRotation = object.rotation.y;
+      const duration = 800;
+      const startTime = Date.now();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 0.5 - 0.5 * Math.cos(progress * Math.PI);
+        
+        object.rotation.y = startRotation + (targetRotation - startRotation) * eased;
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    }
+
+    setupEventListeners() {
+      const resetBtn = this.querySelector('#ai-reset-camera-{{ ai_gen_id }}');
+      const autoRotateBtn = this.querySelector('#ai-auto-rotate-{{ ai_gen_id }}');
+      const flipBtn = this.querySelector('#ai-flip-poster-{{ ai_gen_id }}');
+
+      resetBtn.addEventListener('click', () => {
+        this.camera.position.set(0, 0, 5);
+        this.rotation = { x: 0, y: 0 };
+      });
+
+      autoRotateBtn.addEventListener('click', () => {
+        this.autoRotate = !this.autoRotate;
+        autoRotateBtn.textContent = this.autoRotate ? 'Stop Rotate' : 'Auto Rotate';
+      });
+
+      flipBtn.addEventListener('click', () => {
+        this.flipPoster();
+      });
+
+      window.addEventListener('resize', () => this.handleResize());
+    }
+
+    handleResize() {
+      const mainContainer = this.querySelector('#ai-main-scene-{{ ai_gen_id }}');
+      const thumbnailContainer = this.querySelector('.ai-3d-thumbnail-{{ ai_gen_id }}[data-scene="metal-poster"]');
+
+      this.camera.aspect = mainContainer.offsetWidth / mainContainer.offsetHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(mainContainer.offsetWidth, mainContainer.offsetHeight);
+
+      this.thumbnailRenderer.setSize(thumbnailContainer.offsetWidth, thumbnailContainer.offsetHeight);
+    }
+
+    animate() {
+      requestAnimationFrame(() => this.animate());
+
+      if (this.scenes[this.currentScene]) {
+        const mainObject = this.scenes[this.currentScene].main;
+        const thumbnailObject = this.scenes[this.currentScene].thumbnail;
+
+        if (this.autoRotate) {
+          this.rotation.y += 0.01;
+        }
+
+        mainObject.rotation.x = this.rotation.x;
+        mainObject.rotation.y = this.rotation.y;
+
+        thumbnailObject.rotation.x = this.rotation.x * 0.5;
+        thumbnailObject.rotation.y = this.rotation.y * 0.5+ Date.now() * 0.001;
+      }
+
+      this.renderer.render(this.mainScene, this.camera);
+      this.thumbnailRenderer.render(this.thumbnailScene, this.thumbnailCamera);
+    }
+  }
+
+  customElements.define('ai-3d-showcase-{{ ai_gen_id }}', AI3DShowcase{{ ai_gen_id }});
+})();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "3D Metal Poster Showcase",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product & Images"
+    },
+    {
+      "type": "product",
+      "id": "featured_product",
+      "label": "Featured product"
+    },
+    {
+      "type": "image_picker",
+      "id": "back_image",
+      "label": "Poster back image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_info",
+      "label": "Show product info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "showcase_height",
+      "min": 400,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Showcase height",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "scene_background",
+      "label": "Scene background",
+      "default": "#2c3e50"
+    },
+    {
+      "type": "color",
+      "id": "thumbnail_background",
+      "label": "Thumbnail background",
+      "default": "#34495e"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#bdc3c7"
+    },
+    {
+      "type": "color",
+      "id": "active_color",
+      "label": "Active thumbnail color",
+      "default": "#3498db"
+    },
+    {
+      "type": "color",
+      "id": "hover_color",
+      "label": "Hover color",
+      "default": "#2980b9"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Metal Poster Settings"
+    },
+    {
+      "type": "range",
+      "id": "poster_width",
+      "min": 1,
+      "max": 4,
+      "step": 0.1,
+      "label": "Poster width",
+      "default": 2.4
+    },
+    {
+      "type": "range",
+      "id": "poster_height",
+      "min": 1,
+      "max": 4,
+      "step": 0.1,
+      "label": "Poster height",
+      "default": 3.2
+    },
+    {
+      "type": "color",
+      "id": "metal_color",
+      "label": "Metal base color",
+      "default": "#c0c0c0"
+    },
+    {
+      "type": "color",
+      "id": "frame_color",
+      "label": "Frame color",
+      "default": "#2c3e50"
+    },
+    {
+      "type": "range",
+      "id": "metalness",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Metalness",
+      "default": 0.9
+    },
+    {
+      "type": "range",
+      "id": "roughness",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Roughness",
+      "default": 0.1
+    },
+    {
+      "type": "range",
+      "id": "clearcoat",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Clearcoat",
+      "default": 1.0
+    },
+    {
+      "type": "header",
+      "content": "Lighting"
+    },
+    {
+      "type": "range",
+      "id": "ambient_light",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Ambient light",
+      "default": 0.4
+    },
+    {
+      "type": "range",
+      "id": "directional_light",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "label": "Directional light",
+      "default": 1.0
+    },
+    {
+      "type": "range",
+      "id": "point_light",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "label": "Point light",
+      "default": 0.5
+    }
+  ],
+  "presets": [
+    {
+      "name": "3D Metal Poster Showcase"
+    }
+  ]
+}
 {% endschema %}
