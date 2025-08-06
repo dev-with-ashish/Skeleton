@@ -239,11 +239,68 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_aH9mtG": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_5305c62_6MnqT6": {
+          "type": "ai_gen_block_5305c62",
+          "settings": {
+            "poster_image": "shopify://shop_images/xauy8pi7kjmhltay9hz9_2-enhanced.png",
+            "poster_width": 3,
+            "poster_height": 4,
+            "rotation_angle": 45,
+            "tilt_angle": 20,
+            "title": "Premium Art Poster",
+            "description": "Transform your space with this stunning high-quality poster. Printed on premium paper with vibrant colors that last.",
+            "price": "$29.99",
+            "primary_button_text": "Add to Cart",
+            "primary_button_link": "",
+            "secondary_button_text": "View Details",
+            "secondary_button_link": "",
+            "show_features": true,
+            "feature_1": "Premium quality paper",
+            "feature_2": "Fade-resistant inks",
+            "feature_3": "Ready to frame",
+            "background_color": "#ffffff",
+            "text_color": "#333333",
+            "price_color": "#e74c3c",
+            "primary_button_color": "#000f9f",
+            "primary_button_text_color": "#ffffff",
+            "primary_button_hover_color": "#000000",
+            "secondary_button_color": "#666666",
+            "secondary_button_text_color": "#ffffff",
+            "feature_icon_color": "#27ae60",
+            "title_size": 36,
+            "description_size": 16,
+            "price_size": 24,
+            "section_padding": 60,
+            "button_radius": 8
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_5305c62_6MnqT6"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 40,
+        "padding_bottom": 40,
+        "padding_left": 40,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
     "175335773360f08bd0",
     "custom_section_6hJpc8",
-    "custom_section_w6j6Ez"
+    "custom_section_w6j6Ez",
+    "custom_section_aH9mtG"
   ]
 }
