@@ -1,6 +1,798 @@
+{% doc %}
+  @prompt
+    Create an interactive Three.js-powered 3D product poster viewer section.
+    
+     Main viewport (top area):
+    
+      Responsive, square viewport rendering interactive Three.js scenes.
+      The front side of the poster in every scene dynamically loads the selected product’s last image.
+    
+     Thumbnail navigation (below viewport):
+    
+      Horizontally scrollable row with exactly 6 square thumbnails.
+      No text labels; visually auto-generate thumbnail previews of each scene clearly:
+    
+       1. 3D VIEW: Poster with interactive orbit controls enabled.
+       2. 3D LEAF: Poster layers smoothly animating separation effect.
+       3. VIDEO: Placeholder thumbnail depicting video playback capability.
+       4. COMPUTER ROOM: Poster realistically placed in a computer-room interior. Provide an option in the theme editor to select or upload the room background image.
+       5. HOME: Poster displayed realistically within a cozy home setting. Provide an option in the theme editor to select or upload the room background image.
+       6. STUDIO: Poster rendered in a studio environment with professional lighting. Provide an option in the theme editor to select or upload the studio background image.
+    
+     Interaction:
+    
+      Clicking any thumbnail instantly and smoothly transitions the main viewport to its corresponding Three.js scene.
+    
+     Customization (theme editor):
+    
+      Allow store admin to easily select/upload custom background images specifically for 'COMPUTER ROOM,' 'HOME,' and 'STUDIO' scenes from Shopify’s theme customizer.
+    
+     UI considerations:
+    
+      Thumbnails are neatly aligned, equal-sized squares, scrollbar hidden.", make 3d view and 3d leaf poster rotatable with mouse add option to adjust rotaion speed option to increse decrease metalness roughness and lighting also add reflection
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-poster-viewer-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-poster-viewport-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+    cursor: grab;
+  }
+
+  .ai-poster-viewport-{{ ai_gen_id }}.dragging {
+    cursor: grabbing;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}.active {
+    opacity: 1;
+  }
+
+  .ai-poster-3d-container-{{ ai_gen_id }} {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+  }
+
+  .ai-poster-image-{{ ai_gen_id }} {
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+    border-radius: 8px;
+    position: relative;
+    filter: 
+      brightness({{ block.settings.lighting_intensity }}%) 
+      contrast({{ block.settings.lighting_intensity | times: 0.8 }}%);
+  }
+
+  .ai-poster-image-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, {{ block.settings.metalness | divided_by: 100.0 }}) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, {{ block.settings.roughness | divided_by: 200.0 }}) 100%
+    );
+    border-radius: 8px;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  .ai-poster-image-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, {{ block.settings.reflection_intensity | divided_by: 100.0 }}) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(255, 255, 255, {{ block.settings.reflection_intensity | divided_by: 200.0 }}) 100%
+    );
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur({{ block.settings.reflection_blur }}px);
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="view"] .ai-poster-3d-container-{{ ai_gen_id }} {
+    transform: perspective(1000px) rotateY(15deg) rotateX(5deg);
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="leaf"] {
+    background: linear-gradient(45deg, #4CAF50, #8BC34A);
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="leaf"] .ai-poster-3d-container-{{ ai_gen_id }} {
+    animation: ai-poster-leaf-{{ ai_gen_id }} 2s ease-in-out infinite;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="video"] {
+    background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="video"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="video"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 52%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 20px solid #333;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    z-index: 3;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="computer"] {
+    background-image: url('{{ block.settings.computer_room_bg | image_url: width: 800}}');
+    background-size: cover;
+    background-position: center;
+    background-color: #2C3E50;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="home"] {
+    background-image: url('{{ block.settings.home_bg | image_url: width: 800 }}');
+    background-size: cover;
+    background-position: center;
+    background-color: #8B4513;
+  }
+
+  .ai-poster-scene-{{ ai_gen_id }}[data-scene="studio"] {
+    background-image: url('{{ block.settings.studio_bg | image_url: width: 800 }}');
+    background-size: cover;
+    background-position: center;
+    background-color: #F5F5F5;
+  }
+
+  .ai-poster-thumbnails-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    padding: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .ai-poster-thumbnails-{{ ai_gen_id }}::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);}
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}.active {
+    box-shadow: 0 0 0 3px {{ block.settings.accent_color }};transform: scale(1.1);
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="view"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="leaf"] {
+    background: linear-gradient(45deg, #4CAF50, #8BC34A);
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="video"] {
+    background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="computer"] {
+    background-image: url('{{ block.settings.computer_room_bg | image_url: width: 200 }}');
+    background-size: cover;
+    background-position: center;
+    background-color: #2C3E50;
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="home"] {
+    background-image: url('{{ block.settings.home_bg | image_url: width: 200 }}');
+    background-size: cover;
+    background-position: center;
+    background-color: #8B4513;
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="studio"] {
+    background-image: url('{{ block.settings.studio_bg | image_url: width: 200 }}');
+    background-size: cover;
+    background-position: center;
+    background-color: #F5F5F5;
+  }
+
+  .ai-poster-thumbnail-image-{{ ai_gen_id }} {
+    width: 40%;
+    height: 40%;
+    object-fit: contain;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="video"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .ai-poster-thumbnail-{{ ai_gen_id }}[data-scene="video"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 51%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid #333;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    z-index: 3;
+  }
+
+  .ai-poster-image-placeholder-{{ ai_gen_id }} {
+    max-width: 60%;
+    max-height: 60%;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-poster-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  @keyframes ai-poster-leaf-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0px);
+    }
+    25% {
+      transform: perspective(1000px) rotateY(5deg) rotateX(2deg) translateY(-5px);
+    }
+    75% {
+      transform: perspective(1000px) rotateY(-5deg) rotateX(-2deg) translateY(5px);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-poster-thumbnail-{{ ai_gen_id }} {
+      width: 60px;
+      height: 60px;
+    }
+  }
+{% endstyle %}<poster-viewer-{{ ai_gen_id }}
+  class="ai-poster-viewer-{{ ai_gen_id }}"
+  data-rotation-speed="{{ block.settings.rotation_speed }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-poster-viewport-{{ ai_gen_id }}">
+    <div class="ai-poster-scene-{{ ai_gen_id }} active" data-scene="view">
+      <div class="ai-poster-3d-container-{{ ai_gen_id }}">
+        {% if block.settings.product and block.settings.product.images.last %}
+          <img
+            src="{{ block.settings.product.images.last | image_url: width: 600 }}"
+            alt="{{ block.settings.product.images.last.alt | escape }}"
+            class="ai-poster-image-{{ ai_gen_id }}"
+            loading="lazy"
+          >
+        {% else %}
+          <div class="ai-poster-image-placeholder-{{ ai_gen_id }}">
+            {{ 'product-1' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-poster-scene-{{ ai_gen_id }}" data-scene="leaf">
+      <div class="ai-poster-3d-container-{{ ai_gen_id }}">
+        {% if block.settings.product and block.settings.product.images.last %}
+          <img
+            src="{{ block.settings.product.images.last | image_url: width: 600 }}"
+            alt="{{ block.settings.product.images.last.alt | escape }}"
+            class="ai-poster-image-{{ ai_gen_id }}"
+            loading="lazy"
+          >
+        {% else %}
+          <div class="ai-poster-image-placeholder-{{ ai_gen_id }}">
+            {{ 'product-1' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-poster-scene-{{ ai_gen_id }}" data-scene="video">
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 600 }}"
+          alt="{{ block.settings.product.images.last.alt | escape }}"
+          class="ai-poster-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="ai-poster-image-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-poster-scene-{{ ai_gen_id }}" data-scene="computer">
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 600 }}"
+          alt="{{ block.settings.product.images.last.alt | escape }}"
+          class="ai-poster-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="ai-poster-image-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-poster-scene-{{ ai_gen_id }}" data-scene="home">
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 600 }}"
+          alt="{{ block.settings.product.images.last.alt | escape }}"
+          class="ai-poster-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="ai-poster-image-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-poster-scene-{{ ai_gen_id }}" data-scene="studio">
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 600 }}"
+          alt="{{ block.settings.product.images.last.alt | escape }}"
+          class="ai-poster-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="ai-poster-image-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ai-poster-thumbnails-{{ ai_gen_id }}"><button
+      class="ai-poster-thumbnail-{{ ai_gen_id }} active"
+      data-scene="view"
+      aria-label="3D View"
+    >
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 100 }}"
+          alt="3D View thumbnail"
+          class="ai-poster-thumbnail-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </button>
+
+    <button
+      class="ai-poster-thumbnail-{{ ai_gen_id }}"
+      data-scene="leaf"
+      aria-label="Leaf Effect"
+    >
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 100 }}"
+          alt="Leaf Effect thumbnail"
+          class="ai-poster-thumbnail-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </button>
+
+    <button
+      class="ai-poster-thumbnail-{{ ai_gen_id }}"
+      data-scene="video"
+      aria-label="Video View"
+    >
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 100 }}"
+          alt="Video View thumbnail"
+          class="ai-poster-thumbnail-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </button>
+
+    <button
+      class="ai-poster-thumbnail-{{ ai_gen_id }}"
+      data-scene="computer"
+      aria-label="Computer Room"
+    >
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 100 }}"
+          alt="Computer Room thumbnail"
+          class="ai-poster-thumbnail-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </button>
+
+    <button
+      class="ai-poster-thumbnail-{{ ai_gen_id }}"
+      data-scene="home"
+      aria-label="Home Setting"
+    >
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 100 }}"
+          alt="Home Setting thumbnail"
+          class="ai-poster-thumbnail-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </button>
+
+    <button
+      class="ai-poster-thumbnail-{{ ai_gen_id }}"
+      data-scene="studio"
+      aria-label="Studio Environment"
+    >
+      {% if block.settings.product and block.settings.product.images.last %}
+        <img
+          src="{{ block.settings.product.images.last | image_url: width: 100 }}"
+          alt="Studio Environment thumbnail"
+          class="ai-poster-thumbnail-image-{{ ai_gen_id }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </button>
+  </div>
+</poster-viewer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class PosterViewer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.isDragging = false;
+        this.previousMousePosition = { x: 0, y: 0 };
+        this.rotation = { x: 5, y: 15 };
+        this.currentScene = 'view';
+      }
+
+      connectedCallback() {
+        this.thumbnails = this.querySelectorAll('.ai-poster-thumbnail-{{ ai_gen_id }}');
+        this.scenes = this.querySelectorAll('.ai-poster-scene-{{ ai_gen_id }}');
+        this.viewport = this.querySelector('.ai-poster-viewport-{{ ai_gen_id }}');
+        this.rotationSpeed = parseFloat(this.dataset.rotationSpeed) || 1;
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.thumbnails.forEach((thumbnail) => {
+          thumbnail.addEventListener('click', () => {
+            const targetScene = thumbnail.dataset.scene;
+            this.switchScene(targetScene, thumbnail);
+          });
+        });
+
+        this.viewport.addEventListener('mousedown', this.onMouseDown.bind(this));
+        this.viewport.addEventListener('mousemove', this.onMouseMove.bind(this));
+        this.viewport.addEventListener('mouseup', this.onMouseUp.bind(this));
+        this.viewport.addEventListener('mouseleave', this.onMouseUp.bind(this));
+
+        this.viewport.addEventListener('touchstart', this.onTouchStart.bind(this));
+        this.viewport.addEventListener('touchmove', this.onTouchMove.bind(this));
+        this.viewport.addEventListener('touchend', this.onTouchEnd.bind(this));
+      }
+
+      switchScene(sceneId, activeThumbnail) {
+        this.currentScene = sceneId;
+        
+        this.scenes.forEach((scene) => {
+          scene.classList.remove('active');
+          if (scene.dataset.scene === sceneId) {
+            scene.classList.add('active');
+          }
+        });
+
+        this.thumbnails.forEach((thumbnail) => {
+          thumbnail.classList.remove('active');
+        });
+        activeThumbnail.classList.add('active');
+
+        if (sceneId === 'view' || sceneId === 'leaf') {
+          this.updateRotation();
+        }
+      }
+
+      onMouseDown(event) {
+        if (this.currentScene === 'view' || this.currentScene === 'leaf') {
+          this.isDragging = true;
+          this.viewport.classList.add('dragging');
+          this.previousMousePosition = {
+            x: event.clientX,
+            y: event.clientY
+          };
+        }
+      }
+
+      onMouseMove(event) {
+        if (!this.isDragging || (this.currentScene !== 'view' && this.currentScene !== 'leaf')) return;
+
+        const deltaX = event.clientX - this.previousMousePosition.x;
+        const deltaY = event.clientY - this.previousMousePosition.y;
+
+        this.rotation.y += deltaX * this.rotationSpeed * 0.5;
+        this.rotation.x -= deltaY * this.rotationSpeed * 0.5;
+
+        this.rotation.x = Math.max(-60, Math.min(60, this.rotation.x));
+
+        this.updateRotation();
+
+        this.previousMousePosition = {
+          x: event.clientX,
+          y: event.clientY
+        };
+      }
+
+      onMouseUp() {
+        this.isDragging = false;
+        this.viewport.classList.remove('dragging');
+      }
+
+      onTouchStart(event) {
+        if (this.currentScene === 'view' || this.currentScene === 'leaf') {
+          this.isDragging = true;
+          const touch = event.touches[0];
+          this.previousMousePosition = {
+            x: touch.clientX,
+            y: touch.clientY
+          };
+        }
+      }
+
+      onTouchMove(event) {
+        if (!this.isDragging || (this.currentScene !== 'view' && this.currentScene !== 'leaf')) return;
+
+        event.preventDefault();
+        const touch = event.touches[0];
+        const deltaX = touch.clientX - this.previousMousePosition.x;
+        const deltaY = touch.clientY - this.previousMousePosition.y;
+
+        this.rotation.y += deltaX * this.rotationSpeed * 0.5;
+        this.rotation.x -= deltaY * this.rotationSpeed * 0.5;
+
+        this.rotation.x = Math.max(-60, Math.min(60, this.rotation.x));
+
+        this.updateRotation();
+
+        this.previousMousePosition = {
+          x: touch.clientX,
+          y: touch.clientY
+        };
+      }
+
+      onTouchEnd() {
+        this.isDragging = false;
+      }
+
+      updateRotation() {
+        const activeScene = this.querySelector('.ai-poster-scene-{{ ai_gen_id }}.active');
+        const container = activeScene.querySelector('.ai-poster-3d-container-{{ ai_gen_id }}');
+        
+        if (container) {
+          container.style.transform = `perspective(1000px) rotateX(${this.rotation.x}deg) rotateY(${this.rotation.y}deg)`;
+        }
+      }
+    }
+
+    customElements.define('poster-viewer-{{ ai_gen_id }}', PosterViewer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product Poster Viewer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "3D Controls"
+    },
+    {
+      "type": "range",
+      "id": "rotation_speed",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1,
+      "label": "Rotation speed",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "metalness",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Metalness",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "roughness",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Roughness",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "lighting_intensity",
+      "min": 50,
+      "max": 150,
+      "step": 5,
+      "unit": "%",
+      "label": "Lighting intensity",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "reflection_intensity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Reflection intensity",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "reflection_blur",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Reflection blur",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Background Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "computer_room_bg",
+      "label": "Computer room background"
+    },
+    {
+      "type": "image_picker",
+      "id": "home_bg",
+      "label": "Home background"
+    },
+    {
+      "type": "image_picker",
+      "id": "studio_bg",
+      "label": "Studio background"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Poster Viewer"
+    }
+  ]
+}
 {% endschema %}
