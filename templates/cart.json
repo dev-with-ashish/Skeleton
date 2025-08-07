@@ -12,9 +12,64 @@
     "main": {
       "type": "cart",
       "settings": {}
+    },
+    "custom_section_ffqtNT": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_2c131bc_giRapj": {
+          "type": "ai_gen_block_2c131bc",
+          "settings": {
+            "title": "Our Services",
+            "subtitle": "Comprehensive event management and creative solutions",
+            "content_height": 500,
+            "section_padding": 20,
+            "background_color": "#ffffff",
+            "title_color": "#000000",
+            "subtitle_color": "#666666",
+            "accent_color": "#9f0000",
+            "title_size": 36,
+            "subtitle_size": 18,
+            "slider_background": "#f8f9fa",
+            "slider_border_radius": 12,
+            "item_background": "#ffffff",
+            "item_hover_background": "#f0f0f0",
+            "item_text_color": "#333333",
+            "item_hover_text_color": "#000000",
+            "item_border_color": "#e0e0e0",
+            "item_hover_border_color": "#000f9f",
+            "item_padding": 14,
+            "item_border_radius": 8,
+            "item_text_size": 16,
+            "nav_button_bg": "#ffffff",
+            "nav_button_hover_bg": "#000f9f",
+            "nav_button_color": "#333333",
+            "nav_button_hover_color": "#ffffff",
+            "image_placeholder_bg": "#f4f4f4",
+            "image_placeholder_text": "#999999",
+            "image_border_radius": 12
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_2c131bc_giRapj"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 0,
+        "padding_right": 0,
+        "padding_bottom": 0,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "custom_section_ffqtNT"
   ]
 }
