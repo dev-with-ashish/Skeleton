@@ -1,6 +1,860 @@
+{% doc %}
+  @prompt
+    generate a service section best and clean service section shocansing all this service in list format in blocks when hoverd or clicked or. touch should show a image in square format in a horizontal row :  Events
+    
+     Promotions & Activations
+    
+     Films / 3D Animatics
+    
+      Expos & Exhibitions
+    
+      Retail & Display
+    
+     Dealer & Customer Meets 
+     Press Conferences
+    
+     Product & Services Launches
+    
+     Design & Communication
+    
+     Thematic dinners & Parties
+    
+     Government Services   MICE & destination management
+    
+      International shows
+    
+     Concerts & Bollywood shows
+    
+     Artist & Data Management
+    
+     Wedding & Special Occasions
+    
+     Online & Digital Media, on the left showing list having max 5 items in multiple slides with arrow navigation on the right image both image and list block with same height, add a red glowing shoadow behind effect when selected for both selected item and image when displayed
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-services-section-{{ ai_gen_id }} {
+    padding: {{ block.settings.section_padding }}px 20px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-services-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-services-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .ai-services-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 16px;font-weight: 700;
+  }
+
+  .ai-services-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    margin: 0;
+    opacity: 0.8;
+  }
+
+  .ai-services-content-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 60px;
+    align-items: stretch;
+    height: {{ block.settings.content_height }}px;
+  }
+
+  .ai-services-slider-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    background-color: {{ block.settings.slider_background }};
+    border-radius: {{ block.settings.slider_border_radius }}px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .ai-services-slider-container-{{ ai_gen_id }} {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-services-slides-{{ ai_gen_id }} {
+    display: flex;
+    transition: transform 0.4s ease;
+    height: 100%;
+  }
+
+  .ai-services-slide-{{ ai_gen_id }} {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .ai-services-item-{{ ai_gen_id }} {
+    flex: 1;
+    display: flex;
+  }
+
+  .ai-services-button-{{ ai_gen_id }} {
+    width: 100%;
+    text-align: left;
+    padding: {{ block.settings.item_padding }}px 24px;
+    background-color: {{ block.settings.item_background }};
+    color: {{ block.settings.item_text_color }};
+    border: 1px solid {{ block.settings.item_border_color }};
+    border-radius: {{ block.settings.item_border_radius }}px;
+    font-size: {{ block.settings.item_text_size }}px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+  }
+
+  .ai-services-button-{{ ai_gen_id }}:hover,
+  .ai-services-button-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.item_hover_background }};
+    color: {{ block.settings.item_hover_text_color }};
+    border-color: {{ block.settings.item_hover_border_color }};
+    transform: translateX(8px);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 40px rgba(255, 0, 0, 0.4), 0 0 60px rgba(255, 0, 0, 0.2);
+  }
+
+  .ai-services-button-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: {{ block.settings.accent_color }};
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
+
+  .ai-services-button-{{ ai_gen_id }}:hover::before,
+  .ai-services-button-{{ ai_gen_id }}.active::before {
+    transform: scaleY(1);
+  }
+
+  .ai-services-navigation-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }} {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: {{ block.settings.nav_button_bg }};
+    color: {{ block.settings.nav_button_color }};
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }}:hover:not(:disabled) {
+    background-color: {{ block.settings.nav_button_hover_bg }};
+    color: {{ block.settings.nav_button_hover_color }};
+    transform: scale(1.1);
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ai-services-slide-indicator-{{ ai_gen_id }} {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .ai-services-image-container-{{ ai_gen_id }} {
+    height: {{ block.settings.content_height }}px;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.image_placeholder_bg }};
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .ai-services-image-container-{{ ai_gen_id }}.glow-active {
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.7), 0 0 50px rgba(255, 0, 0, 0.5), 0 0 75px rgba(255, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-services-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .ai-services-image-{{ ai_gen_id }}.active {
+    opacity: 1;
+  }
+
+  .ai-services-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ block.settings.image_placeholder_bg }};
+    color: {{ block.settings.image_placeholder_text }};
+    font-size: 18px;
+    text-align: center;
+    padding: 40px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-services-placeholder-{{ ai_gen_id }} svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.3;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-services-content-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      height: auto;
+    }
+
+    .ai-services-slider-wrapper-{{ ai_gen_id }} {
+      height: 400px;
+    }
+
+    .ai-services-image-container-{{ ai_gen_id }} {
+      height: 300px;
+      order: -1;
+    }
+
+    .ai-services-button-{{ ai_gen_id }}:hover,
+    .ai-services-button-{{ ai_gen_id }}.active {
+      transform: none;
+    }
+
+    .ai-services-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.8 }}px;
+    }
+
+    .ai-services-subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<services-section-{{ ai_gen_id }}
+  class="ai-services-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-services-container-{{ ai_gen_id }}">
+    {% if block.settings.title != blank or block.settings.subtitle != blank %}
+      <div class="ai-services-header-{{ ai_gen_id }}">
+        {% if block.settings.title != blank %}
+          <h2 class="ai-services-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+        {% endif %}
+        {% if block.settings.subtitle != blank %}
+          <p class="ai-services-subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="ai-services-content-{{ ai_gen_id }}">
+      <div class="ai-services-slider-wrapper-{{ ai_gen_id }}">
+        <div class="ai-services-slider-container-{{ ai_gen_id }}">
+          <div class="ai-services-slides-{{ ai_gen_id }}">
+            {% assign services = "Events,Promotions & Activations,Films / 3D Animatics,Expos & Exhibitions,Retail & Display,Dealer & Customer Meets,Press Conferences,Product & Services Launches,Design & Communication,Thematic dinners & Parties,Government Services,MICE & destination management,International shows,Concerts & Bollywood shows,Artist & Data Management,Wedding & Special Occasions,Online & Digital Media" | split: ',' %}
+            
+            {% assign total_slides = services.size | divided_by: 5.0 | ceil %}
+            
+            {% for slide_num in (1..total_slides) %}
+              <div class="ai-services-slide-{{ ai_gen_id }}" data-slide="{{ slide_num }}">
+                {% assign start_index = slide_num | minus: 1 | times: 5 %}
+                {% assign end_index = start_index | plus: 4 %}
+                {% for i in (start_index..end_index) %}
+                  {% if services[i] %}
+                    {% assign service_index = i | plus: 1 %}<div class="ai-services-item-{{ ai_gen_id }}">
+                      <button
+                        class="ai-services-button-{{ ai_gen_id }}"
+                        data-service-index="{{ service_index }}"
+                        type="button"
+                      >
+                        {{ services[i] | strip }}
+                      </button>
+                    </div>
+                  {% else %}
+                    <div class="ai-services-item-{{ ai_gen_id }}"></div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="ai-services-slide-indicator-{{ ai_gen_id }}">
+          <span class="current-slide">1</span> / <span class="total-slides">{{ total_slides }}</span>
+        </div>
+
+        <div class="ai-services-navigation-{{ ai_gen_id }}">
+          <button class="ai-services-nav-button-{{ ai_gen_id }} prev-button" type="button" aria-label="Previous slide">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+          </button>
+          <button class="ai-services-nav-button-{{ ai_gen_id }} next-button" type="button" aria-label="Next slide">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9,18 15,12 9,6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="ai-services-image-container-{{ ai_gen_id }}">
+        {% for i in (1..17) %}
+          {% assign image_setting = 'service_image_' | append: i %}
+          {% if block.settings[image_setting] %}
+            <img
+              src="{{ block.settings[image_setting] | image_url: width: 400 }}"
+              alt="Service {{ i }}"
+              class="ai-services-image-{{ ai_gen_id }}"
+              data-service-index="{{ i }}"
+              loading="lazy"
+              width="400"
+              height="400"
+            >
+          {% endif %}
+        {% endfor %}
+        <div class="ai-services-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+          <span>Hover over a service to see preview</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</services-section-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ServicesSection{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentSlide = 0;
+        this.totalSlides = 0;
+        this.buttons = [];
+        this.images = [];
+        this.placeholder = null;
+        this.activeIndex = null;
+        this.slidesContainer = null;
+        this.prevButton = null;
+        this.nextButton = null;
+        this.slideIndicator = null;
+        this.imageContainer = null;
+      }
+
+      connectedCallback() {
+        this.slidesContainer = this.querySelector('.ai-services-slides-{{ ai_gen_id }}');
+        this.prevButton = this.querySelector('.prev-button');
+        this.nextButton = this.querySelector('.next-button');
+        this.slideIndicator = this.querySelector('.ai-services-slide-indicator-{{ ai_gen_id }}');
+        this.buttons = this.querySelectorAll('.ai-services-button-{{ ai_gen_id }}');
+        this.images = this.querySelectorAll('.ai-services-image-{{ ai_gen_id }}');
+        this.placeholder = this.querySelector('.ai-services-placeholder-{{ ai_gen_id }}');
+        this.imageContainer = this.querySelector('.ai-services-image-container-{{ ai_gen_id }}');
+        
+        this.totalSlides = this.querySelectorAll('.ai-services-slide-{{ ai_gen_id }}').length;
+        
+        this.setupEventListeners();
+        this.updateNavigation();
+        this.showPlaceholder();
+      }
+
+      setupEventListeners() {
+        this.prevButton.addEventListener('click', () => this.previousSlide());
+        this.nextButton.addEventListener('click', () => this.nextSlide());
+
+        this.buttons.forEach((button) => {
+          button.addEventListener('mouseenter', () => this.handleServiceHover(button));
+          button.addEventListener('click', () => this.handleServiceClick(button));
+          button.addEventListener('touchstart', () => this.handleServiceClick(button));
+        });
+
+        this.addEventListener('mouseleave', () => {
+          if (this.activeIndex === null) {
+            this.showPlaceholder();
+            this.clearActiveStates();
+            this.removeImageGlow();
+          }
+        });
+      }
+
+      previousSlide() {
+        if (this.currentSlide > 0) {
+          this.currentSlide--;
+          this.updateSlider();
+          this.updateNavigation();
+        }
+      }
+
+      nextSlide() {
+        if (this.currentSlide < this.totalSlides - 1) {
+          this.currentSlide++;
+          this.updateSlider();
+          this.updateNavigation();
+        }
+      }
+
+      updateSlider() {
+        const translateX = -this.currentSlide * 100;
+        this.slidesContainer.style.transform = `translateX(${translateX}%)`;
+        
+        this.slideIndicator.querySelector('.current-slide').textContent = this.currentSlide + 1;
+        
+        this.clearActiveStates();
+        this.showPlaceholder();
+        this.removeImageGlow();
+        this.activeIndex = null;
+      }
+
+      updateNavigation() {
+        this.prevButton.disabled = this.currentSlide === 0;
+        this.nextButton.disabled = this.currentSlide === this.totalSlides - 1;
+      }
+
+      handleServiceHover(button) {
+        const serviceIndex = button.dataset.serviceIndex;
+        this.showServiceImage(serviceIndex);
+        this.setActiveButton(button);
+        this.addImageGlow();
+      }
+
+      handleServiceClick(button) {
+        const serviceIndex = button.dataset.serviceIndex;
+        
+        if (this.activeIndex === serviceIndex) {
+          this.activeIndex = null;
+          this.showPlaceholder();
+          this.clearActiveStates();
+          this.removeImageGlow();
+        } else {
+          this.activeIndex = serviceIndex;
+          this.showServiceImage(serviceIndex);
+          this.setActiveButton(button);
+          this.addImageGlow();
+        }
+      }
+
+      showServiceImage(serviceIndex) {
+        this.hideAllImages();
+        this.placeholder.style.display = 'none';
+        
+        const targetImage = this.querySelector(`[data-service-index="${serviceIndex}"].ai-services-image-{{ ai_gen_id }}`);
+        if (targetImage) {
+          targetImage.classList.add('active');
+        } else {
+          this.showPlaceholder();
+        }
+      }
+
+      showPlaceholder() {
+        this.hideAllImages();
+        this.placeholder.style.display = 'flex';
+      }
+
+      hideAllImages() {
+        this.images.forEach(img => img.classList.remove('active'));
+      }
+
+      setActiveButton(activeButton) {
+        this.buttons.forEach(btn => btn.classList.remove('active'));
+        activeButton.classList.add('active');
+      }
+
+      clearActiveStates() {
+        this.buttons.forEach(btn => btn.classList.remove('active'));
+      }
+
+      addImageGlow() {
+        this.imageContainer.classList.add('glow-active');
+      }
+
+      removeImageGlow() {
+        this.imageContainer.classList.remove('glow-active');
+      }
+    }
+
+    customElements.define('services-section-{{ ai_gen_id }}', ServicesSection{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Services Section",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section title",
+      "default": "Our Services"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Section subtitle",
+      "default": "Comprehensive event management and creative solutions"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "content_height",
+      "min": 400,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "label": "Content height",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "type": "color",
+      "id": "slider_background",
+      "label": "Slider background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "range",
+      "id": "slider_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Slider border radius",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Service Items"
+    },
+    {
+      "type": "color",
+      "id": "item_background",
+      "label": "Item background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_background",
+      "label": "Item hover background",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "item_text_color",
+      "label": "Item text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_text_color",
+      "label": "Item hover text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "item_border_color",
+      "label": "Item border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_border_color",
+      "label": "Item hover border color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "range",
+      "id": "item_padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Item padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "item_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Item border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "item_text_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Item text size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_bg",
+      "label": "Navigation button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_hover_bg",
+      "label": "Navigation button hover background",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_color",
+      "label": "Navigation button color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_hover_color",
+      "label": "Navigation button hover color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Image Display"
+    },
+    {
+      "type": "color",
+      "id": "image_placeholder_bg",
+      "label": "Image placeholder background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "image_placeholder_text",
+      "label": "Image placeholder text",
+      "default": "#999999"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Service Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_1",
+      "label": "Events image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_2",
+      "label": "Promotions & Activations image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_3",
+      "label": "Films / 3D Animatics image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_4",
+      "label": "Expos & Exhibitions image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_5",
+      "label": "Retail & Display image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_6",
+      "label": "Dealer & Customer Meets image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_7",
+      "label": "Press Conferences image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_8",
+      "label": "Product & Services Launches image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_9",
+      "label": "Design & Communication image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_10",
+      "label": "Thematic dinners & Parties image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_11",
+      "label": "Government Services image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_12",
+      "label": "MICE & destination management image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_13",
+      "label": "International shows image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_14",
+      "label": "Concerts & Bollywood shows image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_15",
+      "label": "Artist & Data Management image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_16",
+      "label": "Wedding & Special Occasions image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_17",
+      "label": "Online & Digital Media image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Services Section"
+    }
+  ]
+}
 {% endschema %}
