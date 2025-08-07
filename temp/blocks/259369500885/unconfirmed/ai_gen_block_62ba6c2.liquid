@@ -1,6 +1,654 @@
+{% doc %}
+  @prompt
+    generate a service section best and clean service section shocansing all this service in list format in blocks when hoverd or clicked or. touch should show a image in square format in a horizontal row :  Events
+    
+     Promotions & Activations
+    
+     Films / 3D Animatics
+    
+      Expos & Exhibitions
+    
+      Retail & Display
+    
+     Dealer & Customer Meets 
+     Press Conferences
+    
+     Product & Services Launches
+    
+     Design & Communication
+    
+     Thematic dinners & Parties
+    
+     Government Services   MICE & destination management
+    
+      International shows
+    
+     Concerts & Bollywood shows
+    
+     Artist & Data Management
+    
+     Wedding & Special Occasions
+    
+     Online & Digital Media, on the left showing list having max 5 items in multiple slides with arrow navigation on the right image both image and list block with same height
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-services-section-{{ ai_gen_id }} {
+    display: flex;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding }}px;
+    gap: 40px;
+    min-height: 500px;
+    max-height: 600px;}
+
+  .ai-services-list-container-{{ ai_gen_id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-services-heading-{{ ai_gen_id }} {
+    color: {{ block.settings.heading_color }};
+    font-size: {{ block.settings.heading_size }}px;
+    margin: 0 0 30px 0;
+    font-weight: 600;
+  }
+
+  .ai-services-slider-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .ai-services-slides-container-{{ ai_gen_id }} {
+    display: flex;
+    transition: transform 0.3s ease;
+    height: 100%;
+  }
+
+  .ai-services-slide-{{ ai_gen_id }} {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 20px;
+  }
+
+  .ai-service-item-{{ ai_gen_id }} {
+    padding: 16px 20px;
+    background-color: {{ block.settings.item_background_color }};
+    border: 2px solid {{ block.settings.item_border_color }};
+    border-radius: {{ block.settings.item_border_radius }}px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    position: relative;
+  }
+
+  .ai-service-item-{{ ai_gen_id }}:hover,
+  .ai-service-item-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.item_hover_background }};
+    border-color: {{ block.settings.item_hover_border }};
+    color: {{ block.settings.item_hover_text }};
+    transform: translateX(8px);
+  }
+
+  .ai-services-navigation-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }} {
+    background-color: {{ block.settings.nav_button_color }};
+    color: {{ block.settings.nav_button_text_color }};
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.nav_button_hover_color }};
+  }
+
+  .ai-services-nav-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ai-services-dots-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ai-services-dot-{{ ai_gen_id }} {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: {{ block.settings.dot_color }};
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-services-dot-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.dot_active_color }};
+  }
+
+  .ai-services-image-container-{{ ai_gen_id }} {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ block.settings.image_background_color }};
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;position: relative;
+  }
+
+  .ai-services-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-services-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;}
+
+  .ai-services-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100px;
+    height: 100px;
+    opacity: 0.3;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-services-section-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 30px;
+      min-height: auto;
+      max-height: none;
+    }
+
+    .ai-services-list-container-{{ ai_gen_id }},
+    .ai-services-image-container-{{ ai_gen_id }} {
+      min-height: 300px;
+    }
+  }
+{% endstyle %}
+
+<services-section-{{ ai_gen_id }}
+  class="ai-services-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-services-list-container-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-services-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}<div class="ai-services-slider-wrapper-{{ ai_gen_id }}">
+      <div class="ai-services-slides-container-{{ ai_gen_id }}" data-slides-container>
+        {% assign services = "Events,Promotions & Activations,Films / 3D Animatics,Expos & Exhibitions,Retail & Display,Dealer & Customer Meets,Press Conferences,Product & Services Launches,Design & Communication,Thematic dinners & Parties,Government Services,MICE & destination management,International shows,Concerts & Bollywood shows,Artist & Data Management,Wedding & Special Occasions,Online & Digital Media" | split: "," %}
+        
+        {% assign total_slides = services.size | divided_by: 5.0 | ceil %}
+        
+        {% for slide_index in (0..total_slides) %}
+          {% assign start_index = slide_index | times: 5 %}
+          {% assign end_index = start_index | plus: 4 %}
+          
+          {% if start_index < services.size %}
+            <div class="ai-services-slide-{{ ai_gen_id }}" data-slide="{{ slide_index }}">
+              {% for i in (start_index..end_index) %}
+                {% if i < services.size %}
+                  <div 
+                    class="ai-service-item-{{ ai_gen_id }}"
+                    data-service="{{ services[i] | strip }}"
+                    data-index="{{ i }}"
+                  >
+                    {{ services[i] | strip }}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div></div>
+
+    <div class="ai-services-navigation-{{ ai_gen_id }}">
+      <button 
+        class="ai-services-nav-button-{{ ai_gen_id }}" 
+        data-nav="prev"
+        aria-label="Previous services"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15,18 9,12 15,6"></polyline>
+        </svg>
+      </button>
+
+      <div class="ai-services-dots-{{ ai_gen_id }}" data-dots-container>
+        {% for slide_index in (0..total_slides) %}
+          {% assign start_index = slide_index | times: 5 %}
+          {% if start_index < services.size %}
+            <div 
+              class="ai-services-dot-{{ ai_gen_id }} {% if slide_index == 0 %}active{% endif %}"
+              data-slide="{{ slide_index }}"></div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <button 
+        class="ai-services-nav-button-{{ ai_gen_id }}" 
+        data-nav="next"
+        aria-label="Next services"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9,18 15,12 9,6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="ai-services-image-container-{{ ai_gen_id }}">
+    {% for i in (1..17) %}
+      {% assign image_key = 'service_image_' | append: i %}
+      {% assign service_image = block.settings[image_key] %}
+      
+      {% if service_image %}
+        <img
+          src="{{ service_image | image_url: width: 600 }}"
+          alt="Service image {{ i }}"
+          class="ai-services-image-{{ ai_gen_id }}"
+          data-service-image="{{ i | minus: 1 }}"
+          style="{% if i != 1 %}opacity: 0; position: absolute;{% endif %}"loading="lazy"
+        >
+      {% endif %}
+    {% endfor %}
+    
+    <div class="ai-services-image-placeholder-{{ ai_gen_id }}" data-placeholder>
+      {{ 'image' | placeholder_svg_tag }}
+    </div>
+  </div>
+</services-section-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ServicesSection{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentSlide = 0;
+        this.activeServiceIndex = 0;
+        this.totalSlides = 0;
+      }
+
+      connectedCallback() {
+        this.slidesContainer = this.querySelector('[data-slides-container]');
+        this.slides = this.querySelectorAll('[data-slide]');
+        this.serviceItems = this.querySelectorAll('.ai-service-item-{{ ai_gen_id }}');
+        this.serviceImages = this.querySelectorAll('[data-service-image]');
+        this.placeholder = this.querySelector('[data-placeholder]');
+        this.dots = this.querySelectorAll('.ai-services-dot-{{ ai_gen_id }}');
+        this.prevButton = this.querySelector('[data-nav="prev"]');
+        this.nextButton = this.querySelector('[data-nav="next"]');
+
+        this.totalSlides = this.slides.length;
+        this.setupEventListeners();
+        this.updateNavigation();
+        this.showDefaultImage();
+      }
+
+      setupEventListeners() {
+        this.serviceItems.forEach((item, index) => {
+          item.addEventListener('click', () => this.selectService(index));
+          item.addEventListener('mouseenter', () => this.selectService(index));
+        });
+
+        this.dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => this.goToSlide(index));
+        });
+
+        this.prevButton.addEventListener('click', () => this.previousSlide());
+        this.nextButton.addEventListener('click', () => this.nextSlide());
+      }
+
+      selectService(index) {
+        this.serviceItems.forEach(item => item.classList.remove('active'));
+        this.serviceItems[index].classList.add('active');
+        this.activeServiceIndex = index;
+        this.showServiceImage(index);
+      }
+
+      showServiceImage(index) {
+        this.serviceImages.forEach(img => {
+          img.style.opacity = '0';
+          img.style.position = 'absolute';
+        });
+
+        if (this.serviceImages[index]) {
+          this.serviceImages[index].style.opacity = '1';
+          this.serviceImages[index].style.position = 'relative';this.placeholder.style.display = 'none';
+        } else {
+          this.placeholder.style.display = 'flex';
+        }
+      }
+
+      showDefaultImage() {
+        if (this.serviceImages.length > 0) {
+          this.showServiceImage(0);this.serviceItems[0].classList.add('active');
+        }
+      }
+
+      goToSlide(slideIndex) {
+        this.currentSlide = slideIndex;
+        this.updateSlidePosition();
+        this.updateNavigation();
+      }
+
+      previousSlide() {
+        if (this.currentSlide > 0) {
+          this.currentSlide--;
+          this.updateSlidePosition();
+          this.updateNavigation();
+        }
+      }
+
+      nextSlide() {
+        if (this.currentSlide < this.totalSlides - 1) {
+          this.currentSlide++;
+          this.updateSlidePosition();
+          this.updateNavigation();
+        }
+      }
+
+      updateSlidePosition() {
+        const translateX = -this.currentSlide * 100;
+        this.slidesContainer.style.transform = `translateX(${translateX}%)`;
+      }
+
+      updateNavigation() {
+        this.prevButton.disabled = this.currentSlide === 0;
+        this.nextButton.disabled = this.currentSlide === this.totalSlides - 1;
+
+        this.dots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === this.currentSlide);
+        });
+      }
+    }
+
+    customElements.define('services-section-{{ ai_gen_id }}', ServicesSection{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Services showcase",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "Our Services"
+    },
+    {
+      "type": "header",
+      "content": "Service images"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add images for each service in order: Events, Promotions & Activations, Films / 3D Animatics, etc."
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_1",
+      "label": "Events image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_2",
+      "label": "Promotions & Activations image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_3",
+      "label": "Films / 3D Animatics image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_4",
+      "label": "Expos & Exhibitions image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_5",
+      "label": "Retail & Display image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_6",
+      "label": "Dealer & Customer Meets image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_7",
+      "label": "Press Conferences image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_8",
+      "label": "Product & Services Launches image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_9",
+      "label": "Design & Communication image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_10",
+      "label": "Thematic dinners & Parties image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_11",
+      "label": "Government Services image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_12",
+      "label": "MICE & destination management image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_13",
+      "label": "International shows image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_14",
+      "label": "Concerts & Bollywood shows image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_15",
+      "label": "Artist & Data Management image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_16",
+      "label": "Wedding & Special Occasions image"
+    },
+    {
+      "type": "image_picker",
+      "id": "service_image_17",
+      "label": "Online & Digital Media image"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "item_background_color",
+      "label": "Service item background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "item_border_color",
+      "label": "Service item border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_background",
+      "label": "Service item hover background",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_border",
+      "label": "Service item hover border",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_text",
+      "label": "Service item hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_color",
+      "label": "Navigation button color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_text_color",
+      "label": "Navigation button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_hover_color",
+      "label": "Navigation button hover color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "dot_color",
+      "label": "Dot color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "dot_active_color",
+      "label": "Active dot color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "image_background_color",
+      "label": "Image area background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "item_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Service item border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Image area border radius",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Services showcase"
+    }
+  ]
+}
 {% endschema %}
