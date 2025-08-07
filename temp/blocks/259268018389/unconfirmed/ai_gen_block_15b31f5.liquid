@@ -1,6 +1,737 @@
+{% doc %}
+  @prompt
+    header section with MAARCOM EVENTS logo in two line 1st word wider then the down word there is a circle red circle behind the words glowing red cirlce and menus on the left, the red circle is a empty red circle with  boundry only, remove circle boundry behind the text means draw arc above and below the logo text, oh common it is a header block make it like a header with menus like menus on mobile with slider
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-header-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+    position: relative;
+    z-index: 1000;
+  }
+
+  .ai-header-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-header-logo-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    z-index: 2;
+  }
+
+  .ai-header-logo-arc-top-{{ ai_gen_id }} {
+    position: absolute;
+    top: -{{ block.settings.arc_distance }}px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: {{ block.settings.arc_width }}px;
+    height: {{ block.settings.arc_height }}px;
+    border: {{ block.settings.arc_thickness }}px solid {{ block.settings.arc_color }};
+    border-bottom: none;
+    border-radius: {{ block.settings.arc_width | divided_by: 2 }}px {{ block.settings.arc_width | divided_by: 2 }}px 0 0;
+    z-index: -1;
+    box-shadow: 0 0 {{ block.settings.glow_intensity }}px {{ block.settings.arc_color }};
+  }
+
+  .ai-header-logo-arc-bottom-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: -{{ block.settings.arc_distance }}px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: {{ block.settings.arc_width }}px;
+    height: {{ block.settings.arc_height }}px;
+    border: {{ block.settings.arc_thickness }}px solid {{ block.settings.arc_color }};
+    border-top: none;
+    border-radius: 0 0 {{ block.settings.arc_width | divided_by: 2 }}px {{ block.settings.arc_width | divided_by: 2 }}px;
+    z-index: -1;
+    box-shadow: 0 0 {{ block.settings.glow_intensity }}px {{ block.settings.arc_color }};
+  }
+
+  .ai-header-logo-text1-{{ ai_gen_id }} {
+    font-size: {{ block.settings.logo_size_large }}px;
+    font-weight: {{ block.settings.logo_weight_large }};
+    color: {{ block.settings.logo_color }};
+    line-height: 0.9;
+    letter-spacing: {{ block.settings.letter_spacing_large }}px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .ai-header-logo-text2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.logo_size_small }}px;
+    font-weight: {{ block.settings.logo_weight_small }};
+    color: {{ block.settings.logo_color }};
+    line-height: 0.9;
+    letter-spacing: {{ block.settings.letter_spacing_small }}px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .ai-header-nav-desktop-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.menu_spacing }}px;
+  }
+
+  .ai-header-nav-link-{{ ai_gen_id }} {
+    color: {{ block.settings.menu_color }};
+    text-decoration: none;
+    font-size: {{ block.settings.menu_font_size }}px;
+    font-weight: {{ block.settings.menu_font_weight }};
+    padding: 8px 12px;
+    transition: color0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .ai-header-nav-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.menu_hover_color }};
+  }
+
+  .ai-header-mobile-toggle-{{ ai_gen_id }} {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: {{ block.settings.menu_color }};
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }} {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    transform: rotate(0deg);
+    transition: 0.3s ease-in-out;
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }} span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: {{ block.settings.menu_color }};
+    border-radius: 3px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: 0.25s ease-in-out;
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }} span:nth-child(1) {
+    top: 0px;
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }} span:nth-child(2) {
+    top: 7px;
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }} span:nth-child(3) {
+    top: 14px;
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }}.open span:nth-child(1) {
+    top: 7px;
+    transform: rotate(135deg);
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }}.open span:nth-child(2) {
+    opacity: 0;
+    left: -60px;
+  }
+
+  .ai-header-hamburger-{{ ai_gen_id }}.open span:nth-child(3) {
+    top: 7px;
+    transform: rotate(-135deg);
+  }
+
+  .ai-header-nav-mobile-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    background-color: {{ block.settings.mobile_menu_bg }};
+    padding: 80px 30px 30px;
+    transition: left 0.3s ease;
+    z-index: 999;
+    overflow-y: auto;
+  }
+
+  .ai-header-nav-mobile-{{ ai_gen_id }}.open {
+    left: 0;
+  }
+
+  .ai-header-mobile-overlay-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 998;
+  }
+
+  .ai-header-mobile-overlay-{{ ai_gen_id }}.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .ai-header-nav-mobile-link-{{ ai_gen_id }} {
+    display: block;
+    color: {{ block.settings.mobile_menu_color }};
+    text-decoration: none;
+    font-size: {{ block.settings.mobile_menu_font_size }}px;
+    font-weight: {{ block.settings.menu_font_weight }};
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+  }
+
+  .ai-header-nav-mobile-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.menu_hover_color }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-header-nav-desktop-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-header-mobile-toggle-{{ ai_gen_id }} {
+      display: block;
+    }
+
+    .ai-header-logo-text1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.logo_size_large | times: 0.7 }}px;
+    }
+
+    .ai-header-logo-text2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.logo_size_small | times: 0.7 }}px;
+    }
+
+    .ai-header-logo-arc-top-{{ ai_gen_id }},
+    .ai-header-logo-arc-bottom-{{ ai_gen_id }} {
+      width: {{ block.settings.arc_width | times: 0.7 }}px;height: {{ block.settings.arc_height | times: 0.7 }}px;
+    }
+
+    .ai-header-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_vertical | times: 0.7 }}px {{ block.settings.padding_horizontal }}px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-header-logo-text1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.logo_size_large | times: 0.6 }}px;
+    }
+
+    .ai-header-logo-text2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.logo_size_small | times: 0.6 }}px;
+    }
+
+    .ai-header-logo-arc-top-{{ ai_gen_id }},
+    .ai-header-logo-arc-bottom-{{ ai_gen_id }} {
+      width: {{ block.settings.arc_width | times: 0.6 }}px;
+      height: {{ block.settings.arc_height | times: 0.6 }}px;
+    }
+  }
+{% endstyle %}
+
+<mobile-header-{{ ai_gen_id }} class="ai-header-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-header-container-{{ ai_gen_id }}">
+    <button class="ai-header-mobile-toggle-{{ ai_gen_id }}" aria-label="Toggle mobile menu" aria-expanded="false">
+      <div class="ai-header-hamburger-{{ ai_gen_id }}">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </button><a href="{{ block.settings.logo_link | default: '/' }}" class="ai-header-logo-{{ ai_gen_id }}">
+      <div class="ai-header-logo-arc-top-{{ ai_gen_id }}"></div>
+      <h1 class="ai-header-logo-text1-{{ ai_gen_id }}">{{ block.settings.logo_text_1 }}</h1>
+      <h2 class="ai-header-logo-text2-{{ ai_gen_id }}">{{ block.settings.logo_text_2 }}</h2>
+      <div class="ai-header-logo-arc-bottom-{{ ai_gen_id }}"></div>
+    </a>
+
+    <nav class="ai-header-nav-desktop-{{ ai_gen_id }}">
+      {% if block.settings.menu_link_1_text != blank %}
+        <a href="{{ block.settings.menu_link_1_url }}" class="ai-header-nav-link-{{ ai_gen_id }}">
+          {{ block.settings.menu_link_1_text }}
+        </a>
+      {% endif %}
+      {% if block.settings.menu_link_2_text != blank %}
+        <a href="{{ block.settings.menu_link_2_url }}" class="ai-header-nav-link-{{ ai_gen_id }}">
+          {{ block.settings.menu_link_2_text }}
+        </a>
+      {% endif %}
+      {% if block.settings.menu_link_3_text != blank %}
+        <a href="{{ block.settings.menu_link_3_url }}" class="ai-header-nav-link-{{ ai_gen_id }}">
+          {{ block.settings.menu_link_3_text }}
+        </a>
+      {% endif %}
+      {% if block.settings.menu_link_4_text != blank %}
+        <a href="{{ block.settings.menu_link_4_url }}" class="ai-header-nav-link-{{ ai_gen_id }}">
+          {{ block.settings.menu_link_4_text }}
+        </a>
+      {% endif %}
+      {% if block.settings.menu_link_5_text != blank %}
+        <a href="{{ block.settings.menu_link_5_url }}" class="ai-header-nav-link-{{ ai_gen_id }}">
+          {{ block.settings.menu_link_5_text }}
+        </a>
+      {% endif %}
+      {% if block.settings.menu_link_6_text != blank %}
+        <a href="{{ block.settings.menu_link_6_url }}" class="ai-header-nav-link-{{ ai_gen_id }}">
+          {{ block.settings.menu_link_6_text }}
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+
+  <div class="ai-header-mobile-overlay-{{ ai_gen_id }}"></div>
+  
+  <nav class="ai-header-nav-mobile-{{ ai_gen_id }}">
+    {% if block.settings.menu_link_1_text != blank %}
+      <a href="{{ block.settings.menu_link_1_url }}" class="ai-header-nav-mobile-link-{{ ai_gen_id }}">
+        {{ block.settings.menu_link_1_text }}
+      </a>
+    {% endif %}
+    {% if block.settings.menu_link_2_text != blank %}
+      <a href="{{ block.settings.menu_link_2_url }}" class="ai-header-nav-mobile-link-{{ ai_gen_id }}">
+        {{ block.settings.menu_link_2_text }}
+      </a>
+    {% endif %}
+    {% if block.settings.menu_link_3_text != blank %}
+      <a href="{{ block.settings.menu_link_3_url }}" class="ai-header-nav-mobile-link-{{ ai_gen_id }}">
+        {{ block.settings.menu_link_3_text }}
+      </a>
+    {% endif %}
+    {% if block.settings.menu_link_4_text != blank %}
+      <a href="{{ block.settings.menu_link_4_url }}" class="ai-header-nav-mobile-link-{{ ai_gen_id }}">
+        {{ block.settings.menu_link_4_text }}
+      </a>
+    {% endif %}
+    {% if block.settings.menu_link_5_text != blank %}
+      <a href="{{ block.settings.menu_link_5_url }}" class="ai-header-nav-mobile-link-{{ ai_gen_id }}">
+        {{ block.settings.menu_link_5_text }}
+      </a>
+    {% endif %}
+    {% if block.settings.menu_link_6_text != blank %}
+      <a href="{{ block.settings.menu_link_6_url }}" class="ai-header-nav-mobile-link-{{ ai_gen_id }}">
+        {{ block.settings.menu_link_6_text }}
+      </a>
+    {% endif %}
+  </nav>
+</mobile-header-{{ ai_gen_id }}><script>
+(function() {
+  class MobileHeader{{ ai_gen_id }} extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      this.mobileToggle = this.querySelector('.ai-header-mobile-toggle-{{ ai_gen_id }}');
+      this.mobileNav = this.querySelector('.ai-header-nav-mobile-{{ ai_gen_id }}');
+      this.mobileOverlay = this.querySelector('.ai-header-mobile-overlay-{{ ai_gen_id }}');
+      this.hamburger = this.querySelector('.ai-header-hamburger-{{ ai_gen_id }}');
+      this.mobileLinks = this.querySelectorAll('.ai-header-nav-mobile-link-{{ ai_gen_id }}');
+
+      this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+      this.mobileToggle.addEventListener('click', () => {
+        this.toggleMobileMenu();
+      });
+
+      this.mobileOverlay.addEventListener('click', () => {
+        this.closeMobileMenu();
+      });
+
+      this.mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          this.closeMobileMenu();
+        });
+      });document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          this.closeMobileMenu();
+        }
+      });
+    }
+
+    toggleMobileMenu() {
+      const isOpen = this.mobileNav.classList.contains('open');
+      
+      if (isOpen) {
+        this.closeMobileMenu();
+      } else {
+        this.openMobileMenu();
+      }
+    }
+
+    openMobileMenu() {
+      this.mobileNav.classList.add('open');
+      this.mobileOverlay.classList.add('open');
+      this.hamburger.classList.add('open');
+      this.mobileToggle.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    closeMobileMenu() {
+      this.mobileNav.classList.remove('open');
+      this.mobileOverlay.classList.remove('open');
+      this.hamburger.classList.remove('open');
+      this.mobileToggle.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+  }
+
+  customElements.define('mobile-header-{{ ai_gen_id }}', MobileHeader{{ ai_gen_id }});
+})();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "MAARCOM Events Header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo Settings"
+    },
+    {
+      "type": "text",
+      "id": "logo_text_1",
+      "label": "Logo text (first line)",
+      "default": "MAARCOM"
+    },
+    {
+      "type": "text",
+      "id": "logo_text_2",
+      "label": "Logo text (second line)",
+      "default": "EVENTS"
+    },
+    {
+      "type": "url",
+      "id": "logo_link",
+      "label": "Logo link"
+    },
+    {
+      "type": "range",
+      "id": "logo_size_large",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "First line font size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "logo_size_small",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Second line font size",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "logo_weight_large",
+      "label": "First line font weight",
+      "options": [
+        {"value": "300", "label": "Light"},
+        {"value": "400", "label": "Normal"},
+        {"value": "600", "label": "Semi Bold"},
+        {"value": "700", "label": "Bold"},
+        {"value": "900", "label": "Black"}
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "logo_weight_small",
+      "label": "Second line font weight",
+      "options": [
+        {"value": "300", "label": "Light"},
+        {"value": "400", "label": "Normal"},
+        {"value": "600", "label": "Semi Bold"},
+        {"value": "700", "label": "Bold"},
+        {"value": "900", "label": "Black"}
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing_large",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "First line letter spacing",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing_small",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Second line letter spacing",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "logo_color",
+      "label": "Logo text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Arc Design"
+    },
+    {
+      "type": "range",
+      "id": "arc_width",
+      "min": 100,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Arc width",
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "arc_height",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Arc height",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "arc_thickness",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "label": "Arc thickness",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "arc_distance",
+      "min": 5,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Arc distance from text",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "arc_color",
+      "label": "Arc color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "range",
+      "id": "glow_intensity",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Glow intensity",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Navigation Menu"
+    },
+    {
+      "type": "text",
+      "id": "menu_link_1_text",
+      "label": "Menu link 1 text",
+      "default": "Home"
+    },
+    {
+      "type": "url",
+      "id": "menu_link_1_url",
+      "label": "Menu link 1 URL"
+    },
+    {
+      "type": "text",
+      "id": "menu_link_2_text",
+      "label": "Menu link 2 text",
+      "default": "About"
+    },
+    {
+      "type": "url",
+      "id": "menu_link_2_url",
+      "label": "Menu link 2 URL"
+    },
+    {
+      "type": "text",
+      "id": "menu_link_3_text",
+      "label": "Menu link 3 text",
+      "default": "Services"
+    },
+    {
+      "type": "url",
+      "id": "menu_link_3_url",
+      "label": "Menu link 3 URL"
+    },
+    {
+      "type": "text",
+      "id": "menu_link_4_text",
+      "label": "Menu link 4 text",
+      "default": "Events"
+    },
+    {
+      "type": "url",
+      "id": "menu_link_4_url",
+      "label": "Menu link 4 URL"
+    },
+    {
+      "type": "text",
+      "id": "menu_link_5_text",
+      "label": "Menu link 5 text",
+      "default": "Gallery"
+    },
+    {
+      "type": "url",
+      "id": "menu_link_5_url",
+      "label": "Menu link 5 URL"
+    },
+    {
+      "type": "text",
+      "id": "menu_link_6_text",
+      "label": "Menu link 6 text",
+      "default": "Contact"
+    },
+    {
+      "type": "url",
+      "id": "menu_link_6_url",
+      "label": "Menu link 6 URL"
+    },
+    {
+      "type": "color",
+      "id": "menu_color",
+      "label": "Menu text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "menu_hover_color",
+      "label": "Menu hover color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "range",
+      "id": "menu_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop menu font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "mobile_menu_font_size",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile menu font size",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "menu_font_weight",
+      "label": "Menu font weight",
+      "options": [
+        {"value": "300", "label": "Light"},
+        {"value": "400", "label": "Normal"},
+        {"value": "600", "label": "Semi Bold"},
+        {"value": "700", "label": "Bold"}
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "menu_spacing",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Menu item spacing",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "mobile_menu_bg",
+      "label": "Mobile menu background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "mobile_menu_color",
+      "label": "Mobile menu text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Header Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "MAARCOM Events Header"
+    }
+  ]
+}
 {% endschema %}
