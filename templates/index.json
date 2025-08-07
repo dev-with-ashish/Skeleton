@@ -11,13 +11,49 @@
   "sections": {
     "custom_section_pYnFQh": {
       "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_3c8de6a_aAUdKQ": {
+          "type": "ai_gen_block_3c8de6a",
+          "settings": {
+            "section_title": "Our Services",
+            "background_color": "#ffffff",
+            "list_background_color": "#f8f9fa",
+            "image_background_color": "#f8f9fa",
+            "title_color": "#333333",
+            "item_background_color": "#ffffff",
+            "item_text_color": "#333333",
+            "item_border_color": "#e9ecef",
+            "item_hover_background_color": "#007bff",
+            "item_hover_text_color": "#ffffff",
+            "item_hover_border_color": "#0056b3",
+            "item_selected_background_color": "#28a745",
+            "item_selected_border_color": "#1e7e34",
+            "accent_color": "#007bff",
+            "nav_inactive_color": "#dee2e6",
+            "arrow_background_color": "#ffffff",
+            "arrow_color": "#333333",
+            "arrow_hover_background_color": "#007bff",
+            "arrow_hover_color": "#ffffff",
+            "title_size": 32,
+            "item_text_size": 16,
+            "border_radius": 12,
+            "item_border_radius": 8,
+            "events_image": "shopify://shop_images/Formula1_578d62c6-b5b6-47f9-aaac-4dae4853b105.png",
+            "promotions_image": "shopify://shop_images/xauy8pi7kjmhltay9hz9_2-enhanced_117ef982-3699-4a3d-aa30-4f9b096e1ba6.png"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_3c8de6a_aAUdKQ"
+      ],
       "name": "t:general.custom_section",
       "settings": {
         "theme": "light",
         "padding_top": 40,
-        "padding_right": 40,
+        "padding_right": 0,
         "padding_bottom": 40,
-        "padding_left": 40,
+        "padding_left": 0,
         "margin_top": 0,
         "margin_right": 0,
         "margin_bottom": 0,
