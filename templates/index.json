@@ -350,57 +350,6 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
-    },
-    "custom_section_8y8wLB": {
-      "type": "custom-section",
-      "blocks": {
-        "ai_gen_block_ec6cdfe_AqG8gp": {
-          "type": "ai_gen_block_ec6cdfe",
-          "settings": {
-            "heading": "Our Services",
-            "service_image_1": "shopify://shop_images/xauy8pi7kjmhltay9hz9_2-enhanced_117ef982-3699-4a3d-aa30-4f9b096e1ba6.png",
-            "service_image_2": "shopify://shop_images/Formula1.png",
-            "background_color": "#ffffff",
-            "heading_color": "#000000",
-            "text_color": "#333333",
-            "item_background_color": "#f8f8f8",
-            "item_border_color": "#e0e0e0",
-            "item_hover_background": "#000f9f",
-            "item_hover_border": "#000f9f",
-            "item_hover_text": "#ffffff",
-            "item_selected_background": "#28a745",
-            "item_selected_border": "#28a745",
-            "item_selected_text": "#ffffff",
-            "nav_button_color": "#000f9f",
-            "nav_button_text_color": "#ffffff",
-            "nav_button_hover_color": "#000000",
-            "dot_color": "#cccccc",
-            "dot_active_color": "#000f9f",
-            "image_background_color": "#f5f5f5",
-            "heading_size": 32,
-            "text_size": 16,
-            "section_padding": 40,
-            "item_border_radius": 8,
-            "image_border_radius": 12
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_ec6cdfe_AqG8gp"
-      ],
-      "name": "t:general.custom_section",
-      "settings": {
-        "theme": "light",
-        "padding_top": 0,
-        "padding_right": 0,
-        "padding_bottom": 0,
-        "padding_left": 0,
-        "margin_top": 0,
-        "margin_right": 0,
-        "margin_bottom": 0,
-        "margin_left": 0
-      }
     }
   },
   "order": [
@@ -408,7 +357,6 @@
     "custom_section_6hJpc8",
     "custom_section_w6j6Ez",
     "custom_section_aH9mtG",
-    "custom_section_MHPcwM",
-    "custom_section_8y8wLB"
+    "custom_section_MHPcwM"
   ]
 }
