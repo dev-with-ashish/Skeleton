@@ -117,10 +117,61 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_DUrxei": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_85157a4_cRtrBg": {
+          "type": "ai_gen_block_85157a4",
+          "settings": {
+            "title": "Trusted by Leading Companies",
+            "subtitle": "Join thousands of satisfied clients who trust our services",
+            "columns_desktop": "5",
+            "columns_tablet": "3",
+            "columns_mobile": "2",
+            "grid_gap": 24,
+            "item_height": 120,
+            "background_color": "#ffffff",
+            "title_color": "#000000",
+            "subtitle_color": "#666666",
+            "item_background": "#ffffff",
+            "item_hover_background": "#f8f9fa",
+            "border_color": "#e9ecef",
+            "border_radius": 8,
+            "section_padding": 60,
+            "item_padding": 20,
+            "header_margin": 50,
+            "title_size": 36,
+            "subtitle_size": 16,
+            "enable_animation": true,
+            "hover_lift": 4,
+            "hover_scale": 1.1,
+            "logo_filter": "grayscale(100%) opacity(0.7)",
+            "logo_hover_filter": "grayscale(0%) opacity(1)"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_85157a4_cRtrBg"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 0,
+        "padding_right": 0,
+        "padding_bottom": 0,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
     "custom_section_wHXFNA",
-    "custom_section_PzzzQ3"
+    "custom_section_PzzzQ3",
+    "custom_section_DUrxei"
   ]
 }
