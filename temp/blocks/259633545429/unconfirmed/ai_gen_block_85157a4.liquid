@@ -1,6 +1,522 @@
+{% doc %}
+  @prompt
+    generate a latest styled responsive our clients section using tailwind css and three.js which will use logo
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-clients-section-{{ ai_gen_id }} {
+    padding: {{ block.settings.section_padding }}px 20px;
+    background-color: {{ block.settings.background_color }};
+    overflow: hidden;
+  }
+
+  .ai-clients-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-clients-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: {{ block.settings.header_margin }}px;
+  }
+
+  .ai-clients-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 16px;font-weight: 600;
+  }
+
+  .ai-clients-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    margin: 0;opacity: 0.8;
+  }
+
+  .ai-clients-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
+    gap: {{ block.settings.grid_gap }}px;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .ai-client-item-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: {{ block.settings.item_padding }}px;
+    background-color: {{ block.settings.item_background }};
+    border-radius: {{ block.settings.border_radius }}px;
+    transition: all 0.3s ease;
+    width: 100%;
+    height: {{ block.settings.item_height }}px;
+    border: 1px solid {{ block.settings.border_color }};position: relative;
+    overflow: hidden;
+  }
+
+  .ai-client-item-{{ ai_gen_id }}:hover {
+    transform: translateY(-{{ block.settings.hover_lift }}px);
+    box-shadow: 0 {{ block.settings.hover_lift | times: 2 }}px {{ block.settings.hover_lift | times: 4 }}px rgba(0, 0, 0, 0.1);
+    background-color: {{ block.settings.item_hover_background }};
+  }
+
+  .ai-client-logo-{{ ai_gen_id }} {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    filter: {{ block.settings.logo_filter }};
+  }
+
+  .ai-client-item-{{ ai_gen_id }}:hover .ai-client-logo-{{ ai_gen_id }} {
+    filter: {{ block.settings.logo_hover_filter }};transform: scale({{ block.settings.hover_scale }});
+  }
+
+  .ai-client-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: {{ block.settings.border_radius }}px;}
+
+  .ai-client-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+    color: #6c757d;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .ai-clients-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.columns_tablet }}, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-clients-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
+    }
+
+    .ai-clients-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.8 }}px;
+    }
+
+    .ai-clients-subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size | times: 0.9 }}px;
+    }
+
+    .ai-clients-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.7 }}px 16px;
+    }
+  }
+
+  {% if block.settings.enable_animation %}
+    .ai-client-item-{{ ai_gen_id }} {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: ai-fade-in-up-{{ ai_gen_id }} 0.6s ease forwards;
+    }
+
+    {% for i in (1..12) %}
+      .ai-client-item-{{ ai_gen_id }}:nth-child({{ i }}) {
+        animation-delay: {{ i | times: 0.1 }}s;
+      }
+    {% endfor %}
+
+    @keyframes ai-fade-in-up-{{ ai_gen_id }} {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  {% endif %}
+{% endstyle %}<clients-showcase-{{ ai_gen_id }}
+  class="ai-clients-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-clients-container-{{ ai_gen_id }}">
+    {% if block.settings.title != blank or block.settings.subtitle != blank %}
+      <div class="ai-clients-header-{{ ai_gen_id }}">
+        {% if block.settings.title != blank %}
+          <h2 class="ai-clients-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+        {% endif %}
+        {% if block.settings.subtitle != blank %}
+          <p class="ai-clients-subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="ai-clients-grid-{{ ai_gen_id }}">
+      {% for i in (1..12) %}
+        {% liquid
+          assign logo_key = 'client_logo_' | append: i
+          assign logo = block.settings[logo_key]%}
+        
+        {% if logo != blank %}
+          <div class="ai-client-item-{{ ai_gen_id }}">
+            <img
+              src="{{ logo | image_url: width: 400}}"
+              alt="Client {{ i }} logo"
+              class="ai-client-logo-{{ ai_gen_id }}"loading="lazy"width="{{ logo.width }}"
+              height="{{ logo.height }}"
+            >
+          </div>
+        {% elsif i <= 6 %}
+          <div class="ai-client-item-{{ ai_gen_id }}">
+            <div class="ai-client-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</clients-showcase-{{ ai_gen_id }}><script>
+  (function() {
+    class ClientsShowcase{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.setupIntersectionObserver();
+      }
+
+      setupIntersectionObserver() {
+        if (!window.IntersectionObserver) return;
+
+        const items = this.querySelectorAll('.ai-client-item-{{ ai_gen_id }}');
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.animationPlayState = 'running';
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '50px'
+        });
+
+        items.forEach((item) => {
+          observer.observe(item);
+        });
+      }
+    }
+
+    customElements.define('clients-showcase-{{ ai_gen_id }}', ClientsShowcase{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Our Clients",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Trusted by Leading Companies"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Join thousands of satisfied clients who trust our services"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        {"value": "3", "label": "3"},
+        {"value": "4", "label": "4"},
+        {"value": "5", "label": "5"},
+        {"value": "6", "label": "6"}
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "Columns on tablet",
+      "options": [
+        {"value": "2", "label": "2"},
+        {"value": "3", "label": "3"},
+        {"value": "4", "label": "4"}
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        {"value": "1", "label": "1"},
+        {"value": "2", "label": "2"}
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 10,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Grid gap",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "item_height",
+      "min": 80,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Item height",
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "item_background",
+      "label": "Item background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_background",
+      "label": "Item hover background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "item_padding",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Item padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "header_margin",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Header margin bottom",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animation",
+      "label": "Enable entrance animation",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "hover_lift",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Hover lift effect",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "hover_scale",
+      "min": 1,
+      "max": 1.2,
+      "step": 0.1,
+      "label": "Hover scale",
+      "default": 1.1
+    },
+    {
+      "type": "select",
+      "id": "logo_filter",
+      "label": "Logo filter",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "grayscale(100%)", "label": "Grayscale"},
+        {"value": "opacity(0.7)", "label": "Faded"},
+        {"value": "grayscale(100%) opacity(0.7)", "label": "Grayscale + Faded"}
+      ],
+      "default": "grayscale(100%) opacity(0.7)"
+    },
+    {
+      "type": "select",
+      "id": "logo_hover_filter",
+      "label": "Logo hover filter",
+      "options": [
+        {"value": "none", "label": "None"},
+        {"value": "grayscale(0%)", "label": "Full color"},
+        {"value": "opacity(1)", "label": "Full opacity"},
+        {"value": "grayscale(0%) opacity(1)", "label": "Full color + opacity"}
+      ],
+      "default": "grayscale(0%) opacity(1)"
+    },
+    {
+      "type": "header",
+      "content": "Client logos"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_1",
+      "label": "Client logo 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_2",
+      "label": "Client logo 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_3",
+      "label": "Client logo 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_4",
+      "label": "Client logo 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_5",
+      "label": "Client logo 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_6",
+      "label": "Client logo 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_7",
+      "label": "Client logo 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_8",
+      "label": "Client logo 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_9",
+      "label": "Client logo 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_10",
+      "label": "Client logo 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_11",
+      "label": "Client logo 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "client_logo_12",
+      "label": "Client logo 12"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Our Clients"
+    }
+  ]
+}
 {% endschema %}
