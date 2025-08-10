@@ -1,6 +1,1391 @@
+{% doc %}
+  @prompt
+    using tailwind css a gallery section to showcase all the images of an event so I want a responsive gallery section that will show all the image of an event and i have multiple events each with multiple images generate a best styled you can, check for error when i click on event name all images disappeared, for all device events list should be horizontal if longer apply scroll, when 1 event is on it should be in the center it should not be shown in the left, the event list should be in the center of the device, now for showing images do not show in grid make a slider with parallax feature showing images, remove parallax just a responsive slider with aspect ratio according to the image size so that all types of the iamge can be seen and a zoom icon on top, every image should have its own slider so that full image in its aspect ratio can be seen
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-event-gallery-{{ ai_gen_id }} {
+    padding: 60px 20px;
+    background-color: {{ block.settings.background_color }};}
+
+  .ai-event-gallery-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-event-gallery-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .ai-event-gallery-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 16px;line-height: 1.2;
+  }
+
+  .ai-event-gallery-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .ai-event-tabs-wrapper-{{ ai_gen_id }} {
+    margin-bottom: 40px;
+    position: relative;
+    display: flex;
+    justify-content: center;width: 100%;
+  }
+
+  .ai-event-tabs-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: {{ block.settings.tab_border_color }} transparent;
+    padding: 0 20px 8px;
+    justify-content: center;max-width: 100%;
+  }
+
+  .ai-event-tabs-{{ ai_gen_id }}::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .ai-event-tabs-{{ ai_gen_id }}::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+  }
+
+  .ai-event-tabs-{{ ai_gen_id }}::-webkit-scrollbar-thumb {
+    background-color: {{ block.settings.tab_border_color }};
+    border-radius: 3px;
+  }
+
+  .ai-event-tabs-{{ ai_gen_id }}::-webkit-scrollbar-thumb:hover {
+    background-color: {{ block.settings.tab_active_color }};
+  }
+
+  .ai-event-tab-{{ ai_gen_id }} {
+    padding: 12px 24px;
+    background-color: transparent;
+    color: {{ block.settings.text_color }};
+    border: 2px solid {{ block.settings.tab_border_color }};
+    border-radius: {{ block.settings.tab_border_radius }}px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size:14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: fit-content;
+  }
+
+  .ai-event-tab-{{ ai_gen_id }}:hover,
+  .ai-event-tab-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.tab_active_color }};
+    color: {{ block.settings.tab_active_text_color }};border-color: {{ block.settings.tab_active_color }};
+    transform: translateY(-2px);
+  }
+
+  .ai-event-content-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-event-content-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-event-info-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .ai-event-name-{{ ai_gen_id }} {
+    font-size:28px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 8px;
+  }
+
+  .ai-event-date-{{ ai_gen_id }} {
+    font-size: 16px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .ai-slider-container-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+    border-radius: {{ block.settings.slider_border_radius }}px;
+    background: #f8f9fa;
+    margin-bottom: 40px;
+    width: 100%;max-width: 100%;
+  }
+
+  .ai-slider-viewport-{{ ai_gen_id }} {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .ai-slider-track-{{ ai_gen_id }} {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .ai-slider-slide-{{ ai_gen_id }} {
+    flex: 0 0 100%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f1f3f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
+
+  .ai-slider-slide-{{ ai_gen_id }} img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    display: block;
+  }
+
+  .ai-slider-slide-{{ ai_gen_id }}:hover img {
+    transform: scale(1.02);
+  }
+
+  .ai-slider-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: 16/ 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f3f4;}
+
+  .ai-slider-placeholder-{{ ai_gen_id }} svg {
+    width: 60px;
+    height: 60px;
+    opacity: 0.4;
+  }
+
+  .ai-slider-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;}
+
+  .ai-slider-slide-{{ ai_gen_id }}:hover .ai-slider-overlay-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-zoom-icon-{{ ai_gen_id }} {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+
+  .ai-slider-slide-{{ ai_gen_id }}:hover .ai-zoom-icon-{{ ai_gen_id }} {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .ai-zoom-icon-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;color: #333;
+  }
+
+  .ai-slider-controls-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .ai-slider-nav-{{ ai_gen_id }} {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: {{ block.settings.nav_button_color }};
+    color: {{ block.settings.nav_button_text_color }};
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-slider-nav-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.nav_button_hover_color }};
+    transform: translateY(-2px);box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .ai-slider-nav-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;transform: none;
+  }
+
+  .ai-slider-nav-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ai-slider-dots-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;}
+
+  .ai-slider-dot-{{ ai_gen_id }} {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: {{ block.settings.dot_color }};
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.4;
+  }
+
+  .ai-slider-dot-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.dot_active_color }};
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  .ai-lightbox-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .ai-lightbox-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  .ai-lightbox-content-{{ ai_gen_id }} {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;}
+
+  .ai-lightbox-image-{{ ai_gen_id }} {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;border-radius: 8px;
+  }
+
+  .ai-lightbox-close-{{ ai_gen_id }} {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-lightbox-close-{{ ai_gen_id }}:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .ai-lightbox-close-{{ ai_gen_id }} svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ai-lightbox-nav-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;}
+
+  .ai-lightbox-nav-{{ ai_gen_id }}:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .ai-lightbox-prev-{{ ai_gen_id }} {
+    left: -60px;
+  }
+
+  .ai-lightbox-next-{{ ai_gen_id }} {
+    right: -60px;
+  }
+
+  .ai-lightbox-nav-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .ai-event-gallery-{{ ai_gen_id }} {
+      padding: 40px 16px;
+    }
+
+    .ai-event-tabs-wrapper-{{ ai_gen_id }} {
+      justify-content: flex-start;
+    }
+
+    .ai-event-tabs-{{ ai_gen_id }} {
+      justify-content: flex-start;
+      padding: 0 16px 8px;
+    }
+
+    .ai-event-tab-{{ ai_gen_id }} {
+      padding: 10px 16px;font-size: 13px;
+    }
+
+    .ai-event-name-{{ ai_gen_id }} {
+      font-size: 24px;
+    }
+
+    .ai-slider-nav-{{ ai_gen_id }} {
+      width: 40px;
+      height: 40px;
+    }
+
+    .ai-slider-nav-{{ ai_gen_id }} svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ai-zoom-icon-{{ ai_gen_id }} {
+      width: 35px;
+      height: 35px;top: 12px;
+      right: 12px;
+    }
+
+    .ai-zoom-icon-{{ ai_gen_id }} svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ai-lightbox-nav-{{ ai_gen_id }} {
+      position: fixed;
+      top: auto;
+      bottom: 20px;
+    }
+
+    .ai-lightbox-prev-{{ ai_gen_id }} {
+      left: 20px;
+    }
+
+    .ai-lightbox-next-{{ ai_gen_id }} {
+      right: 20px;
+    }
+
+    .ai-slider-slide-{{ ai_gen_id }} {
+      min-height: 250px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .ai-event-tabs-{{ ai_gen_id }} {
+      padding: 0 12px 8px;
+    }
+
+    .ai-event-tab-{{ ai_gen_id }} {
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+
+    .ai-slider-controls-{{ ai_gen_id }} {
+      gap: 15px;
+    }
+
+    .ai-slider-slide-{{ ai_gen_id }} {
+      min-height: 200px;
+    }
+  }
+{% endstyle %}
+
+<event-gallery-{{ ai_gen_id }} class="ai-event-gallery-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-event-gallery-container-{{ ai_gen_id }}">
+    {% if block.settings.title != blank %}
+      <div class="ai-event-gallery-header-{{ ai_gen_id }}">
+        <h2 class="ai-event-gallery-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+        {% if block.settings.description != blank %}
+          <div class="ai-event-gallery-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% assign enabled_events_count = 0 %}
+    {% for i in (1..5) %}
+      {% assign event_enabled_key = 'event_' | append: i | append: '_enabled' %}
+      {% assign event_name_key = 'event_' | append: i | append: '_name' %}
+      {% if block.settings[event_enabled_key] and block.settings[event_name_key] != blank %}
+        {% assign enabled_events_count = enabled_events_count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+
+    {% if enabled_events_count > 1 %}
+      <div class="ai-event-tabs-wrapper-{{ ai_gen_id }}">
+        <div class="ai-event-tabs-{{ ai_gen_id }}">
+          {% for i in (1..5) %}
+            {% assign event_enabled_key = 'event_' | append: i | append: '_enabled' %}
+            {% assign event_name_key = 'event_' | append: i | append: '_name' %}
+            {% if block.settings[event_enabled_key] and block.settings[event_name_key] != blank %}
+              <button
+                class="ai-event-tab-{{ ai_gen_id }}{% if forloop.first %} active{% endif %}" 
+                data-event="{{ i }}"
+              >
+                {{ block.settings[event_name_key] }}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% for i in (1..5) %}
+      {% assign event_enabled_key = 'event_' | append: i | append: '_enabled' %}
+      {% assign event_name_key = 'event_' | append: i | append: '_name' %}
+      {% assign event_date_key = 'event_' | append: i | append: '_date' %}
+      
+      {% if block.settings[event_enabled_key] and block.settings[event_name_key] != blank %}
+        <div class="ai-event-content-{{ ai_gen_id }}{% if forloop.first %} active{% endif %}" data-event="{{ i }}">
+          <div class="ai-event-info-{{ ai_gen_id }}">
+            <h3 class="ai-event-name-{{ ai_gen_id }}">{{ block.settings[event_name_key] }}</h3>
+            {% if block.settings[event_date_key] != blank %}
+              <p class="ai-event-date-{{ ai_gen_id }}">{{ block.settings[event_date_key] }}</p>
+            {% endif %}
+          </div><div class="ai-slider-container-{{ ai_gen_id }}" data-event="{{ i }}">
+            <div class="ai-slider-viewport-{{ ai_gen_id }}">
+              <div class="ai-slider-track-{{ ai_gen_id }}">
+                {% for j in (1..12) %}
+                  {% assign image_key = 'event_' | append: i | append: '_image_' | append: j %}
+                  {% assign image = block.settings[image_key] %}
+                  {% if image != blank %}
+                    <div class="ai-slider-slide-{{ ai_gen_id }}" data-image-index="{{ forloop.index0 }}" data-event="{{ i }}">
+                      <img 
+                        src="{{ image | image_url: width: 1200}}" 
+                        alt="{{ image.alt | escape }}"
+                        loading="lazy"
+                        width="{{ image.width }}"
+                        height="{{ image.height }}">
+                      <div class="ai-zoom-icon-{{ ai_gen_id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                <div class="ai-slider-overlay-{{ ai_gen_id }}"></div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div></div>
+
+          <div class="ai-slider-controls-{{ ai_gen_id }}" data-event="{{ i }}">
+            <button class="ai-slider-nav-{{ ai_gen_id }} ai-slider-prev-{{ ai_gen_id }}" aria-label="Previous image">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div class="ai-slider-dots-{{ ai_gen_id }}"></div>
+            <button class="ai-slider-nav-{{ ai_gen_id }} ai-slider-next-{{ ai_gen_id }}" aria-label="Next image">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div><div class="ai-lightbox-{{ ai_gen_id }}">
+    <div class="ai-lightbox-content-{{ ai_gen_id }}">
+      <button class="ai-lightbox-close-{{ ai_gen_id }}" aria-label="Close lightbox">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button><button class="ai-lightbox-nav-{{ ai_gen_id }} ai-lightbox-prev-{{ ai_gen_id }}" aria-label="Previous image">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button class="ai-lightbox-nav-{{ ai_gen_id }} ai-lightbox-next-{{ ai_gen_id }}" aria-label="Next image">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+      <img class="ai-lightbox-image-{{ ai_gen_id }}" src="" alt="">
+    </div>
+  </div>
+</event-gallery-{{ ai_gen_id }}><script>
+  (function() {
+    class EventGallery{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentEvent = 1;
+        this.currentImageIndex = 0;
+        this.eventImages = {};
+        this.sliders = {};
+        this.autoPlay = {{ block.settings.autoplay }};
+        this.autoPlayInterval = {{ block.settings.autoplay_interval | times: 1000 }};
+        this.autoPlayTimer = null;}
+
+      connectedCallback() {
+        this.setupEventListeners();this.initializeImageData();
+        this.initializeSliders();
+        this.setInitialActiveEvent();
+        if (this.autoPlay) {
+          this.startAutoPlay();
+        }
+      }
+
+      disconnectedCallback() {
+        if (this.autoPlayTimer) {
+          clearInterval(this.autoPlayTimer);}
+      }
+
+      setInitialActiveEvent() {
+        const firstEnabledEvent = this.querySelector('.ai-event-content-{{ ai_gen_id }}[data-event]');
+        if (firstEnabledEvent) {
+          this.currentEvent = firstEnabledEvent.dataset.event;}
+      }
+
+      setupEventListeners() {
+        const tabs = this.querySelectorAll('.ai-event-tab-{{ ai_gen_id }}');
+        const slides = this.querySelectorAll('.ai-slider-slide-{{ ai_gen_id }}');
+        const lightbox = this.querySelector('.ai-lightbox-{{ ai_gen_id }}');
+        const closeBtn = this.querySelector('.ai-lightbox-close-{{ ai_gen_id }}');
+        const prevBtn = this.querySelector('.ai-lightbox-prev-{{ ai_gen_id }}');
+        const nextBtn = this.querySelector('.ai-lightbox-next-{{ ai_gen_id }}');
+
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => this.switchEvent(tab));
+        });
+
+        slides.forEach(slide => {
+          slide.addEventListener('click', () => this.openLightbox(slide));
+        });
+
+        closeBtn.addEventListener('click', () => this.closeLightbox());
+        prevBtn.addEventListener('click', () => this.previousImage());
+        nextBtn.addEventListener('click', () => this.nextImage());
+
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) {
+            this.closeLightbox();
+          }
+        });document.addEventListener('keydown', (e) => {
+          if (lightbox.classList.contains('active')) {
+            if (e.key === 'Escape') this.closeLightbox();
+            if (e.key === 'ArrowLeft') this.previousImage();
+            if (e.key === 'ArrowRight') this.nextImage();
+          }
+        });
+
+        const sliderControls = this.querySelectorAll('.ai-slider-controls-{{ ai_gen_id }}');
+        sliderControls.forEach(control => {
+          const eventId = control.dataset.event;
+          const prevBtn = control.querySelector('.ai-slider-prev-{{ ai_gen_id }}');
+          const nextBtn = control.querySelector('.ai-slider-next-{{ ai_gen_id }}');
+          prevBtn.addEventListener('click', () => this.previousSlide(eventId));
+          nextBtn.addEventListener('click', () => this.nextSlide(eventId));
+        });
+      }
+
+      initializeImageData() {
+        const events = this.querySelectorAll('.ai-event-content-{{ ai_gen_id }}');
+        events.forEach(event => {
+          const eventId = event.dataset.event;
+          const images = event.querySelectorAll('.ai-slider-slide-{{ ai_gen_id }} img');
+          this.eventImages[eventId] = Array.from(images).map(img => ({
+            src: img.src,
+            alt: img.alt
+          }));
+        });
+      }
+
+      initializeSliders() {
+        const sliders = this.querySelectorAll('.ai-slider-container-{{ ai_gen_id }}');
+        sliders.forEach(slider => {
+          const eventId = slider.dataset.event;
+          const slides = slider.querySelectorAll('.ai-slider-slide-{{ ai_gen_id }}');
+          constdotsContainer = this.querySelector(`.ai-slider-controls-{{ ai_gen_id }}[data-event="${eventId}"] .ai-slider-dots-{{ ai_gen_id }}`);
+          
+          this.sliders[eventId] = {
+            currentIndex: 0,
+            totalSlides: slides.length,
+            track: slider.querySelector('.ai-slider-track-{{ ai_gen_id }}'),
+            slides: slides
+          };
+
+          if (dotsContainer && slides.length > 0) {
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < slides.length; i++) {
+              const dot = document.createElement('button');
+              dot.className = `ai-slider-dot-{{ ai_gen_id }}${i === 0 ? ' active' : ''}`;
+              dot.addEventListener('click', () => this.goToSlide(eventId, i));
+              dotsContainer.appendChild(dot);
+            }
+          }
+
+          this.updateSliderPosition(eventId);
+          this.updateNavigationButtons(eventId);
+        });
+      }
+
+      switchEvent(clickedTab) {
+        const eventId = clickedTab.dataset.event;
+        this.querySelectorAll('.ai-event-tab-{{ ai_gen_id }}').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        clickedTab.classList.add('active');
+
+        this.querySelectorAll('.ai-event-content-{{ ai_gen_id }}').forEach(content => {
+          content.classList.remove('active');
+        });
+        const targetContent = this.querySelector(`.ai-event-content-{{ ai_gen_id }}[data-event="${eventId}"]`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+
+        this.currentEvent = eventId;
+        if (this.autoPlay) {
+          this.startAutoPlay();
+        }
+      }
+
+      previousSlide(eventId) {
+        const slider = this.sliders[eventId];
+        if (slider && slider.totalSlides > 0) {
+          slider.currentIndex = (slider.currentIndex - 1 + slider.totalSlides) % slider.totalSlides;
+          this.updateSliderPosition(eventId);
+          this.updateDots(eventId);
+          this.updateNavigationButtons(eventId);
+        }
+      }
+
+      nextSlide(eventId) {
+        const slider = this.sliders[eventId];
+        if (slider && slider.totalSlides > 0) {
+          slider.currentIndex = (slider.currentIndex + 1) % slider.totalSlides;
+          this.updateSliderPosition(eventId);
+          this.updateDots(eventId);
+          this.updateNavigationButtons(eventId);
+        }
+      }
+
+      goToSlide(eventId, index) {
+        const slider = this.sliders[eventId];
+        if (slider && index >= 0 && index < slider.totalSlides) {
+          slider.currentIndex = index;
+          this.updateSliderPosition(eventId);
+          this.updateDots(eventId);
+          this.updateNavigationButtons(eventId);
+        }
+      }
+
+      updateSliderPosition(eventId) {
+        const slider = this.sliders[eventId];
+        if (slider && slider.track) {
+          const translateX = -(slider.currentIndex * 100);
+          slider.track.style.transform = `translateX(${translateX}%)`;
+        }
+      }
+
+      updateDots(eventId) {
+        const dots = this.querySelectorAll(`.ai-slider-controls-{{ ai_gen_id }}[data-event="${eventId}"] .ai-slider-dot-{{ ai_gen_id }}`);
+        const slider = this.sliders[eventId];
+        if (slider) {
+          dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === slider.currentIndex);
+          });
+        }
+      }
+
+      updateNavigationButtons(eventId) {
+        const control = this.querySelector(`.ai-slider-controls-{{ ai_gen_id }}[data-event="${eventId}"]`);
+        const slider = this.sliders[eventId];
+        if (control && slider) {
+          const prevBtn = control.querySelector('.ai-slider-prev-{{ ai_gen_id }}');
+          const nextBtn = control.querySelector('.ai-slider-next-{{ ai_gen_id }}');
+          
+          if (slider.totalSlides <= 1) {
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+          } else {
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+          }
+        }
+      }
+
+      startAutoPlay() {
+        if (this.autoPlayTimer) {
+          clearInterval(this.autoPlayTimer);
+        }
+        
+        this.autoPlayTimer = setInterval(() => {
+          this.nextSlide(this.currentEvent);
+        }, this.autoPlayInterval);
+      }
+
+      openLightbox(slide) {
+        const img = slide.querySelector('img');
+        if (!img) return;
+
+        const imageIndex = parseInt(slide.dataset.imageIndex);
+        const eventId = slide.dataset.event;
+        this.currentImageIndex = imageIndex;
+        this.currentEvent = eventId;
+
+        const lightbox = this.querySelector('.ai-lightbox-{{ ai_gen_id }}');
+        const lightboxImage = this.querySelector('.ai-lightbox-image-{{ ai_gen_id }}');
+        
+        lightboxImage.src = img.src;
+        lightboxImage.alt = img.alt;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      closeLightbox() {
+        const lightbox = this.querySelector('.ai-lightbox-{{ ai_gen_id }}');
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      previousImage() {
+        const images = this.eventImages[this.currentEvent];
+        if (images && images.length > 0) {
+          this.currentImageIndex = (this.currentImageIndex - 1 + images.length) % images.length;
+          this.updateLightboxImage();
+        }
+      }
+
+      nextImage() {
+        const images = this.eventImages[this.currentEvent];
+        if (images && images.length > 0) {
+          this.currentImageIndex = (this.currentImageIndex + 1) % images.length;
+          this.updateLightboxImage();
+        }
+      }
+
+      updateLightboxImage() {
+        const images = this.eventImages[this.currentEvent];
+        const lightboxImage = this.querySelector('.ai-lightbox-image-{{ ai_gen_id }}');
+        
+        if (images && images[this.currentImageIndex]) {
+          lightboxImage.src = images[this.currentImageIndex].src;
+          lightboxImage.alt = images[this.currentImageIndex].alt;
+        }
+      }
+    }
+
+    customElements.define('event-gallery-{{ ai_gen_id }}', EventGallery{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Event Gallery Slider",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Gallery title",
+      "default": "Event Gallery"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Browse through our collection of memorable moments from various events"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Slider settings"
+    },
+    {
+      "type": "range",
+      "id": "slider_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Slider border radius",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Autoplay interval",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1f2937"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Tab border",
+      "default": "#d1d5db"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active tab background",
+      "default": "#3b82f6"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text_color",
+      "label": "Active tab text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_color",
+      "label": "Navigation button",
+      "default": "#3b82f6"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_text_color",
+      "label": "Navigation button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_hover_color",
+      "label": "Navigation button hover",
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "dot_color",
+      "label": "Dot color",
+      "default": "#d1d5db"
+    },
+    {
+      "type": "color",
+      "id": "dot_active_color",
+      "label": "Active dot color",
+      "default": "#3b82f6"
+    },
+    {
+      "type": "range",
+      "id": "tab_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Tab border radius",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Event1"
+    },
+    {
+      "type": "checkbox",
+      "id": "event_1_enabled",
+      "label": "Enable event 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "event_1_name",
+      "label": "Event name",
+      "default": "Summer Festival2024"
+    },
+    {
+      "type": "text",
+      "id": "event_1_date",
+      "label": "Event date",
+      "default": "June 15, 2024"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_5",
+      "label": "Image 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_6",
+      "label": "Image 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_7",
+      "label": "Image 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_8",
+      "label": "Image 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_9",
+      "label": "Image 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_10",
+      "label": "Image 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_11",
+      "label": "Image 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_1_image_12",
+      "label": "Image 12"
+    },
+    {
+      "type": "header",
+      "content": "Event 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "event_2_enabled",
+      "label": "Enable event 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "event_2_name",
+      "label": "Event name",
+      "default": "Winter Gala 2024"
+    },
+    {
+      "type": "text",
+      "id": "event_2_date",
+      "label": "Event date",
+      "default": "December 20, 2024"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_5",
+      "label": "Image 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_6",
+      "label": "Image 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_7",
+      "label": "Image 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_8",
+      "label": "Image 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_9",
+      "label": "Image 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_10",
+      "label": "Image 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_11",
+      "label": "Image 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_2_image_12",
+      "label": "Image 12"
+    },
+    {
+      "type": "header",
+      "content": "Event 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "event_3_enabled",
+      "label": "Enable event 3"
+    },
+    {
+      "type": "text",
+      "id": "event_3_name",
+      "label": "Event name",
+      "default": "Spring Conference 2024"
+    },
+    {
+      "type": "text",
+      "id": "event_3_date",
+      "label": "Event date",
+      "default": "March 10, 2024"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_5",
+      "label": "Image 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_6",
+      "label": "Image 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_7",
+      "label": "Image 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_8",
+      "label": "Image 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_9",
+      "label": "Image 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_10",
+      "label": "Image 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_11",
+      "label": "Image 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_3_image_12",
+      "label": "Image 12"
+    },
+    {
+      "type": "header",
+      "content": "Event 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "event_4_enabled",
+      "label": "Enable event 4"
+    },
+    {
+      "type": "text",
+      "id": "event_4_name",
+      "label": "Event name",
+      "default": "Autumn Workshop 2024"
+    },
+    {
+      "type": "text",
+      "id": "event_4_date",
+      "label": "Event date",
+      "default": "September 15, 2024"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_5",
+      "label": "Image 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_6",
+      "label": "Image 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_7",
+      "label": "Image 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_8",
+      "label": "Image 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_9",
+      "label": "Image 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_10",
+      "label": "Image 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_11",
+      "label": "Image 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_4_image_12",
+      "label": "Image 12"
+    },
+    {
+      "type": "header",
+      "content": "Event 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "event_5_enabled",
+      "label": "Enable event 5"
+    },
+    {
+      "type": "text",
+      "id": "event_5_name",
+      "label": "Event name",
+      "default": "Holiday Celebration 2024"
+    },
+    {
+      "type": "text",
+      "id": "event_5_date",
+      "label": "Event date",
+      "default": "December 31, 2024"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_5",
+      "label": "Image 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_6",
+      "label": "Image 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_7",
+      "label": "Image 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_8",
+      "label": "Image 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_9",
+      "label": "Image 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_10",
+      "label": "Image 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_11",
+      "label": "Image 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "event_5_image_12",
+      "label": "Image 12"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Event Gallery Slider"
+    }
+  ]
+}
 {% endschema %}
