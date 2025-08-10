@@ -11,13 +11,54 @@
   "sections": {
     "custom_section_wHXFNA": {
       "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_f8f48f8_LYXbGh": {
+          "type": "ai_gen_block_f8f48f8",
+          "settings": {
+            "title": "Event Gallery",
+            "description": "Browse through our collection of memorable moments from various events",
+            "title_size": 36,
+            "description_size": 16,
+            "background_color": "#ffffff",
+            "text_color": "#1f2937",
+            "tab_border_color": "#d1d5db",
+            "tab_active_color": "#d72927",
+            "tab_active_text_color": "#ffffff",
+            "image_gap": 20,
+            "image_border_radius": 12,
+            "tab_border_radius": 20,
+            "event_1_enabled": true,
+            "event_1_name": "Summer Festival2024",
+            "event_1_date": "June 15, 2024",
+            "event_1_image_1": "shopify://shop_images/1920_2x_1.avif",
+            "event_1_image_2": "shopify://shop_images/NAture.jpg",
+            "event_1_image_3": "shopify://shop_images/xauy8pi7kjmhltay9hz9_2-enhanced_117ef982-3699-4a3d-aa30-4f9b096e1ba6.png",
+            "event_2_enabled": true,
+            "event_2_name": "Winter Gala 2024",
+            "event_2_date": "December 20, 2024",
+            "event_3_enabled": true,
+            "event_3_name": "Spring Conference 2024",
+            "event_3_date": "March 10, 2024",
+            "event_4_enabled": true,
+            "event_4_name": "Autumn Workshop 2024",
+            "event_4_date": "September 15, 2024",
+            "event_5_enabled": true,
+            "event_5_name": "Holiday Celebration 2024",
+            "event_5_date": "December 31, 2024"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_f8f48f8_LYXbGh"
+      ],
       "name": "t:general.custom_section",
       "settings": {
         "theme": "light",
-        "padding_top": 40,
-        "padding_right": 40,
-        "padding_bottom": 40,
-        "padding_left": 40,
+        "padding_top": 0,
+        "padding_right": 0,
+        "padding_bottom": 44,
+        "padding_left": 0,
         "margin_top": 0,
         "margin_right": 0,
         "margin_bottom": 0,
