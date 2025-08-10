@@ -64,9 +64,63 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_PzzzQ3": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_77b2c6c_DEEHbb": {
+          "type": "ai_gen_block_77b2c6c",
+          "settings": {
+            "badge_text": "The Wedding Diaries",
+            "title": "Your Perfect Wedding Story Awaits",
+            "subtitle": "Discover the most beautiful wedding collections, expert planning tips, and inspiration for your special day. Let us help you create memories that last a lifetime.",
+            "cta_text": "Explore Collections",
+            "cta_url": "",
+            "show_features": true,
+            "feature_1_title": "Curated Collections",
+            "feature_1_text": "Handpicked wedding essentials from top designers worldwide.",
+            "feature_2_title": "Expert Planning",
+            "feature_2_text": "Professional guidance to make your wedding planning seamless.",
+            "feature_3_title": "Memorable Moments",
+            "feature_3_text": "Create unforgettable experiences for you and your loved ones.",
+            "title_size": 56,
+            "subtitle_size": 18,
+            "bg_color_1": "#fdf2f8",
+            "bg_color_2": "#fef7f0",
+            "text_color": "#1f2937",
+            "badge_color": "#c63b33",
+            "title_color_1": "#c63b33",
+            "title_color_2": "#dc2626",
+            "button_bg_color_1": "#c63b33",
+            "button_bg_color_2": "#dc2626",
+            "button_text_color": "#ffffff",
+            "button_hover_color_1": "#b91c1c",
+            "button_hover_color_2": "#991b1b",
+            "icon_color_1": "#c63b33",
+            "icon_color_2": "#dc2626"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_77b2c6c_DEEHbb"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 0,
+        "padding_right": 0,
+        "padding_bottom": 0,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
-    "custom_section_wHXFNA"
+    "custom_section_wHXFNA",
+    "custom_section_PzzzQ3"
   ]
 }
