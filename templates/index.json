@@ -162,11 +162,59 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_EzjXbA": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_a4f9d25_LUWpyH": {
+          "type": "ai_gen_block_a4f9d25",
+          "settings": {
+            "logo_width": 250,
+            "description": "We create amazing products that bring joy and value to our customers' lives.",
+            "phone_number": "+91 9997777888",
+            "facebook_url": "",
+            "instagram_url": "",
+            "twitter_url": "",
+            "youtube_url": "",
+            "link_1_text": "About Us",
+            "link_1_url": "",
+            "link_2_text": "Contact",
+            "link_2_url": "",
+            "link_3_text": "Privacy Policy",
+            "link_3_url": "",
+            "link_4_text": "Terms of Service",
+            "link_4_url": "",
+            "copyright_text": "© 2024 Your Store Name. All rights reserved.",
+            "show_payment_icons": true,
+            "background_color_1": "#1a1a2e",
+            "background_color_2": "#16213e",
+            "text_color": "#ffffff",
+            "accent_color": "#4f46e5"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_a4f9d25_LUWpyH"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 0,
+        "padding_right": 0,
+        "padding_bottom": 0,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
     "custom_section_wHXFNA",
     "custom_section_PzzzQ3",
-    "custom_section_DUrxei"
+    "custom_section_DUrxei",
+    "custom_section_EzjXbA"
   ]
 }
