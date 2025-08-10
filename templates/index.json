@@ -121,39 +121,34 @@
     "custom_section_DUrxei": {
       "type": "custom-section",
       "blocks": {
-        "ai_gen_block_85157a4_cRtrBg": {
-          "type": "ai_gen_block_85157a4",
+        "ai_gen_block_5f91a2b_JEVTDT": {
+          "type": "ai_gen_block_5f91a2b",
           "settings": {
-            "title": "Trusted by Leading Companies",
-            "subtitle": "Join thousands of satisfied clients who trust our services",
-            "columns_desktop": "5",
-            "columns_tablet": "3",
-            "columns_mobile": "2",
-            "grid_gap": 24,
-            "item_height": 120,
+            "section_height": 300,
             "background_color": "#ffffff",
-            "title_color": "#000000",
+            "title": "Our Trusted Clients",
+            "title_color": "#c63b33",
+            "subtitle": "We're proud to work with industry leaders and innovative companies worldwide",
             "subtitle_color": "#666666",
-            "item_background": "#ffffff",
-            "item_hover_background": "#f8f9fa",
-            "border_color": "#e9ecef",
-            "border_radius": 8,
-            "section_padding": 60,
-            "item_padding": 20,
-            "header_margin": 50,
+            "client_logo_1": "shopify://shop_images/E-Main.jpg",
+            "client_logo_5": "shopify://shop_images/E-Main.jpg",
+            "logo_background": "#f8f8f8",
+            "logo_hover_background": "#f0f0f0",
+            "logo_border_color": "#e0e0e0",
+            "placeholder_color": "#cccccc",
+            "logo_width": 200,
+            "logo_height": 120,
+            "logo_spacing": 30,
+            "logo_border_radius": 8,
+            "scroll_speed": 30,
             "title_size": 36,
-            "subtitle_size": 16,
-            "enable_animation": true,
-            "hover_lift": 4,
-            "hover_scale": 1.1,
-            "logo_filter": "grayscale(100%) opacity(0.7)",
-            "logo_hover_filter": "grayscale(0%) opacity(1)"
+            "subtitle_size": 18
           },
           "blocks": {}
         }
       },
       "block_order": [
-        "ai_gen_block_85157a4_cRtrBg"
+        "ai_gen_block_5f91a2b_JEVTDT"
       ],
       "name": "t:general.custom_section",
       "settings": {
