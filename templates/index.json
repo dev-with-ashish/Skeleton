@@ -209,12 +209,77 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_Hm6Lcd": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_8d4f6ef_Yt8YVy": {
+          "type": "ai_gen_block_8d4f6ef",
+          "settings": {
+            "title": "Crafting Unforgettable Experiences",
+            "subtitle": "We design and plan creative event solutions to your requirements. From launches and press conferences to business conferences, exhibitions, parties and weddings, we produce events that enthral and engage.",
+            "columns_desktop": "4",
+            "columns_tablet": "2",
+            "columns_mobile": "1",
+            "show_creative_card": true,
+            "creative_title": "Creative Solutions",
+            "creative_text": "We develop proprietary creative and design systems for the widest possible range of event and experiential projects.",
+            "show_technology_card": true,
+            "technology_title": "Advanced Technology",
+            "technology_text": "Our cutting-edge reporting, logistic and technology systems ensure seamless execution of every event detail.",
+            "show_experience_card": true,
+            "experience_title": "Engaging Experiences",
+            "experience_text": "We create events and experiences that captivate audiences and leave lasting impressions on every attendee.",
+            "show_delivery_card": true,
+            "delivery_title": "On-Time Promise",
+            "delivery_text": "We guarantee punctual delivery and execution of every event element, ensuring your special moments happen exactly when they should.",
+            "show_stats": true,
+            "stat_1_number": "500",
+            "stat_1_label": "Events Produced",
+            "stat_2_number": "50000",
+            "stat_2_label": "Happy Attendees",
+            "stat_3_number": "15",
+            "stat_3_label": "Years Experience",
+            "stat_4_number": "98",
+            "stat_4_label": "Client Satisfaction %",
+            "title_size": 48,
+            "subtitle_size": 18,
+            "primary_color": "#ffffff",
+            "secondary_color": "#f9d6dd",
+            "text_color": "#000000",
+            "icon_color": "#d91a47",
+            "card_title_color": "#000000",
+            "card_text_color": "#000000",
+            "stat_number_color": "#d91a47",
+            "card_opacity": 0,
+            "card_border_radius": 16,
+            "card_border_color": "#d91a47"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_8d4f6ef_Yt8YVy"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 0,
+        "padding_bottom": 40,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
     "custom_section_wHXFNA",
     "custom_section_PzzzQ3",
     "custom_section_DUrxei",
-    "custom_section_EzjXbA"
+    "custom_section_EzjXbA",
+    "custom_section_Hm6Lcd"
   ]
 }
