@@ -1,6 +1,539 @@
+{% doc %}
+  @prompt
+    generate a best styled section according to this : Event Planning & Management
+    Event Technology
+    We research and use the latest event technology – VR, facial recognition, 3D Projection Mapping, interactive immersion, launch & hydraulic tech to best reflect the brand experience, products, and live event messaging.
+    
+    Artist Management
+    We provide a highly skilled professional service with a creative touch.
+    
+    Culinary & Bar Services
+    In our bid to deliver authentic, undiluted experiences, we cater unique regional and global dining experiences.
+    
+    Printing & Customized Products
+    We specialize in a wide range of printing solutions to meet every creative and corporate need, including digital printing, offset printing, large-format banners, posters, flyers, brochures, business cards, signage, and exhibition backdrops. We also offer premium customized products such as mugs, T-shirts, caps, bags, stationery, corporate gifting items, and branded merchandise – all designed to make your brand stand out. using tailwind css and threejs, remove gradiant from bg, bacground color is not colouring the section check for styling errors as showing a verticle background color line in the left top and left bottom
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-event-services-{{ ai_gen_id }} {
+    padding: 80px 0;
+    background-color: {{ block.settings.background_color }};
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin: 0;
+  }
+
+  .ai-event-services-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .ai-event-services-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .ai-event-services-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .ai-event-services-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .ai-event-services-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    perspective: 1000px;
+  }
+
+  .ai-event-service-card-{{ ai_gen_id }} {
+    background: {{ block.settings.card_background }};
+    border-radius: 20px;
+    padding: 40px 30px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-event-service-card-{{ ai_gen_id }}:hover {
+    transform: rotateY(5deg) rotateX(5deg) translateY(-20px);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-event-service-icon-{{ ai_gen_id }} {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, {{ block.settings.icon_color_1 }} 0%, {{ block.settings.icon_color_2 }} 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transform: translateZ(20px);
+  }
+
+  .ai-event-service-icon-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(135deg, {{ block.settings.icon_color_1 }}40, {{ block.settings.icon_color_2 }}40);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-event-service-card-{{ ai_gen_id }}:hover .ai-event-service-icon-{{ ai_gen_id }}::before {
+    opacity: 1;
+  }
+
+  .ai-event-service-icon-{{ ai_gen_id }} svg {
+    width: 40px;
+    height: 40px;
+    color: white;
+  }
+
+  .ai-event-service-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_title_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.card_title_color }};
+    margin: 0 0 20px;
+    text-align: center;
+  }
+
+  .ai-event-service-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_text_size }}px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .ai-event-services-bg-elements-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .ai-event-services-bg-circle-{{ ai_gen_id }} {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    animation: ai-float-{{ ai_gen_id }} 6s ease-in-out infinite;
+  }
+
+  .ai-event-services-bg-circle-{{ ai_gen_id }}:nth-child(1) {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+
+  .ai-event-services-bg-circle-{{ ai_gen_id }}:nth-child(2) {
+    width: 150px;
+    height: 150px;
+    top: 60%;
+    right: 15%;
+    animation-delay: 2s;
+  }
+
+  .ai-event-services-bg-circle-{{ ai_gen_id }}:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+
+  @keyframes ai-float-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(180deg);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ai-event-services-{{ ai_gen_id }} {
+      padding: 60px 0;
+    }
+
+    .ai-event-services-container-{{ ai_gen_id }} {
+      padding: 0 15px;
+    }
+
+    .ai-event-services-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .ai-event-service-card-{{ ai_gen_id }}:hover {
+      transform: translateY(-10px);
+    }
+
+    .ai-event-services-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<event-services-{{ ai_gen_id }}
+  class="ai-event-services-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-event-services-bg-elements-{{ ai_gen_id }}">
+    <div class="ai-event-services-bg-circle-{{ ai_gen_id }}"></div>
+    <div class="ai-event-services-bg-circle-{{ ai_gen_id }}"></div>
+    <div class="ai-event-services-bg-circle-{{ ai_gen_id }}"></div>
+  </div>
+
+  <div class="ai-event-services-container-{{ ai_gen_id }}">
+    <div class="ai-event-services-header-{{ ai_gen_id }}">
+      <h2 class="ai-event-services-title-{{ ai_gen_id }}">{{ block.settings.main_title }}</h2>
+      <p class="ai-event-services-subtitle-{{ ai_gen_id }}">{{ block.settings.main_subtitle }}</p>
+    </div>
+
+    <div class="ai-event-services-grid-{{ ai_gen_id }}">
+      <div class="ai-event-service-card-{{ ai_gen_id }}" data-service="technology">
+        <div class="ai-event-service-icon-{{ ai_gen_id }}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h3 class="ai-event-service-title-{{ ai_gen_id }}">{{ block.settings.service_1_title }}</h3>
+        <p class="ai-event-service-description-{{ ai_gen_id }}">{{ block.settings.service_1_description }}</p>
+      </div>
+
+      <div class="ai-event-service-card-{{ ai_gen_id }}" data-service="management">
+        <div class="ai-event-service-icon-{{ ai_gen_id }}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h3 class="ai-event-service-title-{{ ai_gen_id }}">{{ block.settings.service_2_title }}</h3>
+        <p class="ai-event-service-description-{{ ai_gen_id }}">{{ block.settings.service_2_description }}</p>
+      </div>
+
+      <div class="ai-event-service-card-{{ ai_gen_id }}" data-service="culinary">
+        <div class="ai-event-service-icon-{{ ai_gen_id }}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+          </svg>
+        </div>
+        <h3 class="ai-event-service-title-{{ ai_gen_id }}">{{ block.settings.service_3_title }}</h3>
+        <p class="ai-event-service-description-{{ ai_gen_id }}">{{ block.settings.service_3_description }}</p>
+      </div>
+
+      <div class="ai-event-service-card-{{ ai_gen_id }}" data-service="printing">
+        <div class="ai-event-service-icon-{{ ai_gen_id }}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+        </div>
+        <h3 class="ai-event-service-title-{{ ai_gen_id }}">{{ block.settings.service_4_title }}</h3>
+        <p class="ai-event-service-description-{{ ai_gen_id }}">{{ block.settings.service_4_description }}</p>
+      </div>
+    </div>
+  </div>
+</event-services-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class EventServices{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.cards = this.querySelectorAll('.ai-event-service-card-{{ ai_gen_id }}');
+        this.setupIntersectionObserver();
+        this.setupParallaxEffect();
+      }
+
+      setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0) rotateX(0)';
+              }, index * 200);
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        });
+
+        this.cards.forEach((card, index) => {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(50px) rotateX(-15deg)';
+          card.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          observer.observe(card);
+        });
+      }
+
+      setupParallaxEffect() {
+        const bgElements = this.querySelectorAll('.ai-event-services-bg-circle-{{ ai_gen_id }}');
+        
+        window.addEventListener('scroll', () => {
+          const scrolled = window.pageYOffset;
+          const rect = this.getBoundingClientRect();
+          const speed = scrolled * 0.5;
+
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            bgElements.forEach((element, index) => {
+              const yPos = -(speed * (0.5 + index * 0.1));
+              element.style.transform = `translateY(${yPos}px) rotate(${scrolled * 0.1}deg)`;
+            });
+          }
+        });
+      }
+    }
+
+    customElements.define('event-services-{{ ai_gen_id }}', EventServices{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Event Services Showcase",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main content"
+    },
+    {
+      "type": "text",
+      "id": "main_title",
+      "label": "Main title",
+      "default": "Event Planning & Management"
+    },
+    {
+      "type": "textarea",
+      "id": "main_subtitle",
+      "label": "Main subtitle",
+      "default": "Delivering exceptional experiences through innovative technology and creative excellence"
+    },
+    {
+      "type": "header",
+      "content": "Event Technology"
+    },
+    {
+      "type": "text",
+      "id": "service_1_title",
+      "label": "Service title",
+      "default": "Event Technology"
+    },
+    {
+      "type": "textarea",
+      "id": "service_1_description",
+      "label": "Service description",
+      "default": "We research and use the latest event technology – VR, facial recognition, 3D Projection Mapping, interactive immersion, launch & hydraulic tech to best reflect the brand experience, products, and live event messaging."
+    },
+    {
+      "type": "header",
+      "content": "Artist Management"
+    },
+    {
+      "type": "text",
+      "id": "service_2_title",
+      "label": "Service title",
+      "default": "Artist Management"
+    },
+    {
+      "type": "textarea",
+      "id": "service_2_description",
+      "label": "Service description",
+      "default": "We provide a highly skilled professional service with a creative touch."
+    },
+    {
+      "type": "header",
+      "content": "Culinary Services"
+    },
+    {
+      "type": "text",
+      "id": "service_3_title",
+      "label": "Service title",
+      "default": "Culinary & Bar Services"
+    },
+    {
+      "type": "textarea",
+      "id": "service_3_description",
+      "label": "Service description",
+      "default": "In our bid to deliver authentic, undiluted experiences, we cater unique regional and global dining experiences."
+    },
+    {
+      "type": "header",
+      "content": "Printing Services"
+    },
+    {
+      "type": "text",
+      "id": "service_4_title",
+      "label": "Service title",
+      "default": "Printing & Customized Products"
+    },
+    {
+      "type": "textarea",
+      "id": "service_4_description",
+      "label": "Service description",
+      "default": "We specialize in a wide range of printing solutions to meet every creative and corporate need, including digital printing, offset printing, large-format banners, posters, flyers, brochures, business cards, signage, and exhibition backdrops."
+    },
+    {
+      "type": "header",
+      "content": "Background colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#667eea"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "rgba(255, 255, 255, 0.1)"
+    },
+    {
+      "type": "header",
+      "content": "Text colors"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "rgba(255, 255, 255, 0.8)"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text color",
+      "default": "rgba(255, 255, 255, 0.9)"
+    },
+    {
+      "type": "header",
+      "content": "Icon colors"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_1",
+      "label": "Icon gradient start",
+      "default": "#ff6b6b"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_2",
+      "label": "Icon gradient end",
+      "default": "#4ecdc4"
+    },
+    {
+      "type": "header",
+      "content": "Accent colors"
+    },
+    {
+      "type": "color",
+      "id": "accent_color_1",
+      "label": "Accent color 1",
+      "default": "#ff6b6b"
+    },
+    {
+      "type": "color",
+      "id": "accent_color_2",
+      "label": "Accent color 2",
+      "default": "#4ecdc4"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Main title size",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 16,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Card title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Card text size",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Event Services Showcase"
+    }
+  ]
+}
 {% endschema %}
