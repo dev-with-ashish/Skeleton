@@ -1,6 +1,536 @@
+{% doc %}
+  @prompt
+    and a circular “Our Services” wheel. Right column houses the big headline “Event Planning & Management,” three key service pillars, and a ring of customized-design examples. Add these text where ever possible but all tese must be included : Event Planning & Management
+    Who we are?
+    We design and plan creative event solutions to your requirements. We develop proprietary creative, design, reporting, logistic and technology systems for the widest possible range of event and experiential projects. From launches and press conferences to business conferences, exhibitions, parties and weddings, we produce events and experiences that enthral and engage the audience.
+    Our Services
+    Government Services
+    Customized Gifting
+    Events
+    Conference
+    Exhibitions
+    Brandings
+    Digital Printing
+    Offset Printing
+    Corporate Gifting
+    Event Planning & Management
+    Event Technology
+    We research and use the latest event technology – VR, facial recognition, 3D projection mapping, interactive immersion, launch & hydraulic tech – to best reflect the brand experience, products and live event messaging.
+    Artist Management
+    We provide a highly skilled professional service with a creative touch.
+    Culinary & Bar Services
+    In our bid to deliver authentic, undiluted experiences, we cater unique regional and global dining experiences.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-event-services-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    padding: 60px 40px;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-event-services-left-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-event-services-right-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .ai-event-services-wheel-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin-bottom: 30px;
+  }
+
+  .ai-event-services-wheel-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid {{ block.settings.wheel_border_color }};
+    position: relative;
+    background-color: {{ block.settings.wheel_background_color }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-event-services-wheel-center-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: {{ block.settings.center_background_color }};
+    color: {{ block.settings.center_text_color }};
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .ai-event-services-wheel-item-{{ ai_gen_id }} {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-color: {{ block.settings.item_background_color }};
+    color: {{ block.settings.item_text_color }};
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-event-services-wheel-item-1-{{ ai_gen_id }} {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .ai-event-services-wheel-item-2-{{ ai_gen_id }} {
+    top: 60px;
+    right: 40px;
+  }
+
+  .ai-event-services-wheel-item-3-{{ ai_gen_id }} {
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+  }
+
+  .ai-event-services-wheel-item-4-{{ ai_gen_id }} {
+    bottom: 60px;
+    right: 40px;
+  }
+
+  .ai-event-services-wheel-item-5-{{ ai_gen_id }} {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .ai-event-services-wheel-item-6-{{ ai_gen_id }} {
+    bottom: 60px;
+    left: 40px;
+  }
+
+  .ai-event-services-wheel-item-7-{{ ai_gen_id }} {
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+  }
+
+  .ai-event-services-wheel-item-8-{{ ai_gen_id }} {
+    top: 60px;
+    left: 40px;
+  }
+
+  .ai-event-services-who-we-are-{{ ai_gen_id }} {
+    text-align: center;
+  }
+
+  .ai-event-services-who-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.section_title_size }}px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-event-services-who-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_size }}px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .ai-event-services-main-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.main_title_size }}px;
+    font-weight: 700;
+    margin: 0 0 30px;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-event-services-pillars-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .ai-event-services-pillar-{{ ai_gen_id }} {
+    background-color: {{ block.settings.pillar_background_color }};
+    padding: 25px;
+    border-radius: {{ block.settings.pillar_border_radius }}px;
+    border-left: 4px solid {{ block.settings.accent_color }};
+  }
+
+  .ai-event-services-pillar-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.pillar_title_size }}px;
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: {{ block.settings.pillar_title_color }};
+  }
+
+  .ai-event-services-pillar-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.pillar_description_size }}px;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .ai-event-services-examples-{{ ai_gen_id }} {
+    margin-top: 20px;
+  }
+
+  .ai-event-services-examples-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.section_title_size }}px;
+    font-weight: 600;
+    margin: 0 0 20px;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-event-services-examples-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .ai-event-services-example-{{ ai_gen_id }} {
+    background-color: {{ block.settings.example_background_color }};
+    padding: 15px;
+    border-radius: {{ block.settings.example_border_radius }}px;
+    text-align: center;
+    font-size: {{ block.settings.example_text_size }}px;
+    font-weight: 500;
+    color: {{ block.settings.example_text_color }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-event-services-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 40px 20px;
+    }
+
+    .ai-event-services-wheel-container-{{ ai_gen_id }} {
+      width: 300px;
+      height: 300px;
+    }
+
+    .ai-event-services-wheel-center-{{ ai_gen_id }} {
+      width: 90px;
+      height: 90px;
+      font-size: 14px;
+    }
+
+    .ai-event-services-wheel-item-{{ ai_gen_id }} {
+      width: 60px;
+      height: 60px;
+      font-size: 10px;
+    }
+
+    .ai-event-services-examples-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+{% endstyle %}
+
+<div class="ai-event-services-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-event-services-left-{{ ai_gen_id }}">
+    <div class="ai-event-services-wheel-container-{{ ai_gen_id }}">
+      <div class="ai-event-services-wheel-{{ ai_gen_id }}">
+        <div class="ai-event-services-wheel-center-{{ ai_gen_id }}">
+          Our Services
+        </div>
+        
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-1-{{ ai_gen_id }}">
+          Government Services
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-2-{{ ai_gen_id }}">
+          Customized Gifting
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-3-{{ ai_gen_id }}">
+          Events
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-4-{{ ai_gen_id }}">
+          Conference
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-5-{{ ai_gen_id }}">
+          Exhibitions
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-6-{{ ai_gen_id }}">
+          Brandings
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-7-{{ ai_gen_id }}">
+          Digital Printing
+        </div>
+        <div class="ai-event-services-wheel-item-{{ ai_gen_id }} ai-event-services-wheel-item-8-{{ ai_gen_id }}">
+          Offset Printing
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-event-services-who-we-are-{{ ai_gen_id }}">
+      <h2 class="ai-event-services-who-title-{{ ai_gen_id }}">Who we are?</h2>
+      <p class="ai-event-services-who-description-{{ ai_gen_id }}">
+        We design and plan creative event solutions to your requirements. We develop proprietary creative, design, reporting, logistic and technology systems for the widest possible range of event and experiential projects. From launches and press conferences to business conferences, exhibitions, parties and weddings, we produce events and experiences that enthral and engage the audience.
+      </p>
+    </div>
+  </div>
+
+  <div class="ai-event-services-right-{{ ai_gen_id }}">
+    <h1 class="ai-event-services-main-title-{{ ai_gen_id }}">Event Planning & Management</h1>
+
+    <div class="ai-event-services-pillars-{{ ai_gen_id }}">
+      <div class="ai-event-services-pillar-{{ ai_gen_id }}">
+        <h3 class="ai-event-services-pillar-title-{{ ai_gen_id }}">Event Technology</h3>
+        <p class="ai-event-services-pillar-description-{{ ai_gen_id }}">
+          We research and use the latest event technology – VR, facial recognition, 3D projection mapping, interactive immersion, launch & hydraulic tech – to best reflect the brand experience, products and live event messaging.
+        </p>
+      </div>
+
+      <div class="ai-event-services-pillar-{{ ai_gen_id }}">
+        <h3 class="ai-event-services-pillar-title-{{ ai_gen_id }}">Artist Management</h3>
+        <p class="ai-event-services-pillar-description-{{ ai_gen_id }}">
+          We provide a highly skilled professional service with a creative touch.
+        </p>
+      </div>
+
+      <div class="ai-event-services-pillar-{{ ai_gen_id }}">
+        <h3 class="ai-event-services-pillar-title-{{ ai_gen_id }}">Culinary & Bar Services</h3>
+        <p class="ai-event-services-pillar-description-{{ ai_gen_id }}">
+          In our bid to deliver authentic, undiluted experiences, we cater unique regional and global dining experiences.
+        </p>
+      </div>
+    </div>
+
+    <div class="ai-event-services-examples-{{ ai_gen_id }}">
+      <h3 class="ai-event-services-examples-title-{{ ai_gen_id }}">Customized Design Examples</h3>
+      <div class="ai-event-services-examples-grid-{{ ai_gen_id }}">
+        <div class="ai-event-services-example-{{ ai_gen_id }}">Corporate Gifting</div>
+        <div class="ai-event-services-example-{{ ai_gen_id }}">Event Planning & Management</div>
+        <div class="ai-event-services-example-{{ ai_gen_id }}">Digital Solutions</div>
+        <div class="ai-event-services-example-{{ ai_gen_id }}">Brand Experiences</div>
+        <div class="ai-event-services-example-{{ ai_gen_id }}">Technology Integration</div>
+        <div class="ai-event-services-example-{{ ai_gen_id }}">Creative Design</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Event Services Layout",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#007bff"
+    },
+    {
+      "type": "header",
+      "content": "Services wheel"
+    },
+    {
+      "type": "color",
+      "id": "wheel_background_color",
+      "label": "Wheel background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "wheel_border_color",
+      "label": "Wheel border",
+      "default": "#007bff"
+    },
+    {
+      "type": "color",
+      "id": "center_background_color",
+      "label": "Center background",
+      "default": "#007bff"
+    },
+    {
+      "type": "color",
+      "id": "center_text_color",
+      "label": "Center text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "item_background_color",
+      "label": "Item background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "item_text_color",
+      "label": "Item text",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Service pillars"
+    },
+    {
+      "type": "color",
+      "id": "pillar_background_color",
+      "label": "Pillar background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "pillar_title_color",
+      "label": "Pillar title color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "pillar_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Pillar border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Examples section"
+    },
+    {
+      "type": "color",
+      "id": "example_background_color",
+      "label": "Example background",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "color",
+      "id": "example_text_color",
+      "label": "Example text",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "example_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Example border radius",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "main_title_size",
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Main title size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "section_title_size",
+      "min": 18,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Section title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "pillar_title_size",
+      "min": 16,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Pillar title size",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 14,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "pillar_description_size",
+      "min": 14,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Pillar description size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "example_text_size",
+      "min": 12,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Example text size",
+      "default": 14
+    }
+  ],
+  "presets": [
+    {
+      "name": "Event Services Layout"
+    }
+  ]
+}
 {% endschema %}
