@@ -273,50 +273,6 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
-    },
-    "custom_section_wWpDWg": {
-      "type": "custom-section",
-      "blocks": {
-        "ai_gen_block_bbe8166_ngGLgJ": {
-          "type": "ai_gen_block_bbe8166",
-          "settings": {
-            "main_title": "Event Planning & Management",
-            "subtitle": "Who we are?",
-            "description": "We design and plan creative event solutions to your requirements. We develop proprietary creative, design, reporting, logistic and technology systems for the widest possible range of event and experiential projects.",
-            "tech_title": "Event Technology & Innovation",
-            "service_spacing": 60,
-            "service_padding": 20,
-            "primary_color": "#667eea",
-            "secondary_color": "#764ba2",
-            "text_color": "#ffffff",
-            "icon_color": "#667eea",
-            "title_size": 48,
-            "subtitle_size": 24,
-            "description_size": 18,
-            "service_title_size": 28,
-            "service_description_size": 16,
-            "tech_title_size": 32,
-            "visual_opacity": 0.2,
-            "visual_border_radius": 25
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_bbe8166_ngGLgJ"
-      ],
-      "name": "t:general.custom_section",
-      "settings": {
-        "theme": "light",
-        "padding_top": 40,
-        "padding_right": 0,
-        "padding_bottom": 40,
-        "padding_left": 0,
-        "margin_top": 0,
-        "margin_right": 0,
-        "margin_bottom": 0,
-        "margin_left": 0
-      }
     }
   },
   "order": [
@@ -324,7 +280,6 @@
     "custom_section_PzzzQ3",
     "custom_section_DUrxei",
     "custom_section_EzjXbA",
-    "custom_section_Hm6Lcd",
-    "custom_section_wWpDWg"
+    "custom_section_Hm6Lcd"
   ]
 }
