@@ -273,6 +273,72 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_L7VdGt": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_49c8b5a_bjUnwr": {
+          "type": "ai_gen_block_49c8b5a",
+          "settings": {
+            "section_title": "Our Services",
+            "section_title_alignment": "center",
+            "section_title_size": 36,
+            "section_title_color": "#333333",
+            "section_title_spacing": 40,
+            "section_padding": 60,
+            "card_spacing": 30,
+            "gallery_spacing": 50,
+            "gallery_gap": 15,
+            "gallery_title": "Our Work",
+            "gallery_title_alignment": "center",
+            "gallery_title_size": 28,
+            "gallery_title_color": "#333333",
+            "gallery_title_spacing": 30,
+            "card_width": 320,
+            "card_height": 280,
+            "background_color": "#ffffff",
+            "card_background": "#ffffff",
+            "card_border_color": "#e5e5e5",
+            "scrollbar_color": "#cccccc",
+            "scrollbar_hover_color": "#999999",
+            "icon_background": "#f0f0f0",
+            "icon_color": "#333333",
+            "title_color": "#333333",
+            "description_color": "#666666",
+            "card_padding": 30,
+            "card_border_radius": 8,
+            "icon_size": 60,
+            "title_size": 20,
+            "description_size": 14,
+            "gallery_border_radius": 8,
+            "show_titles_always": false,
+            "image_title_size": 14,
+            "image_title_color": "#ffffff",
+            "gallery_image_1": "shopify://shop_images/1920_2x_1.avif",
+            "gallery_image_title_1": "hola",
+            "gallery_image_title_2": "",
+            "gallery_image_title_3": "",
+            "gallery_image_title_4": "",
+            "gallery_image_title_5": ""
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_49c8b5a_bjUnwr"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 0,
+        "padding_bottom": 40,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
@@ -280,6 +346,7 @@
     "custom_section_PzzzQ3",
     "custom_section_DUrxei",
     "custom_section_EzjXbA",
-    "custom_section_Hm6Lcd"
+    "custom_section_Hm6Lcd",
+    "custom_section_L7VdGt"
   ]
 }
