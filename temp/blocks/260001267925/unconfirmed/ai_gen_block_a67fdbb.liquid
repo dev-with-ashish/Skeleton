@@ -1,6 +1,739 @@
+{% doc %}
+  @prompt
+    Prompt:
+    "Create a Shopify section in Liquid named event-planning-management with the following layout:
+    Top Heading:
+    
+    Text: Event Planing & Management (bold, red, large font, centered).
+    Three Feature Blocks:
+    EventTechnology (title in bold red) with description:
+    We research and use the latest event technology – VR, facial recognition, 3D Projection Mapping, interactive immersion, launch & hydraulic tech to best reflect the brand experience, products and live event messaging.
+    Artist Management (title in bold red) with description:
+    We provide a highly skilled professional service with a creative touch.
+    Culinary & BarServices (title in bold red) with description:
+    In our bid to deliver authentic, undiluted experiences. We cater unique regional and global dining experience.
+    Below the Text Section:
+    Add a circular arrangement of 8 product images around a center text Customized Design:
+    Images to include: paper bag, mugs, yellow helmets, red t-shirt, brochures, black backpack, blue roses, and an additional printed item.
+    Ensure images have circular colored backgrounds behind them (matching the sample).
+    The center text Customized Design: should be in bold navy blue with a red horizontal divider line above and below.
+    Styling Requirements:
+    Background: white to light-blue gradient (top to bottom).
+    Fonts: clean sans-serif, adjustable in theme editor.
+    Image size: equal circular frames, responsive for desktop and mobile.
+    Mobile view: stack top heading and text first, then circular image arrangement centered.
+    Provide full customization in theme editor for heading color, font size, and description text color.
+    Ensure the section is fully responsive and all colors, font sizes, and images are customizable via Shopify theme settings.", make the customized design circle in a circular patter all circle around a circle in which customized design is written in center, make text on the left and circular design on right
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-event-planning-{{ ai_gen_id }} {
+    background: linear-gradient(to bottom, {{ block.settings.background_color_top }}, {{ block.settings.background_color_bottom }});
+    padding: {{ block.settings.section_padding }}px 20px;
+    font-family: {{ block.settings.font_family.family }}, {{ block.settings.font_family.fallback_families }};
+    font-weight: {{ block.settings.font_family.weight }};
+    font-style: {{ block.settings.font_family.style }};
+  }
+
+  .ai-event-planning-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-event-planning-heading-{{ ai_gen_id }} {
+    text-align: center;
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+    font-weight: bold;
+    margin: 0 0 {{ block.settings.section_spacing }}px 0;
+  }
+
+  .ai-event-planning-main-content-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ block.settings.content_gap }}px;
+    align-items: center;
+    margin-top: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-event-planning-text-section-{{ ai_gen_id }} {
+    padding-right: 20px;
+  }
+
+  .ai-event-planning-features-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.feature_spacing }}px;
+  }
+
+  .ai-event-planning-feature-{{ ai_gen_id }} {
+    padding: 20px 0;
+  }
+
+  .ai-event-planning-feature-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.feature_title_size }}px;
+    color: {{ block.settings.feature_title_color }};
+    font-weight: bold;
+    margin: 0 0 15px 0;
+  }
+
+  .ai-event-planning-feature-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.feature_description_size }}px;
+    color: {{ block.settings.feature_description_color }};
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .ai-event-planning-circular-section-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: {{ block.settings.circle_container_size }}px;
+    padding-left: 20px;
+  }
+
+  .ai-event-planning-circle-container-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.circle_container_size }}px;
+    height: {{ block.settings.circle_container_size }}px;
+    border-radius: 50%;
+  }
+
+  .ai-event-planning-center-text-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+    background-color: {{ block.settings.center_background_color }};
+    border-radius: 50%;
+    width: {{ block.settings.center_circle_size }}px;
+    height: {{ block.settings.center_circle_size }}px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-event-planning-center-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.center_title_size }}px;
+    color: {{ block.settings.center_title_color }};
+    font-weight: bold;
+    margin: 0;
+    position: relative;
+    padding: 15px 0;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .ai-event-planning-center-title-{{ ai_gen_id }}::before,
+  .ai-event-planning-center-title-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: {{ block.settings.divider_width }}px;
+    height: {{ block.settings.divider_thickness }}px;
+    background-color: {{ block.settings.divider_color }};
+  }
+
+  .ai-event-planning-center-title-{{ ai_gen_id }}::before {
+    top: 0;
+  }
+
+  .ai-event-planning-center-title-{{ ai_gen_id }}::after {
+    bottom: 0;
+  }
+
+  .ai-event-planning-image-circle-{{ ai_gen_id }} {
+    position: absolute;
+    width: {{ block.settings.image_size }}px;
+    height: {{ block.settings.image_size }}px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+  }
+
+  .ai-event-planning-image-circle-{{ ai_gen_id }} img {
+    width: 70%;
+    height: 70%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .ai-event-planning-image-placeholder-{{ ai_gen_id }} {
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-event-planning-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.5;
+  }
+
+  .ai-event-planning-image-1-{{ ai_gen_id }} {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: {{ block.settings.circle_color_1 }};
+  }
+
+  .ai-event-planning-image-2-{{ ai_gen_id }} {
+    top: 14.6%;
+    right: 14.6%;
+    transform: translate(50%, -50%);
+    background-color: {{ block.settings.circle_color_2 }};
+  }
+
+  .ai-event-planning-image-3-{{ ai_gen_id }} {
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+    background-color: {{ block.settings.circle_color_3 }};
+  }
+
+  .ai-event-planning-image-4-{{ ai_gen_id }} {
+    bottom: 14.6%;
+    right: 14.6%;
+    transform: translate(50%, 50%);
+    background-color: {{ block.settings.circle_color_4 }};
+  }
+
+  .ai-event-planning-image-5-{{ ai_gen_id }} {
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    background-color: {{ block.settings.circle_color_5 }};
+  }
+
+  .ai-event-planning-image-6-{{ ai_gen_id }} {
+    bottom: 14.6%;
+    left: 14.6%;
+    transform: translate(-50%, 50%);
+    background-color: {{ block.settings.circle_color_6 }};
+  }
+
+  .ai-event-planning-image-7-{{ ai_gen_id }} {
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    background-color: {{ block.settings.circle_color_7 }};
+  }
+
+  .ai-event-planning-image-8-{{ ai_gen_id }} {
+    top: 14.6%;
+    left: 14.6%;
+    transform: translate(-50%, -50%);
+    background-color: {{ block.settings.circle_color_8 }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-event-planning-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.7 }}px 15px;
+    }
+
+    .ai-event-planning-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.8 }}px;
+    }
+
+    .ai-event-planning-main-content-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: {{ block.settings.content_gap | times: 0.7 }}px;
+    }
+
+    .ai-event-planning-text-section-{{ ai_gen_id }} {
+      padding-right: 0;
+      order: 1;
+    }
+
+    .ai-event-planning-circular-section-{{ ai_gen_id }} {
+      padding-left: 0;
+      order: 2;
+      min-height: {{ block.settings.circle_container_size | times: 0.8 }}px;
+      margin-top: {{ block.settings.section_spacing | times: 0.7 }}px;
+    }
+
+    .ai-event-planning-features-{{ ai_gen_id }} {
+      gap: {{ block.settings.feature_spacing | times: 0.7 }}px;
+    }
+
+    .ai-event-planning-feature-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.feature_title_size | times: 0.9 }}px;
+    }
+
+    .ai-event-planning-feature-description-{{ ai_gen_id }} {
+      font-size: {{ block.settings.feature_description_size | times: 0.9 }}px;
+    }
+
+    .ai-event-planning-circle-container-{{ ai_gen_id }} {
+      width: {{ block.settings.circle_container_size | times: 0.8 }}px;
+      height: {{ block.settings.circle_container_size | times: 0.8 }}px;
+    }
+
+    .ai-event-planning-center-text-{{ ai_gen_id }} {
+      width: {{ block.settings.center_circle_size | times: 0.8 }}px;
+      height: {{ block.settings.center_circle_size | times: 0.8 }}px;
+    }
+
+    .ai-event-planning-center-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.center_title_size | times: 0.8 }}px;
+    }
+
+    .ai-event-planning-image-circle-{{ ai_gen_id }} {
+      width: {{ block.settings.image_size | times: 0.7 }}px;
+      height: {{ block.settings.image_size | times: 0.7 }}px;
+    }
+
+    .ai-event-planning-center-title-{{ ai_gen_id }}::before,
+    .ai-event-planning-center-title-{{ ai_gen_id }}::after {
+      width: {{ block.settings.divider_width | times: 0.7 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-event-planning-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-event-planning-container-{{ ai_gen_id }}">
+    <h1 class="ai-event-planning-heading-{{ ai_gen_id }}">
+      {{ block.settings.main_heading }}
+    </h1>
+
+    <div class="ai-event-planning-main-content-{{ ai_gen_id }}">
+      <div class="ai-event-planning-text-section-{{ ai_gen_id }}">
+        <div class="ai-event-planning-features-{{ ai_gen_id }}">
+          <div class="ai-event-planning-feature-{{ ai_gen_id }}">
+            <h2 class="ai-event-planning-feature-title-{{ ai_gen_id }}">
+              {{ block.settings.feature_1_title }}
+            </h2>
+            <p class="ai-event-planning-feature-description-{{ ai_gen_id }}">
+              {{ block.settings.feature_1_description }}
+            </p>
+          </div>
+
+          <div class="ai-event-planning-feature-{{ ai_gen_id }}">
+            <h2 class="ai-event-planning-feature-title-{{ ai_gen_id }}">
+              {{ block.settings.feature_2_title }}
+            </h2>
+            <p class="ai-event-planning-feature-description-{{ ai_gen_id }}">
+              {{ block.settings.feature_2_description }}
+            </p>
+          </div>
+
+          <div class="ai-event-planning-feature-{{ ai_gen_id }}">
+            <h2 class="ai-event-planning-feature-title-{{ ai_gen_id }}">
+              {{ block.settings.feature_3_title }}
+            </h2>
+            <p class="ai-event-planning-feature-description-{{ ai_gen_id }}">
+              {{ block.settings.feature_3_description }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-event-planning-circular-section-{{ ai_gen_id }}">
+        <div class="ai-event-planning-circle-container-{{ ai_gen_id }}">
+          <div class="ai-event-planning-center-text-{{ ai_gen_id }}">
+            <h2 class="ai-event-planning-center-title-{{ ai_gen_id }}">
+              {{ block.settings.center_text }}
+            </h2>
+          </div>
+
+          {% for i in (1..8) %}
+            {% assign image_key = 'image_' | append: i %}
+            {% assign image = block.settings[image_key] %}<div class="ai-event-planning-image-circle-{{ ai_gen_id }} ai-event-planning-image-{{ i }}-{{ ai_gen_id }}">
+              {% if image %}
+                <img
+                  src="{{ image | image_url: width: 200 }}"
+                  alt="{{ image.alt | escape }}"
+                  loading="lazy"
+                  width="200"
+                  height="200"
+                >
+              {% else %}
+                <div class="ai-event-planning-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'image' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Event Planning Management",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main heading"
+    },
+    {
+      "type": "text",
+      "id": "main_heading",
+      "label": "Main heading",
+      "default": "Event Planning & Management"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#dc2626"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 42
+    },
+    {
+      "type": "header",
+      "content": "Features"
+    },
+    {
+      "type": "text",
+      "id": "feature_1_title",
+      "label": "Feature 1 title",
+      "default": "Event Technology"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_1_description",
+      "label": "Feature 1 description",
+      "default": "We research and use the latest event technology – VR, facial recognition, 3D Projection Mapping, interactive immersion, launch & hydraulic tech to best reflect the brand experience, products and live event messaging."
+    },
+    {
+      "type": "text",
+      "id": "feature_2_title",
+      "label": "Feature 2 title",
+      "default": "Artist Management"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_2_description",
+      "label": "Feature 2 description",
+      "default": "We provide a highly skilled professional service with a creative touch."
+    },
+    {
+      "type": "text",
+      "id": "feature_3_title",
+      "label": "Feature 3 title",
+      "default": "Culinary & Bar Services"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_3_description",
+      "label": "Feature 3 description",
+      "default": "In our bid to deliver authentic, undiluted experiences. We cater unique regional and global dining experience."
+    },
+    {
+      "type": "color",
+      "id": "feature_title_color",
+      "label": "Feature title color",
+      "default": "#dc2626"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_size",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Feature title size",
+      "default": 22
+    },
+    {
+      "type": "color",
+      "id": "feature_description_color",
+      "label": "Feature description color",
+      "default": "#374151"
+    },
+    {
+      "type": "range",
+      "id": "feature_description_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Feature description size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Center circle"
+    },
+    {
+      "type": "text",
+      "id": "center_text",
+      "label": "Center text",
+      "default": "Customized Design"
+    },
+    {
+      "type": "color",
+      "id": "center_title_color",
+      "label": "Center title color",
+      "default": "#1e3a8a"
+    },
+    {
+      "type": "range",
+      "id": "center_title_size",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Center title size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "center_background_color",
+      "label": "Center circle background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "center_circle_size",
+      "min": 120,
+      "max": 250,
+      "step": 10,
+      "unit": "px",
+      "label": "Center circle size",
+      "default": 180
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider color",
+      "default": "#dc2626"
+    },
+    {
+      "type": "range",
+      "id": "divider_width",
+      "min": 30,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Divider width",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "divider_thickness",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Divider thickness",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Circular layout"
+    },
+    {
+      "type": "range",
+      "id": "circle_container_size",
+      "min": 400,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "label": "Circle container size",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "image_size",
+      "min": 60,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Image size",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Product images"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image 1 (top)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2 (top right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_3",
+      "label": "Image 3 (right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_4",
+      "label": "Image 4 (bottom right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_5",
+      "label": "Image 5 (bottom)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_6",
+      "label": "Image 6 (bottom left)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_7",
+      "label": "Image 7 (left)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_8",
+      "label": "Image 8 (top left)"
+    },
+    {
+      "type": "header",
+      "content": "Circle colors"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_1",
+      "label": "Circle 1 color",
+      "default": "#fbbf24"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_2",
+      "label": "Circle 2 color",
+      "default": "#34d399"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_3",
+      "label": "Circle 3 color",
+      "default": "#f87171"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_4",
+      "label": "Circle 4 color",
+      "default": "#60a5fa"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_5",
+      "label": "Circle 5 color",
+      "default": "#a78bfa"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_6",
+      "label": "Circle 6 color",
+      "default": "#fb7185"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_7",
+      "label": "Circle 7 color",
+      "default": "#4ade80"
+    },
+    {
+      "type": "color",
+      "id": "circle_color_8",
+      "label": "Circle 8 color",
+      "default": "#facc15"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "font_picker",
+      "id": "font_family",
+      "label": "Font family",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "color",
+      "id": "background_color_top",
+      "label": "Background color (top)",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "background_color_bottom",
+      "label": "Background color (bottom)",
+      "default": "#dbeafe"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Section spacing",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "feature_spacing",
+      "min": 15,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Feature spacing",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Content gap",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Event Planning Management"
+    }
+  ]
+}
 {% endschema %}
