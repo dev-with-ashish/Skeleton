@@ -339,6 +339,68 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_KWeJYm": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_a0e9769_AeLLJJ": {
+          "type": "ai_gen_block_a0e9769",
+          "settings": {
+            "main_heading": "Event Planning & Management",
+            "heading_color": "#dc2626",
+            "heading_size": 42,
+            "feature_1_title": "Event Technology",
+            "feature_1_description": "We research and use the latest event technology – VR, facial recognition, 3D Projection Mapping, interactive immersion, launch & hydraulic tech to best reflect the brand experience, products and live event messaging.",
+            "feature_2_title": "Artist Management",
+            "feature_2_description": "We provide a highly skilled professional service with a creative touch.",
+            "feature_3_title": "Culinary & Bar Services",
+            "feature_3_description": "In our bid to deliver authentic, undiluted experiences. We cater unique regional and global dining experience.",
+            "feature_title_color": "#dc2626",
+            "feature_title_size": 22,
+            "feature_description_color": "#374151",
+            "feature_description_size": 16,
+            "center_text": "Customized Design",
+            "center_title_color": "#1e3a8a",
+            "center_title_size": 24,
+            "center_background_color": "#ffffff",
+            "center_circle_size": 180,
+            "center_border_width": 0,
+            "center_border_style": "solid",
+            "center_border_color": "#dc2626",
+            "divider_color": "rgba(0,0,0,0)",
+            "divider_width": 55,
+            "divider_thickness": 3,
+            "circle_container_size": 400,
+            "image_size": 95,
+            "image_border_width": 2,
+            "image_border_style": "solid",
+            "image_border_color": "#d72927",
+            "font_family": "helvetica_n4",
+            "background_color_top": "#ffffff",
+            "background_color_bottom": "#dbeafe",
+            "section_padding": 60,
+            "section_spacing": 50,
+            "feature_spacing": 30,
+            "content_gap": 60
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_a0e9769_AeLLJJ"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 0,
+        "padding_bottom": 40,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
@@ -347,6 +409,7 @@
     "custom_section_DUrxei",
     "custom_section_EzjXbA",
     "custom_section_Hm6Lcd",
-    "custom_section_L7VdGt"
+    "custom_section_L7VdGt",
+    "custom_section_KWeJYm"
   ]
 }
