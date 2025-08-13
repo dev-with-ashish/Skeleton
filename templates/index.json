@@ -401,6 +401,63 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_kwEPTd": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_6b2e7e5_AWG4bR": {
+          "type": "ai_gen_block_6b2e7e5",
+          "settings": {
+            "page_title": "Contact us",
+            "page_subtitle": "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+            "form_title": "Send us a message",
+            "button_text": "Send message",
+            "success_message": "Thank you for contacting us! We'll get back to you as soon as possible.",
+            "whatsapp_number": "",
+            "whatsapp_button_text": "Message us on WhatsApp",
+            "whatsapp_default_message": "Hi! I'd like to get in touch with you regarding your services.",
+            "show_email_info": true,
+            "email_text": "hello@example.com\nWe typically respond within 24 hours",
+            "show_phone_info": true,
+            "phone_text": "+1 (555) 123-4567\nMon-Fri 9AM-5PM EST",
+            "show_address_info": true,
+            "address_text": "123 Main Street\nNew York, NY 10001\nUnited States",
+            "show_hours_info": true,
+            "hours_text": "Monday - Friday: 9AM - 6PM\nSaturday: 10AM - 4PM\nSunday: Closed",
+            "background_color": "#ffffff",
+            "text_color": "#333333",
+            "accent_color": "#007bff",
+            "form_background_color": "#ffffff",
+            "card_background_color": "#ffffff",
+            "input_background_color": "#ffffff",
+            "input_border_color": "#dddddd",
+            "button_color": "#007bff",
+            "button_text_color": "#ffffff",
+            "button_hover_color": "#0056b3",
+            "title_size": 40,
+            "subtitle_size": 18,
+            "border_radius": 8,
+            "input_border_radius": 4,
+            "button_border_radius": 4
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_6b2e7e5_AWG4bR"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 40,
+        "padding_bottom": 40,
+        "padding_left": 40,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
@@ -410,6 +467,7 @@
     "custom_section_EzjXbA",
     "custom_section_Hm6Lcd",
     "custom_section_L7VdGt",
-    "custom_section_KWeJYm"
+    "custom_section_KWeJYm",
+    "custom_section_kwEPTd"
   ]
 }
