@@ -1,6 +1,617 @@
+{% doc %}
+  @prompt
+    make a section for traditional Hindu naming ceremony for a newborn baby, where the child receives their official name add venue timing 2 time one for worship and after few hours there will be a lunch so make a animated best section for this
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-naming-ceremony-{{ ai_gen_id }} {
+    background: linear-gradient(135deg, {{ block.settings.background_color_1 }} 0%, {{ block.settings.background_color_2 }} 100%);
+    padding: 60px 20px;
+    position: relative;
+    overflow: hidden;}
+
+  .ai-naming-ceremony-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;z-index: 2;
+  }
+
+  .ai-naming-ceremony-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .ai-naming-ceremony-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 20px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-naming-ceremony-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    margin: 0 0 30px;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+
+  .ai-naming-ceremony-baby-name-{{ ai_gen_id }} {
+    font-size: {{ block.settings.baby_name_size }}px;
+    color: {{ block.settings.baby_name_color }};
+    margin: 0;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-naming-ceremony-content-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 50px;
+  }
+
+  .ai-naming-ceremony-card-{{ ai_gen_id }} {
+    background: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 2px solid {{ block.settings.card_border_color }};position: relative;
+    overflow: hidden;
+  }
+
+  .ai-naming-ceremony-card-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top:0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, {{ block.settings.accent_color_1 }}, {{ block.settings.accent_color_2 }});}
+
+  .ai-naming-ceremony-card-icon-{{ ai_gen_id }} {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, {{ block.settings.accent_color_1 }}, {{ block.settings.accent_color_2 }});
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 24px;
+  }
+
+  .ai-naming-ceremony-card-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_title_size }}px;
+    color: {{ block.settings.card_title_color }};
+    margin: 0 0 15px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .ai-naming-ceremony-time-{{ ai_gen_id }} {
+    font-size: {{ block.settings.time_size }}px;
+    color: {{ block.settings.time_color }};
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .ai-naming-ceremony-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.description_color }};
+    line-height: 1.6;
+    text-align: center;
+    margin: 0;
+  }
+
+  .ai-naming-ceremony-venue-{{ ai_gen_id }} {
+    background: {{ block.settings.venue_background }};
+    border-radius: {{ block.settings.venue_border_radius }}px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    border: 3px solid {{ block.settings.venue_border_color }};
+  }
+
+  .ai-naming-ceremony-venue-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.venue_title_size }}px;
+    color: {{ block.settings.venue_title_color }};
+    margin: 0 0 20px;
+    font-weight: 600;
+  }
+
+  .ai-naming-ceremony-venue-address-{{ ai_gen_id }} {
+    font-size: {{ block.settings.venue_address_size }}px;
+    color: {{ block.settings.venue_address_color }};
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  .ai-naming-ceremony-decorative-{{ ai_gen_id }} {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, {{ block.settings.accent_color_1 }}40, {{ block.settings.accent_color_2 }}40);}
+
+  .ai-naming-ceremony-decorative-{{ ai_gen_id }}:nth-child(1) {
+    top: 10%;
+    left: 5%;
+  }
+
+  .ai-naming-ceremony-decorative-{{ ai_gen_id }}:nth-child(2) {
+    top: 20%;
+    right: 8%;
+    width: 80px;
+    height: 80px;
+  }
+
+  .ai-naming-ceremony-decorative-{{ ai_gen_id }}:nth-child(3) {
+    bottom: 15%;
+    left: 10%;
+    width: 60px;
+    height: 60px;
+  }
+
+  .ai-naming-ceremony-decorative-{{ ai_gen_id }}:nth-child(4) {
+    bottom: 25%;
+    right: 5%;
+    width: 120px;
+    height: 120px;
+  }
+
+  .ai-naming-ceremony-blessing-{{ ai_gen_id }} {
+    text-align: center;
+    margin-top: 40px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: {{ block.settings.blessing_border_radius }}px;
+    backdrop-filter: blur(10px);
+  }
+
+  .ai-naming-ceremony-blessing-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.blessing_size }}px;
+    color: {{ block.settings.blessing_color }};
+    font-style: italic;
+    line-height: 1.8;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-naming-ceremony-{{ ai_gen_id }} {
+      padding: 40px 15px;
+    }
+
+    .ai-naming-ceremony-content-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;gap: 30px;
+    }
+
+    .ai-naming-ceremony-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.title_size }}px * 0.8);
+    }
+
+    .ai-naming-ceremony-baby-name-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.baby_name_size }}px * 0.8);
+    }
+
+    .ai-naming-ceremony-card-{{ ai_gen_id }} {
+      padding: 25px;
+    }
+
+    .ai-naming-ceremony-venue-{{ ai_gen_id }} {
+      padding: 30px 20px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-naming-ceremony-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-naming-ceremony-decorative-{{ ai_gen_id }}"></div>
+  <div class="ai-naming-ceremony-decorative-{{ ai_gen_id }}"></div>
+  <div class="ai-naming-ceremony-decorative-{{ ai_gen_id }}"></div>
+  <div class="ai-naming-ceremony-decorative-{{ ai_gen_id }}"></div>
+
+  <div class="ai-naming-ceremony-container-{{ ai_gen_id }}">
+    <div class="ai-naming-ceremony-header-{{ ai_gen_id }}">
+      {% if block.settings.ceremony_title != blank %}
+        <h1 class="ai-naming-ceremony-title-{{ ai_gen_id }}">{{ block.settings.ceremony_title }}</h1>
+      {% endif %}
+      
+      {% if block.settings.ceremony_subtitle != blank %}
+        <p class="ai-naming-ceremony-subtitle-{{ ai_gen_id }}">{{ block.settings.ceremony_subtitle }}</p>
+      {% endif %}
+      
+      {% if block.settings.baby_name != blank %}
+        <h2 class="ai-naming-ceremony-baby-name-{{ ai_gen_id }}">{{ block.settings.baby_name }}</h2>
+      {% endif %}
+    </div>
+
+    <div class="ai-naming-ceremony-content-{{ ai_gen_id }}">
+      <div class="ai-naming-ceremony-card-{{ ai_gen_id }}">
+        <div class="ai-naming-ceremony-card-icon-{{ ai_gen_id }}">
+          🕉️
+        </div>
+        <h3 class="ai-naming-ceremony-card-title-{{ ai_gen_id }}">{{ block.settings.worship_title }}</h3>
+        {% if block.settings.worship_time != blank %}
+          <div class="ai-naming-ceremony-time-{{ ai_gen_id }}">{{ block.settings.worship_time }}</div>
+        {% endif %}
+        {% if block.settings.worship_description != blank %}
+          <p class="ai-naming-ceremony-description-{{ ai_gen_id }}">{{ block.settings.worship_description }}</p>
+        {% endif %}</div>
+
+      <div class="ai-naming-ceremony-card-{{ ai_gen_id }}">
+        <div class="ai-naming-ceremony-card-icon-{{ ai_gen_id }}">🍽️
+        </div>
+        <h3 class="ai-naming-ceremony-card-title-{{ ai_gen_id }}">{{ block.settings.lunch_title }}</h3>
+        {% if block.settings.lunch_time != blank %}
+          <div class="ai-naming-ceremony-time-{{ ai_gen_id }}">{{ block.settings.lunch_time }}</div>
+        {% endif %}
+        {% if block.settings.lunch_description != blank %}
+          <p class="ai-naming-ceremony-description-{{ ai_gen_id }}">{{ block.settings.lunch_description }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if block.settings.venue_name != blank or block.settings.venue_address != blank %}
+      <div class="ai-naming-ceremony-venue-{{ ai_gen_id }}">
+        {% if block.settings.venue_name != blank %}
+          <h3 class="ai-naming-ceremony-venue-title-{{ ai_gen_id }}">📍 {{ block.settings.venue_name }}</h3>
+        {% endif %}
+        {% if block.settings.venue_address != blank %}
+          <div class="ai-naming-ceremony-venue-address-{{ ai_gen_id }}">{{ block.settings.venue_address }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if block.settings.blessing_text != blank %}
+      <div class="ai-naming-ceremony-blessing-{{ ai_gen_id }}">
+        <p class="ai-naming-ceremony-blessing-text-{{ ai_gen_id }}">{{ block.settings.blessing_text }}</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Hindu Naming Ceremony",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Ceremony Details"
+    },
+    {
+      "type": "text",
+      "id": "ceremony_title",
+      "label": "Ceremony title",
+      "default": "Namkaran Sanskar"
+    },
+    {
+      "type": "text",
+      "id": "ceremony_subtitle",
+      "label": "Ceremony subtitle",
+      "default": "Traditional Hindu Naming Ceremony"
+    },
+    {
+      "type": "text",
+      "id": "baby_name",
+      "label": "Baby's name"
+    },
+    {
+      "type": "header",
+      "content": "Worship Ceremony"
+    },
+    {
+      "type": "text",
+      "id": "worship_title",
+      "label": "Worship title",
+      "default": "Sacred Worship & Naming"
+    },
+    {
+      "type": "text",
+      "id": "worship_time",
+      "label": "Worship time",
+      "default": "10:00 AM - 12:00 PM"
+    },
+    {
+      "type": "textarea",
+      "id": "worship_description",
+      "label": "Worship description",
+      "default": "Join us for the sacred naming ceremony with traditional prayers, mantras, and blessings for the newborn."
+    },
+    {
+      "type": "header",
+      "content": "Lunch Celebration"
+    },
+    {
+      "type": "text",
+      "id": "lunch_title",
+      "label": "Lunch title",
+      "default": "Celebration Feast"
+    },
+    {
+      "type": "text",
+      "id": "lunch_time",
+      "label": "Lunch time",
+      "default": "1:00 PM - 3:00 PM"
+    },
+    {
+      "type": "textarea",
+      "id": "lunch_description",
+      "label": "Lunch description",
+      "default": "Celebrate with family and friends over a traditional vegetarian feast prepared with love and devotion."
+    },
+    {
+      "type": "header",
+      "content": "Venue Information"
+    },
+    {
+      "type": "text",
+      "id": "venue_name",
+      "label": "Venue name",
+      "default": "Family Home"
+    },
+    {
+      "type": "textarea",
+      "id": "venue_address",
+      "label": "Venue address",
+      "default": "123 Temple Street, Sacred Gardens, City - 400001"
+    },
+    {
+      "type": "header",
+      "content": "Blessing Message"
+    },
+    {
+      "type": "textarea",
+      "id": "blessing_text",
+      "label": "Blessing text",
+      "default": "May this child be blessed with health, happiness, wisdom, and prosperity. May they walk the path of dharma and bring joy to all."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color_1",
+      "label": "Background gradient start",
+      "default": "#FFE5B4"
+    },
+    {
+      "type": "color",
+      "id": "background_color_2",
+      "label": "Background gradient end",
+      "default": "#FFCCCB"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#8B4513"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#A0522D"
+    },
+    {
+      "type": "color",
+      "id": "baby_name_color",
+      "label": "Baby name color",
+      "default": "#FF6347"
+    },
+    {
+      "type": "color",
+      "id": "accent_color_1",
+      "label": "Accent color 1",
+      "default": "#FF6347"
+    },
+    {
+      "type": "color",
+      "id": "accent_color_2",
+      "label": "Accent color 2",
+      "default": "#FFD700"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#FFD700"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card title color",
+      "default": "#8B4513"
+    },
+    {
+      "type": "color",
+      "id": "time_color",
+      "label": "Time color",
+      "default": "#FF6347"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description color",
+      "default": "#555555"
+    },
+    {
+      "type": "color",
+      "id": "venue_background",
+      "label": "Venue background",
+      "default": "#FFF8DC"
+    },
+    {
+      "type": "color",
+      "id": "venue_border_color",
+      "label": "Venue border color",
+      "default": "#DAA520"
+    },
+    {
+      "type": "color",
+      "id": "venue_title_color",
+      "label": "Venue title color",
+      "default": "#8B4513"
+    },
+    {
+      "type": "color",
+      "id": "venue_address_color",
+      "label": "Venue address color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "blessing_color",
+      "label": "Blessing text color",
+      "default": "#8B4513"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "baby_name_size",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Baby name size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 16,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Card title size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "time_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Time size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "venue_title_size",
+      "min": 18,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Venue title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "venue_address_size",
+      "min": 14,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Venue address size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "blessing_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Blessing text size",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Card border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "venue_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Venue border radius",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "blessing_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Blessing border radius",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hindu Naming Ceremony"
+    }
+  ]
+}
 {% endschema %}
