@@ -1,6 +1,886 @@
+{% doc %}
+  @prompt
+    A magazine-style editorial layout, a section like the hindistan time home page
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-news-layout-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: {{ block.settings.section_padding }}px;
+    background-color: {{ block.settings.background_color }};
+    font-family: {{ block.settings.body_font.family }}, sans-serif;
+  }
+
+  .ai-news-header-{{ ai_gen_id }} {
+    border-bottom: 3px solid {{ block.settings.accent_color }};
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+  }
+
+  .ai-news-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.section_title_size }}px;
+    font-weight:700;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .ai-news-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: {{ block.settings.grid_gap }}px;
+    grid-template-areas:
+      "main secondary1secondary2"
+      "main secondary3 secondary4"
+      "trending trending trending";
+  }
+
+  .ai-news-main-story-{{ ai_gen_id }} {
+    grid-area: main;
+    position: relative;
+    min-height: 400px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-news-main-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-news-main-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-news-main-placeholder-{{ ai_gen_id }} svg {
+    width: 120px;
+    height: 120px;
+    opacity: 0.3;
+  }
+
+  .ai-news-main-content-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 40px 25px 25px;
+  }
+
+  .ai-news-main-category-{{ ai_gen_id }} {
+    background-color: {{ block.settings.accent_color }};
+    color: white;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .ai-news-main-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.main_title_size }}px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 10px;}
+
+  .ai-news-main-excerpt-{{ ai_gen_id }} {
+    font-size: 16px;
+    line-height: 1.4;
+    opacity: 0.9;
+    margin: 0 0 8px;
+  }
+
+  .ai-news-main-meta-{{ ai_gen_id }} {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  .ai-news-secondary-{{ ai_gen_id }} {
+    border: 1px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.card_background }};
+    transition: box-shadow 0.3s ease;
+  }
+
+  .ai-news-secondary-{{ ai_gen_id }}:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-news-secondary-1-{{ ai_gen_id }} {
+    grid-area: secondary1;
+  }
+
+  .ai-news-secondary-2-{{ ai_gen_id }} {
+    grid-area: secondary2;
+  }
+
+  .ai-news-secondary-3-{{ ai_gen_id }} {
+    grid-area: secondary3;
+  }
+
+  .ai-news-secondary-4-{{ ai_gen_id }} {
+    grid-area: secondary4;
+  }
+
+  .ai-news-secondary-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+
+  .ai-news-secondary-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 140px;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-news-secondary-placeholder-{{ ai_gen_id }} svg {
+    width: 50px;
+    height: 50px;
+    opacity: 0.3;
+  }
+
+  .ai-news-secondary-content-{{ ai_gen_id }} {
+    padding: 15px;
+  }
+
+  .ai-news-secondary-category-{{ ai_gen_id }} {
+    color: {{ block.settings.accent_color }};
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .ai-news-secondary-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.secondary_title_size }}px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 8px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-news-secondary-excerpt-{{ ai_gen_id }} {
+    font-size: 13px;
+    line-height: 1.4;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+    margin: 0 0 8px;
+  }
+
+  .ai-news-secondary-meta-{{ ai_gen_id }} {
+    font-size: 11px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.6;
+  }
+
+  .ai-news-trending-{{ ai_gen_id }} {
+    grid-area: trending;
+    background-color: {{ block.settings.trending_background }};
+    border: 1px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    padding: 20px;
+    margin-top: 10px;
+  }
+
+  .ai-news-trending-header-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .ai-news-trending-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 700;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-news-trending-icon-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    color: {{ block.settings.accent_color }};
+  }
+
+  .ai-news-trending-list-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+  }
+
+  .ai-news-trending-item-{{ ai_gen_id }} {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-news-trending-number-{{ ai_gen_id }} {
+    background-color: {{ block.settings.accent_color }};
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .ai-news-trending-content-{{ ai_gen_id }} {
+    flex-grow: 1;
+  }
+
+  .ai-news-trending-item-title-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 4px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-news-trending-item-meta-{{ ai_gen_id }} {
+    font-size: 11px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.6;
+  }
+
+  .ai-news-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 14px;
+    border-radius: 4px;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .ai-news-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr1fr;
+      grid-template-areas:
+        "main main"
+        "secondary1 secondary2"
+        "secondary3 secondary4"
+        "trending trending";
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-news-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "main"
+        "secondary1"
+        "secondary2"
+        "secondary3"
+        "secondary4"
+        "trending";
+    }
+
+    .ai-news-main-{{ ai_gen_id }} {
+      min-height: 300px;
+    }
+
+    .ai-news-main-content-{{ ai_gen_id }} {
+      padding: 30px 20px 20px;
+    }
+
+    .ai-news-main-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.main_title_size | times: 0.8 }}px;
+    }
+
+    .ai-news-trending-list-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-news-layout-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.section_title != blank %}
+    <div class="ai-news-header-{{ ai_gen_id }}">
+      <h2 class="ai-news-title-{{ ai_gen_id }}">{{ block.settings.section_title }}</h2></div>
+  {% endif %}<div class="ai-news-grid-{{ ai_gen_id }}">
+    <article class="ai-news-main-story-{{ ai_gen_id }}">
+      {% if block.settings.main_image %}
+        <img
+          src="{{ block.settings.main_image | image_url: width: 800}}"
+          alt="{{ block.settings.main_image.alt | escape }}"
+          class="ai-news-main-image-{{ ai_gen_id }}"
+          loading="lazy"
+          width="{{ block.settings.main_image.width }}"
+          height="{{ block.settings.main_image.height }}"
+        >
+      {% else %}
+        <div class="ai-news-main-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}<div class="ai-news-empty-state-{{ ai_gen_id }}">
+            Add a main story image
+          </div>
+        </div>
+      {% endif %}<div class="ai-news-main-content-{{ ai_gen_id }}">
+        {% if block.settings.main_category != blank %}
+          <div class="ai-news-main-category-{{ ai_gen_id }}">
+            {{ block.settings.main_category }}
+          </div>
+        {% endif %}
+        {% if block.settings.main_title != blank %}
+          <h3 class="ai-news-main-title-{{ ai_gen_id }}">
+            {{ block.settings.main_title }}
+          </h3>
+        {% endif %}
+        {% if block.settings.main_excerpt != blank %}
+          <p class="ai-news-main-excerpt-{{ ai_gen_id }}">
+            {{ block.settings.main_excerpt }}
+          </p>
+        {% endif %}
+        {% if block.settings.main_date != blank or block.settings.main_author != blank %}
+          <div class="ai-news-main-meta-{{ ai_gen_id }}">
+            {% if block.settings.main_date != blank %}
+              {{ block.settings.main_date }}
+            {% endif %}
+            {% if block.settings.main_date != blank and block.settings.main_author != blank %}
+              •
+            {% endif %}
+            {% if block.settings.main_author != blank %}
+              {{ block.settings.main_author }}
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </article>
+
+    {% for i in (1..4) %}
+      {% liquid
+        assign secondary_image_key = 'secondary_' | append: i | append: '_image'
+        assign secondary_category_key = 'secondary_' | append: i | append: '_category'
+        assign secondary_title_key = 'secondary_' | append: i | append: '_title'
+        assign secondary_excerpt_key = 'secondary_' | append: i | append: '_excerpt'
+        assign secondary_date_key = 'secondary_' | append: i | append: '_date'
+        assign secondary_author_key = 'secondary_' | append: i | append: '_author'
+
+        assign secondary_image = block.settings[secondary_image_key]
+        assign secondary_category = block.settings[secondary_category_key]
+        assign secondary_title = block.settings[secondary_title_key]
+        assign secondary_excerpt = block.settings[secondary_excerpt_key]
+        assign secondary_date = block.settings[secondary_date_key]
+        assign secondary_author = block.settings[secondary_author_key]
+      %}
+
+      <article class="ai-news-secondary-{{ ai_gen_id }} ai-news-secondary-{{ i }}-{{ ai_gen_id }}">
+        {% if secondary_image %}
+          <img
+            src="{{ secondary_image | image_url: width: 400 }}"
+            alt="{{ secondary_image.alt | escape }}"
+            class="ai-news-secondary-image-{{ ai_gen_id }}"
+            loading="lazy"
+            width="{{ secondary_image.width }}"
+            height="{{ secondary_image.height }}"
+          >
+        {% else %}
+          <div class="ai-news-secondary-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+
+        <div class="ai-news-secondary-content-{{ ai_gen_id }}">
+          {% if secondary_category != blank %}
+            <div class="ai-news-secondary-category-{{ ai_gen_id }}">
+              {{ secondary_category }}
+            </div>
+          {% endif %}
+          {% if secondary_title != blank %}
+            <h4 class="ai-news-secondary-title-{{ ai_gen_id }}">
+              {{ secondary_title }}
+            </h4>
+          {% endif %}
+          {% if secondary_excerpt != blank %}
+            <p class="ai-news-secondary-excerpt-{{ ai_gen_id }}">
+              {{ secondary_excerpt }}
+            </p>
+          {% endif %}
+          {% if secondary_date != blank or secondary_author != blank %}
+            <div class="ai-news-secondary-meta-{{ ai_gen_id }}">
+              {% if secondary_date != blank %}
+                {{ secondary_date }}
+              {% endif %}
+              {% if secondary_date != blank and secondary_author != blank %}
+                •
+              {% endif %}
+              {% if secondary_author != blank %}
+                {{ secondary_author }}
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+
+    <div class="ai-news-trending-{{ ai_gen_id }}">
+      <div class="ai-news-trending-header-{{ ai_gen_id }}">
+        <svg class="ai-news-trending-icon-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M166l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+        </svg>
+        <h3 class="ai-news-trending-title-{{ ai_gen_id }}">{{ block.settings.trending_title }}</h3>
+      </div>
+      <div class="ai-news-trending-list-{{ ai_gen_id }}">
+        {% for i in (1..5) %}
+          {% liquid
+            assign trending_title_key = 'trending_' | append: i | append: '_title'
+            assign trending_meta_key = 'trending_' | append: i | append: '_meta'
+
+            assign trending_title = block.settings[trending_title_key]
+            assign trending_meta = block.settings[trending_meta_key]
+          %}
+
+          {% if trending_title != blank %}
+            <div class="ai-news-trending-item-{{ ai_gen_id }}">
+              <div class="ai-news-trending-number-{{ ai_gen_id }}">{{ i }}</div>
+              <div class="ai-news-trending-content-{{ ai_gen_id }}">
+                <h5 class="ai-news-trending-item-title-{{ ai_gen_id }}">
+                  {{ trending_title }}
+                </h5>
+                {% if trending_meta != blank %}
+                  <div class="ai-news-trending-item-meta-{{ ai_gen_id }}">
+                    {{ trending_meta }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "News homepage layout",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Latest News"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Grid gap",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "trending_background",
+      "label": "Trending background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "Body font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "section_title_size",
+      "min": 18,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Section title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "main_title_size",
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Main story title size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "secondary_title_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Secondary story title size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Main story"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main image"
+    },
+    {
+      "type": "text",
+      "id": "main_category",
+      "label": "Category",
+      "default": "Breaking News"
+    },
+    {
+      "type": "text",
+      "id": "main_title",
+      "label": "Title",
+      "default": "Major Economic Policy Changes Announced"
+    },
+    {
+      "type": "textarea",
+      "id": "main_excerpt",
+      "label": "Excerpt",
+      "default": "Government unveils comprehensive economic reforms aimed at boosting growth and addressing inflation concerns across multiple sectors."
+    },
+    {
+      "type": "text",
+      "id": "main_date",
+      "label": "Date",
+      "default": "March 15, 2024"
+    },
+    {
+      "type": "text",
+      "id": "main_author",
+      "label": "Author",
+      "default": "Political Desk"
+    },
+    {
+      "type": "header",
+      "content": "Secondary story 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "secondary_1_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "secondary_1_category",
+      "label": "Category",
+      "default": "Technology"
+    },
+    {
+      "type": "text",
+      "id": "secondary_1_title",
+      "label": "Title",
+      "default": "AI Revolution in Healthcare"
+    },
+    {
+      "type": "textarea",
+      "id": "secondary_1_excerpt",
+      "label": "Excerpt",
+      "default": "New artificial intelligence tools are transforming patient care and medical diagnosis."
+    },
+    {
+      "type": "text",
+      "id": "secondary_1_date",
+      "label": "Date",
+      "default": "March 14, 2024"
+    },
+    {
+      "type": "text",
+      "id": "secondary_1_author",
+      "label": "Author",
+      "default": "Tech Reporter"
+    },
+    {
+      "type": "header",
+      "content": "Secondary story 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "secondary_2_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "secondary_2_category",
+      "label": "Category",
+      "default": "Sports"
+    },
+    {
+      "type": "text",
+      "id": "secondary_2_title",
+      "label": "Title",
+      "default": "Championship Finals Set"
+    },
+    {
+      "type": "textarea",
+      "id": "secondary_2_excerpt",
+      "label": "Excerpt",
+      "default": "Two powerhouse teams advance to compete for the national championship title."
+    },
+    {
+      "type": "text",
+      "id": "secondary_2_date",
+      "label": "Date",
+      "default": "March 14, 2024"
+    },
+    {
+      "type": "text",
+      "id": "secondary_2_author",
+      "label": "Author",
+      "default": "Sports Desk"
+    },
+    {
+      "type": "header",
+      "content": "Secondary story 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "secondary_3_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "secondary_3_category",
+      "label": "Category",
+      "default": "Environment"
+    },
+    {
+      "type": "text",
+      "id": "secondary_3_title",
+      "label": "Title",
+      "default": "Climate Action Summit"
+    },
+    {
+      "type": "textarea",
+      "id": "secondary_3_excerpt",
+      "label": "Excerpt",
+      "default": "World leaders gather to discuss urgent climate change initiatives and commitments."
+    },
+    {
+      "type": "text",
+      "id": "secondary_3_date",
+      "label": "Date",
+      "default": "March 13, 2024"
+    },
+    {
+      "type": "text",
+      "id": "secondary_3_author",
+      "label": "Author",
+      "default": "Environment Team"
+    },
+    {
+      "type": "header",
+      "content": "Secondary story 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "secondary_4_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "secondary_4_category",
+      "label": "Category",
+      "default": "Business"
+    },
+    {
+      "type": "text",
+      "id": "secondary_4_title",
+      "label": "Title",
+      "default": "Market Reaches New Highs"
+    },
+    {
+      "type": "textarea",
+      "id": "secondary_4_excerpt",
+      "label": "Excerpt",
+      "default": "Stock markets surge to record levels amid positive economic indicators and investor confidence."
+    },
+    {
+      "type": "text",
+      "id": "secondary_4_date",
+      "label": "Date",
+      "default": "March 13, 2024"
+    },
+    {
+      "type": "text",
+      "id": "secondary_4_author",
+      "label": "Author",
+      "default": "Business Reporter"
+    },
+    {
+      "type": "header",
+      "content": "Trending section"
+    },
+    {
+      "type": "text",
+      "id": "trending_title",
+      "label": "Trending title",
+      "default": "Trending Now"
+    },
+    {
+      "type": "text",
+      "id": "trending_1_title",
+      "label": "Trending story 1",
+      "default": "Local Elections See Record Turnout"
+    },
+    {
+      "type": "text",
+      "id": "trending_1_meta",
+      "label": "Trending story 1 meta",
+      "default": "2hours ago"
+    },
+    {
+      "type": "text",
+      "id": "trending_2_title",
+      "label": "Trending story 2",
+      "default": "New Transportation Hub Opens"
+    },
+    {
+      "type": "text",
+      "id": "trending_2_meta",
+      "label": "Trending story 2 meta",
+      "default": "4 hours ago"
+    },
+    {
+      "type": "text",
+      "id": "trending_3_title",
+      "label": "Trending story 3",
+      "default": "Education Reform Bill Passes"
+    },
+    {
+      "type": "text",
+      "id": "trending_3_meta",
+      "label": "Trending story 3 meta",
+      "default": "6 hours ago"
+    },
+    {
+      "type": "text",
+      "id": "trending_4_title",
+      "label": "Trending story 4",
+      "default": "Cultural Festival Draws Thousands"
+    },
+    {
+      "type": "text",
+      "id": "trending_4_meta",
+      "label": "Trending story 4 meta",
+      "default": "8 hours ago"
+    },
+    {
+      "type": "text",
+      "id": "trending_5_title",
+      "label": "Trending story 5",
+      "default": "Space Mission Launches Successfully"
+    },
+    {
+      "type": "text",
+      "id": "trending_5_meta",
+      "label": "Trending story 5 meta",
+      "default": "12 hours ago"
+    }
+  ],
+  "presets": [
+    {
+      "name": "News homepage layout"
+    }
+  ]
+}
 {% endschema %}
