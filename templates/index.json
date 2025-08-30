@@ -9,6 +9,67 @@
  */
 {
   "sections": {
+    "custom_section_i9e3xe": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_ea0c9f6_jAx7ya": {
+          "type": "ai_gen_block_ea0c9f6",
+          "settings": {
+            "section_title": "Latest News",
+            "section_subtitle": "Stay updated with the latest stories",
+            "featured_article": "",
+            "featured_category": "Breaking",
+            "sidebar_article_1": "",
+            "sidebar_category_1": "Politics",
+            "sidebar_article_2": "",
+            "sidebar_category_2": "Business",
+            "sidebar_article_3": "",
+            "sidebar_category_3": "Sports",
+            "sidebar_article_4": "",
+            "sidebar_category_4": "Technology",
+            "show_more_stories": true,
+            "more_article_1": "",
+            "more_category_1": "World",
+            "more_article_2": "",
+            "more_category_2": "Health",
+            "more_article_3": "",
+            "more_category_3": "Entertainment",
+            "more_article_4": "",
+            "more_category_4": "Science",
+            "more_article_5": "",
+            "more_category_5": "Travel",
+            "more_article_6": "",
+            "more_category_6": "Opinion",
+            "background_color": "#ffffff",
+            "title_color": "#000000",
+            "subtitle_color": "#666666",
+            "text_color": "#333333",
+            "meta_color": "#888888",
+            "accent_color": "#e74c3c",
+            "border_color": "#e0e0e0",
+            "title_size": 32,
+            "subtitle_size": 16,
+            "border_radius": 8
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_ea0c9f6_jAx7ya"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 0,
+        "padding_bottom": 40,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
+    },
     "custom_section_JkWAb6": {
       "type": "custom-section",
       "blocks": {
@@ -509,6 +570,7 @@
     }
   },
   "order": [
+    "custom_section_i9e3xe",
     "custom_section_JkWAb6",
     "custom_section_wHXFNA",
     "custom_section_PzzzQ3",
