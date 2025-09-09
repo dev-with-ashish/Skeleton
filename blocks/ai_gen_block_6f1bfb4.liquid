@@ -267,7 +267,18 @@
     white-space: nowrap;
     min-width: 40px;
     text-align: center;
-  }
+
+    /* ADD THESE: ensures anchors look like the buttons */
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* Optional: make the CTA span full width nicely */
+.ai-customize-now-{{ ai_gen_id }} {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+}
 
   .ai-variant-button-{{ ai_gen_id }}:hover {
     background: {{ block.settings.variant_hover_bg_color }};
@@ -539,6 +550,17 @@
         <div>• Finish: High-quality print</div>
         <div>• Mounting: Magnetic system included</div>
       </div>
+
+      <div class="ai-variant-options-{{ ai_gen_id }}" style="margin-top:16px;">
+        <a
+          class="ai-variant-button-{{ ai_gen_id }} ai-customize-now-{{ ai_gen_id }}"
+          href="{{ block.settings.customize_url | default: '#' }}"
+          {% if block.settings.customize_new_tab %}target="_blank" rel="noopener"{% endif %}
+        >
+          {{ block.settings.customize_label | default: 'Customize Now' }}
+        </a>
+      </div>
+
 
       {% if poster_product.tags.size > 0 %}
         <div style="margin-top: 15px;">
@@ -1067,6 +1089,27 @@
       "unit": "px",
       "label": "Variant button border radius",
       "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Customize button"
+    },
+    {
+      "type": "text",
+      "id": "customize_label",
+      "label": "Button label",
+      "default": "Customize Now"
+    },
+    {
+      "type": "url",
+      "id": "customize_url",
+      "label": "Button link (URL)"
+    },
+    {
+      "type": "checkbox",
+      "id": "customize_new_tab",
+      "label": "Open in new tab",
+      "default": false
     },
     {
       "type": "header",
