@@ -1,6 +1,573 @@
+{% doc %}
+  @prompt
+    a section to display the 3d box which can be rotated having orbit control feature, a real 3d box, nox 3d box is showing
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-3d-box-container-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.container_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.container_padding }}px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-3d-box-scene-{{ ai_gen_id }} {
+    width: 100%;
+    height: {{ block.settings.canvas_height }}px;
+    perspective: 1000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: {{ block.settings.canvas_background }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.canvas_border_radius }}px;
+    overflow: hidden;
+    cursor: grab;
+  }
+
+  .ai-3d-box-scene-{{ ai_gen_id }}:active {
+    cursor: grabbing;
+  }
+
+  .ai-3d-box-cube-{{ ai_gen_id }} {
+    width: {{ block.settings.cube_size }}px;
+    height: {{ block.settings.cube_size }}px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(15deg) rotateY(15deg);
+    transition: transform 0.1s ease-out;
+  }
+
+  .ai-3d-box-face-{{ ai_gen_id }} {
+    position: absolute;
+    width: {{ block.settings.cube_size }}px;
+    height: {{ block.settings.cube_size }}px;
+    border: 2px solid {{ block.settings.edge_color }};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: {{ block.settings.face_text_size }}px;
+    font-weight: bold;
+    color: {{ block.settings.face_text_color }};
+    opacity: {{ block.settings.face_opacity }};
+  }
+
+  .ai-3d-box-front-{{ ai_gen_id }} {
+    background-color: {{ block.settings.front_color }};
+    transform: rotateY(0deg) translateZ({{ block.settings.cube_size | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-back-{{ ai_gen_id }} {
+    background-color: {{ block.settings.back_color }};
+    transform: rotateY(180deg) translateZ({{ block.settings.cube_size | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-right-{{ ai_gen_id }} {
+    background-color: {{ block.settings.right_color }};
+    transform: rotateY(90deg) translateZ({{ block.settings.cube_size | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-left-{{ ai_gen_id }} {
+    background-color: {{ block.settings.left_color }};
+    transform: rotateY(-90deg) translateZ({{ block.settings.cube_size | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-top-{{ ai_gen_id }} {
+    background-color: {{ block.settings.top_color }};
+    transform: rotateX(90deg) translateZ({{ block.settings.cube_size | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-bottom-{{ ai_gen_id }} {
+    background-color: {{ block.settings.bottom_color }};
+    transform: rotateX(-90deg) translateZ({{ block.settings.cube_size | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-controls-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+
+  .ai-3d-box-button-{{ ai_gen_id }} {
+    padding: 8px 16px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-3d-box-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-3d-box-button-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.button_active_color }};
+  }
+
+  .ai-3d-box-info-{{ ai_gen_id }} {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-3d-box-cube-{{ ai_gen_id }}.auto-rotate {
+    animation: ai-3d-box-spin-{{ ai_gen_id }} {{ block.settings.rotation_speed }}s infinite linear;
+  }
+
+  @keyframes ai-3d-box-spin-{{ ai_gen_id }} {
+    from { transform: rotateX(15deg) rotateY(15deg); }
+    to { transform: rotateX(15deg) rotateY(375deg); }
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-3d-box-scene-{{ ai_gen_id }} {
+      height: {{ block.settings.canvas_height | times: 0.7 }}px;
+    }
+    
+    .ai-3d-box-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.container_padding | times: 0.7 }}px;
+    }
+
+    .ai-3d-box-cube-{{ ai_gen_id }},
+    .ai-3d-box-face-{{ ai_gen_id }} {
+      width: {{ block.settings.cube_size | times: 0.8 }}px;
+      height: {{ block.settings.cube_size | times: 0.8 }}px;
+    }
+
+    .ai-3d-box-front-{{ ai_gen_id }} {
+      transform: rotateY(0deg) translateZ({{ block.settings.cube_size | times: 0.8 | divided_by: 2 }}px);
+    }
+
+    .ai-3d-box-back-{{ ai_gen_id }} {
+      transform: rotateY(180deg) translateZ({{ block.settings.cube_size | times: 0.8 | divided_by: 2 }}px);
+    }
+
+    .ai-3d-box-right-{{ ai_gen_id }} {
+      transform: rotateY(90deg) translateZ({{ block.settings.cube_size | times: 0.8 | divided_by: 2 }}px);
+    }
+
+    .ai-3d-box-left-{{ ai_gen_id }} {
+      transform: rotateY(-90deg) translateZ({{ block.settings.cube_size | times: 0.8 | divided_by: 2 }}px);
+    }
+
+    .ai-3d-box-top-{{ ai_gen_id }} {
+      transform: rotateX(90deg) translateZ({{ block.settings.cube_size | times: 0.8 | divided_by: 2 }}px);
+    }
+
+    .ai-3d-box-bottom-{{ ai_gen_id }} {
+      transform: rotateX(-90deg) translateZ({{ block.settings.cube_size | times: 0.8 | divided_by: 2 }}px);
+    }
+  }
+{% endstyle %}
+
+<css-3d-box-{{ ai_gen_id }} class="ai-3d-box-container-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-3d-box-scene-{{ ai_gen_id }}" id="ai-3d-box-scene-{{ ai_gen_id }}">
+    <div class="ai-3d-box-cube-{{ ai_gen_id }}" id="ai-3d-box-cube-{{ ai_gen_id }}">
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-front-{{ ai_gen_id }}">
+        {% if block.settings.show_face_labels %}FRONT{% endif %}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-back-{{ ai_gen_id }}">
+        {% if block.settings.show_face_labels %}BACK{% endif %}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-right-{{ ai_gen_id }}">
+        {% if block.settings.show_face_labels %}RIGHT{% endif %}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-left-{{ ai_gen_id }}">
+        {% if block.settings.show_face_labels %}LEFT{% endif %}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-top-{{ ai_gen_id }}">
+        {% if block.settings.show_face_labels %}TOP{% endif %}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-bottom-{{ ai_gen_id }}">
+        {% if block.settings.show_face_labels %}BOTTOM{% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="ai-3d-box-controls-{{ ai_gen_id }}">
+    <button class="ai-3d-box-button-{{ ai_gen_id }}" id="ai-3d-box-reset-{{ ai_gen_id }}">Reset View</button>
+    <button class="ai-3d-box-button-{{ ai_gen_id }}" id="ai-3d-box-auto-rotate-{{ ai_gen_id }}">Auto Rotate</button>
+  </div>
+  
+  <div class="ai-3d-box-info-{{ ai_gen_id }}">
+    Drag to rotate • Touch and drag on mobile
+  </div>
+</css-3d-box-{{ ai_gen_id }}>
+
+<script>
+(function() {
+  class CSS3DBox{{ ai_gen_id }} extends HTMLElement {
+    constructor() {
+      super();
+      this.cube = null;
+      this.scene = null;
+      this.isDragging = false;
+      this.lastMouse = { x: 0, y: 0 };
+      this.rotation = { x: 15, y: 15 };
+      this.autoRotate = false;
+    }
+
+    connectedCallback() {
+      this.cube = this.querySelector('#ai-3d-box-cube-{{ ai_gen_id }}');
+      this.scene = this.querySelector('#ai-3d-box-scene-{{ ai_gen_id }}');
+      this.setupEventListeners();
+      this.updateTransform();
+    }
+
+    setupEventListeners() {
+      const resetBtn = this.querySelector('#ai-3d-box-reset-{{ ai_gen_id }}');
+      const autoRotateBtn = this.querySelector('#ai-3d-box-auto-rotate-{{ ai_gen_id }}');
+
+      resetBtn.addEventListener('click', () => this.resetView());
+      autoRotateBtn.addEventListener('click', () => this.toggleAutoRotate());
+
+      this.scene.addEventListener('mousedown', (e) => this.onMouseDown(e));
+      this.scene.addEventListener('mousemove', (e) => this.onMouseMove(e));
+      this.scene.addEventListener('mouseup', () => this.onMouseUp());
+      this.scene.addEventListener('mouseleave', () => this.onMouseUp());
+
+      this.scene.addEventListener('touchstart', (e) => this.onTouchStart(e));
+      this.scene.addEventListener('touchmove', (e) => this.onTouchMove(e));
+      this.scene.addEventListener('touchend', () => this.onTouchEnd());
+    }
+
+    onMouseDown(e) {
+      this.isDragging = true;
+      this.lastMouse = { x: e.clientX, y: e.clientY };
+      e.preventDefault();
+    }
+
+    onMouseMove(e) {
+      if (!this.isDragging) return;
+      
+      const deltaX = e.clientX - this.lastMouse.x;
+      const deltaY = e.clientY - this.lastMouse.y;
+      
+      this.rotation.y += deltaX * 0.5;
+      this.rotation.x -= deltaY * 0.5;
+      
+      this.rotation.x = Math.max(-90, Math.min(90, this.rotation.x));
+      
+      this.updateTransform();
+      this.lastMouse = { x: e.clientX, y: e.clientY };
+    }
+
+    onMouseUp() {
+      this.isDragging = false;
+    }
+
+    onTouchStart(e) {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        this.isDragging = true;
+        this.lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    }
+
+    onTouchMove(e) {
+      e.preventDefault();
+      if (!this.isDragging || e.touches.length !== 1) return;
+      
+      const deltaX = e.touches[0].clientX - this.lastMouse.x;
+      const deltaY = e.touches[0].clientY - this.lastMouse.y;
+      
+      this.rotation.y += deltaX * 0.5;
+      this.rotation.x -= deltaY * 0.5;
+      
+      this.rotation.x = Math.max(-90, Math.min(90, this.rotation.x));
+      
+      this.updateTransform();
+      this.lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+
+    onTouchEnd() {
+      this.isDragging = false;
+    }
+
+    updateTransform() {
+      if (!this.autoRotate) {
+        this.cube.style.transform = `rotateX(${this.rotation.x}deg) rotateY(${this.rotation.y}deg)`;
+      }
+    }
+
+    resetView() {
+      this.rotation = { x: 15, y: 15 };
+      if (!this.autoRotate) {
+        this.updateTransform();
+      }
+    }
+
+    toggleAutoRotate() {
+      this.autoRotate = !this.autoRotate;
+      const btn = this.querySelector('#ai-3d-box-auto-rotate-{{ ai_gen_id }}');
+      btn.classList.toggle('active', this.autoRotate);
+      
+      if (this.autoRotate) {
+        this.cube.classList.add('auto-rotate');
+      } else {
+        this.cube.classList.remove('auto-rotate');
+        this.updateTransform();
+      }
+    }
+  }
+
+  customElements.define('css-3d-box-{{ ai_gen_id }}', CSS3DBox{{ ai_gen_id }});
+})();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "3D Box",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Container"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 300,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Container width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "container_padding",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Container padding",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Scene"
+    },
+    {
+      "type": "range",
+      "id": "canvas_height",
+      "min": 300,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Scene height",
+      "default": 500
+    },
+    {
+      "type": "color",
+      "id": "canvas_background",
+      "label": "Scene background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Scene border width",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Scene border color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "canvas_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Scene border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Cube"
+    },
+    {
+      "type": "range",
+      "id": "cube_size",
+      "min": 100,
+      "max": 300,
+      "step": 20,
+      "unit": "px",
+      "label": "Cube size",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "rotation_speed",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "s",
+      "label": "Auto rotation speed",
+      "default": 10
+    },
+    {
+      "type": "color",
+      "id": "edge_color",
+      "label": "Edge color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "face_opacity",
+      "min": 0.3,
+      "max": 1.0,
+      "step": 0.1,
+      "label": "Face opacity",
+      "default": 0.8
+    },
+    {
+      "type": "header",
+      "content": "Face colors"
+    },
+    {
+      "type": "color",
+      "id": "front_color",
+      "label": "Front face",
+      "default": "#ff6b6b"
+    },
+    {
+      "type": "color",
+      "id": "back_color",
+      "label": "Back face",
+      "default": "#4ecdc4"
+    },
+    {
+      "type": "color",
+      "id": "right_color",
+      "label": "Right face",
+      "default": "#45b7d1"
+    },
+    {
+      "type": "color",
+      "id": "left_color",
+      "label": "Left face",
+      "default": "#f9ca24"
+    },
+    {
+      "type": "color",
+      "id": "top_color",
+      "label": "Top face",
+      "default": "#6c5ce7"
+    },
+    {
+      "type": "color",
+      "id": "bottom_color",
+      "label": "Bottom face",
+      "default": "#a29bfe"
+    },
+    {
+      "type": "header",
+      "content": "Face labels"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_face_labels",
+      "label": "Show face labels",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "face_text_size",
+      "min": 12,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Label text size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "face_text_color",
+      "label": "Label text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Controls"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#005a99"
+    },
+    {
+      "type": "color",
+      "id": "button_active_color",
+      "label": "Button active color",
+      "default": "#ff6b35"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#666666"
+    }
+  ],
+  "presets": [
+    {
+      "name": "3D Box"
+    }
+  ]
+}
 {% endschema %}
