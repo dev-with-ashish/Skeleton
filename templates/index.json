@@ -9,6 +9,65 @@
  */
 {
   "sections": {
+    "custom_section_xATcRE": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_6f1bfb4_3RQCMk": {
+          "type": "ai_gen_block_6f1bfb4",
+          "settings": {
+            "selected_product": "star",
+            "container_size": 600,
+            "background_color": "#f8f8f8",
+            "border_radius": 12,
+            "thumbnail_bg_color": "#ffffff",
+            "thumbnail_hover_color": "#007acc",
+            "thumbnail_active_color": "#0066cc",
+            "button_3d_color": "#333333",
+            "button_3d_text_color": "#ffffff",
+            "button_3d_hover_color": "#555555",
+            "button_3d_active_color": "#007acc",
+            "front_text": "METAL POSTER",
+            "front_color": "#e8e8e8",
+            "back_text": "PREMIUM QUALITY",
+            "back_color": "#d4d4d4",
+            "edge_color": "#b8b8b8",
+            "text_color": "#333333",
+            "info_bg_color": "#ffffff",
+            "info_text_color": "#333333",
+            "info_title_color": "#000000",
+            "info_price_color": "#007acc",
+            "variant_bg_color": "#f5f5f5",
+            "variant_text_color": "#333333",
+            "variant_border_color": "#dddddd",
+            "variant_hover_bg_color": "#e8e8e8",
+            "variant_hover_text_color": "#000000",
+            "variant_hover_border_color": "#cccccc",
+            "variant_selected_bg_color": "#007acc",
+            "variant_selected_text_color": "#ffffff",
+            "variant_selected_border_color": "#0066cc",
+            "variant_border_radius": 6,
+            "control_bg_color": "#333333",
+            "control_text_color": "#ffffff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_6f1bfb4_3RQCMk"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 0,
+        "padding_bottom": 40,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
+    },
     "custom_section_i9e3xe": {
       "type": "custom-section",
       "blocks": {
@@ -570,6 +629,7 @@
     }
   },
   "order": [
+    "custom_section_xATcRE",
     "custom_section_i9e3xe",
     "custom_section_JkWAb6",
     "custom_section_wHXFNA",
