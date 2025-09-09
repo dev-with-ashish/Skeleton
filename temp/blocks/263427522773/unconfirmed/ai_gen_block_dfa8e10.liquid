@@ -1,6 +1,567 @@
+{% doc %}
+  @prompt
+    a section to display the 3d box which can be rotated having orbit control feature, a real 3d box, nox 3d box is showing, now make it a 2:3 in ratio
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-3d-box-container-{{ ai_gen_id }} {
+    width: 100%;
+    height: {{ block.settings.container_height }}px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-3d-box-scene-{{ ai_gen_id }} {
+    width: {{ block.settings.box_width }}px;
+    height: {{ block.settings.box_height }}px;
+    perspective: 1000px;
+    position: relative;
+  }
+
+  .ai-3d-box-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+    cursor: grab;
+  }
+
+  .ai-3d-box-{{ ai_gen_id }}:active {
+    cursor: grabbing;
+  }
+
+  .ai-3d-box-face-{{ ai_gen_id }} {
+    position: absolute;
+    width: {{ block.settings.box_width }}px;
+    height: {{ block.settings.box_height }}px;
+    border: 2px solid {{ block.settings.border_color }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: bold;
+    color: {{ block.settings.text_color }};
+    opacity: {{ block.settings.face_opacity }};
+  }
+
+  .ai-3d-box-front-{{ ai_gen_id }} {
+    background: {{ block.settings.front_color }};
+    transform: translateZ({{ block.settings.box_depth | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-back-{{ ai_gen_id }} {
+    background: {{ block.settings.back_color }};
+    transform: translateZ(-{{ block.settings.box_depth | divided_by: 2 }}px) rotateY(180deg);
+  }
+
+  .ai-3d-box-right-{{ ai_gen_id }} {
+    background: {{ block.settings.right_color }};
+    width: {{ block.settings.box_depth }}px;
+    transform: rotateY(90deg) translateZ({{ block.settings.box_width | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-left-{{ ai_gen_id }} {
+    background: {{ block.settings.left_color }};
+    width: {{ block.settings.box_depth }}px;
+    transform: rotateY(-90deg) translateZ({{ block.settings.box_width | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-top-{{ ai_gen_id }} {
+    background: {{ block.settings.top_color }};
+    height: {{ block.settings.box_depth }}px;
+    transform: rotateX(90deg) translateZ({{ block.settings.box_height | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-bottom-{{ ai_gen_id }} {
+    background: {{ block.settings.bottom_color }};
+    height: {{ block.settings.box_depth }}px;
+    transform: rotateX(-90deg) translateZ({{ block.settings.box_height | divided_by: 2 }}px);
+  }
+
+  .ai-3d-box-controls-{{ ai_gen_id }} {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .ai-3d-box-control-btn-{{ ai_gen_id }} {
+    padding: 8px 12px;
+    background: {{ block.settings.control_bg_color }};
+    color: {{ block.settings.control_text_color }};
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .ai-3d-box-control-btn-{{ ai_gen_id }}:hover {
+    opacity: 0.8;
+  }
+
+  .ai-3d-box-info-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: {{ block.settings.text_color }};
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-3d-box-scene-{{ ai_gen_id }} {
+      width: {{ block.settings.box_width | times: 0.8 }}px;
+      height: {{ block.settings.box_height | times: 0.8 }}px;
+    }
+
+    .ai-3d-box-face-{{ ai_gen_id }} {
+      width: {{ block.settings.box_width | times: 0.8 }}px;
+      height: {{ block.settings.box_height | times: 0.8 }}px;
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+    }
+
+    .ai-3d-box-front-{{ ai_gen_id }} {
+      transform: translateZ({{ block.settings.box_depth | divided_by: 2 | times: 0.8 }}px);
+    }
+
+    .ai-3d-box-back-{{ ai_gen_id }} {
+      transform: translateZ(-{{ block.settings.box_depth | divided_by: 2 | times: 0.8 }}px) rotateY(180deg);
+    }
+
+    .ai-3d-box-right-{{ ai_gen_id }} {
+      width: {{ block.settings.box_depth | times: 0.8 }}px;
+      transform: rotateY(90deg) translateZ({{ block.settings.box_width | divided_by: 2 | times: 0.8 }}px);
+    }
+
+    .ai-3d-box-left-{{ ai_gen_id }} {
+      width: {{ block.settings.box_depth | times: 0.8 }}px;
+      transform: rotateY(-90deg) translateZ({{ block.settings.box_width | divided_by: 2 | times: 0.8 }}px);
+    }
+
+    .ai-3d-box-top-{{ ai_gen_id }} {
+      height: {{ block.settings.box_depth | times: 0.8 }}px;
+      transform: rotateX(90deg) translateZ({{ block.settings.box_height | divided_by: 2 | times: 0.8 }}px);
+    }
+
+    .ai-3d-box-bottom-{{ ai_gen_id }} {
+      height: {{ block.settings.box_depth | times: 0.8 }}px;
+      transform: rotateX(-90deg) translateZ({{ block.settings.box_height | divided_by: 2 | times: 0.8 }}px);
+    }
+  }
+{% endstyle %}
+
+<rotating-3d-box-{{ ai_gen_id }}
+  class="ai-3d-box-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-3d-box-scene-{{ ai_gen_id }}">
+    <div class="ai-3d-box-{{ ai_gen_id }}" id="ai-3d-box-{{ ai_gen_id }}">
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-front-{{ ai_gen_id }}">
+        {{ block.settings.front_text }}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-back-{{ ai_gen_id }}">
+        {{ block.settings.back_text }}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-right-{{ ai_gen_id }}">
+        {{ block.settings.right_text }}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-left-{{ ai_gen_id }}">
+        {{ block.settings.left_text }}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-top-{{ ai_gen_id }}">
+        {{ block.settings.top_text }}
+      </div>
+      <div class="ai-3d-box-face-{{ ai_gen_id }} ai-3d-box-bottom-{{ ai_gen_id }}">
+        {{ block.settings.bottom_text }}
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-3d-box-controls-{{ ai_gen_id }}">
+    <button class="ai-3d-box-control-btn-{{ ai_gen_id }}" id="ai-reset-{{ ai_gen_id }}">Reset</button>
+    <button class="ai-3d-box-control-btn-{{ ai_gen_id }}" id="ai-auto-rotate-{{ ai_gen_id }}">Auto</button>
+  </div>
+
+  <div class="ai-3d-box-info-{{ ai_gen_id }}">
+    Drag to rotate • Scroll to zoom
+  </div>
+</rotating-3d-box-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class Rotating3DBox{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.rotationX = -15;
+        this.rotationY = 15;
+        this.scale = 1;
+        this.isDragging = false;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
+        this.autoRotate = false;
+        this.animationId = null;
+      }
+
+      connectedCallback() {
+        this.box = this.querySelector('#ai-3d-box-{{ ai_gen_id }}');
+        this.resetBtn = this.querySelector('#ai-reset-{{ ai_gen_id }}');
+        this.autoRotateBtn = this.querySelector('#ai-auto-rotate-{{ ai_gen_id }}');
+
+        this.setupEventListeners();
+        this.updateTransform();
+      }
+
+      setupEventListeners() {
+        this.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+        this.addEventListener('wheel', this.handleWheel.bind(this));
+
+        this.addEventListener('touchstart', this.handleTouchStart.bind(this));
+        this.addEventListener('touchmove', this.handleTouchMove.bind(this));
+        this.addEventListener('touchend', this.handleTouchEnd.bind(this));
+
+        this.resetBtn.addEventListener('click', this.reset.bind(this));
+        this.autoRotateBtn.addEventListener('click', this.toggleAutoRotate.bind(this));
+      }
+
+      handleMouseDown(e) {
+        if (e.target.closest('.ai-3d-box-controls-{{ ai_gen_id }}')) return;
+        this.isDragging = true;
+        this.lastMouseX = e.clientX;
+        this.lastMouseY = e.clientY;
+        e.preventDefault();
+      }
+
+      handleMouseMove(e) {
+        if (!this.isDragging) return;
+
+        const deltaX = e.clientX - this.lastMouseX;
+        const deltaY = e.clientY - this.lastMouseY;
+
+        this.rotationY += deltaX * 0.5;
+        this.rotationX -= deltaY * 0.5;
+
+        this.rotationX = Math.max(-90, Math.min(90, this.rotationX));
+
+        this.lastMouseX = e.clientX;
+        this.lastMouseY = e.clientY;
+
+        this.updateTransform();
+        e.preventDefault();
+      }
+
+      handleMouseUp() {
+        this.isDragging = false;
+      }
+
+      handleTouchStart(e) {
+        if (e.target.closest('.ai-3d-box-controls-{{ ai_gen_id }}')) return;
+        if (e.touches.length === 1) {
+          this.isDragging = true;
+          this.lastMouseX = e.touches[0].clientX;
+          this.lastMouseY = e.touches[0].clientY;
+          e.preventDefault();
+        }
+      }
+
+      handleTouchMove(e) {
+        if (!this.isDragging || e.touches.length !== 1) return;
+
+        const deltaX = e.touches[0].clientX - this.lastMouseX;
+        const deltaY = e.touches[0].clientY - this.lastMouseY;
+
+        this.rotationY += deltaX * 0.5;
+        this.rotationX -= deltaY * 0.5;
+
+        this.rotationX = Math.max(-90, Math.min(90, this.rotationX));
+
+        this.lastMouseX = e.touches[0].clientX;
+        this.lastMouseY = e.touches[0].clientY;
+
+        this.updateTransform();
+        e.preventDefault();
+      }
+
+      handleTouchEnd() {
+        this.isDragging = false;
+      }
+
+      handleWheel(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        this.scale = Math.max(0.5, Math.min(2, this.scale * delta));
+        this.updateTransform();
+      }
+
+      updateTransform() {
+        if (this.box) {
+          this.box.style.transform = `
+            rotateX(${this.rotationX}deg) 
+            rotateY(${this.rotationY}deg) 
+            scale(${this.scale})
+          `;
+        }
+      }
+
+      reset() {
+        this.rotationX = -15;
+        this.rotationY = 15;
+        this.scale = 1;
+        this.updateTransform();
+      }
+
+      toggleAutoRotate() {
+        this.autoRotate = !this.autoRotate;
+        this.autoRotateBtn.textContent = this.autoRotate ? 'Stop' : 'Auto';
+        
+        if (this.autoRotate) {
+          this.startAutoRotation();
+        } else {
+          this.stopAutoRotation();
+        }
+      }
+
+      startAutoRotation() {
+        const animate = () => {
+          if (this.autoRotate && !this.isDragging) {
+            this.rotationY += 0.5;
+            this.updateTransform();
+          }
+          if (this.autoRotate) {
+            this.animationId = requestAnimationFrame(animate);
+          }
+        };
+        animate();
+      }
+
+      stopAutoRotation() {
+        if (this.animationId) {
+          cancelAnimationFrame(this.animationId);
+          this.animationId = null;
+        }
+      }
+
+      disconnectedCallback() {
+        this.stopAutoRotation();
+      }
+    }
+
+    customElements.define('rotating-3d-box-{{ ai_gen_id }}', Rotating3DBox{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "3D rotating box",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Box dimensions"
+    },
+    {
+      "type": "range",
+      "id": "box_width",
+      "min": 100,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Box width",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "box_height",
+      "min": 150,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Box height",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "box_depth",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Box depth",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "container_height",
+      "min": 300,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Container height",
+      "default": 500
+    },
+    {
+      "type": "header",
+      "content": "Face colors"
+    },
+    {
+      "type": "color",
+      "id": "front_color",
+      "label": "Front face",
+      "default": "#ff6b6b"
+    },
+    {
+      "type": "color",
+      "id": "back_color",
+      "label": "Back face",
+      "default": "#4ecdc4"
+    },
+    {
+      "type": "color",
+      "id": "left_color",
+      "label": "Left face",
+      "default": "#45b7d1"
+    },
+    {
+      "type": "color",
+      "id": "right_color",
+      "label": "Right face",
+      "default": "#f9ca24"
+    },
+    {
+      "type": "color",
+      "id": "top_color",
+      "label": "Top face",
+      "default": "#6c5ce7"
+    },
+    {
+      "type": "color",
+      "id": "bottom_color",
+      "label": "Bottom face",
+      "default": "#a29bfe"
+    },
+    {
+      "type": "header",
+      "content": "Face text"
+    },
+    {
+      "type": "text",
+      "id": "front_text",
+      "label": "Front text",
+      "default": "FRONT"
+    },
+    {
+      "type": "text",
+      "id": "back_text",
+      "label": "Back text",
+      "default": "BACK"
+    },
+    {
+      "type": "text",
+      "id": "left_text",
+      "label": "Left text",
+      "default": "LEFT"
+    },
+    {
+      "type": "text",
+      "id": "right_text",
+      "label": "Right text",
+      "default": "RIGHT"
+    },
+    {
+      "type": "text",
+      "id": "top_text",
+      "label": "Top text",
+      "default": "TOP"
+    },
+    {
+      "type": "text",
+      "id": "bottom_text",
+      "label": "Bottom text",
+      "default": "BOTTOM"
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "face_opacity",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.1,
+      "label": "Face opacity",
+      "default": 0.9
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Controls"
+    },
+    {
+      "type": "color",
+      "id": "control_bg_color",
+      "label": "Control background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "control_text_color",
+      "label": "Control text",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "3D rotating box"
+    }
+  ]
+}
 {% endschema %}
