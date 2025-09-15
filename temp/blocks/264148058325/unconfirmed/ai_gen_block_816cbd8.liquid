@@ -1,6 +1,746 @@
+{% doc %}
+  @prompt
+    a product page section with live editing option were admin can upload png from the theme customizer and the canvas will take the shape of uploaded png and below that transparent png shaped canvas there should be a layer where user uploaded image will be shown framed to that canvas option in the right for the user to upload image, the whole canvas should be of the shape and size of the uploaded png, the canvas should adapt the png shape
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-custom-frame-editor-{{ ai_gen_id }} {
+    padding: 40px 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    max-width: 100%;
+  }
+
+  .ai-custom-frame-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .ai-custom-frame-canvas-area-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .ai-custom-frame-canvas-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-block;
+    max-width: {{ block.settings.canvas_max_width }}px;
+    background: transparent;
+  }
+
+  .ai-custom-frame-shaped-canvas-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-block;
+    background: transparent;
+  }
+
+  .ai-custom-frame-mask-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    background-color: {{ block.settings.canvas_fill_color }};
+  }
+
+  .ai-custom-frame-user-image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    display: none;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+  }
+
+  .ai-custom-frame-frame-overlay-{{ ai_gen_id }} {
+    position: relative;
+    display: block;
+    max-width: 100%;
+    height: auto;
+    z-index: 3;
+  }
+
+  .ai-custom-frame-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    z-index: 4;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-custom-frame-default-canvas-{{ ai_gen_id }} {
+    width: {{ block.settings.canvas_max_width }}px;
+    height: {{ block.settings.canvas_max_width }}px;
+    background-color: {{ block.settings.canvas_background }};
+    border-radius: {{ block.settings.canvas_border_radius }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-custom-frame-controls-{{ ai_gen_id }} {
+    background-color: {{ block.settings.controls_background }};
+    padding: 30px;
+    border-radius: {{ block.settings.controls_border_radius }}px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-custom-frame-controls-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.controls_title_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 20px;
+  }
+
+  .ai-custom-frame-upload-section-{{ ai_gen_id }} {
+    margin-bottom: 25px;
+  }
+
+  .ai-custom-frame-upload-label-{{ ai_gen_id }} {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 10px;
+  }
+
+  .ai-custom-frame-upload-area-{{ ai_gen_id }} {
+    position: relative;
+    border: 2px dashed {{ block.settings.upload_border_color }};
+    border-radius: {{ block.settings.upload_border_radius }}px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: {{ block.settings.upload_background }};
+  }
+
+  .ai-custom-frame-upload-area-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.upload_hover_border }};
+    background-color: {{ block.settings.upload_hover_background }};
+  }
+
+  .ai-custom-frame-upload-input-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ai-custom-frame-upload-text-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.upload_text_color }};
+    margin-bottom: 5px;
+  }
+
+  .ai-custom-frame-upload-hint-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: {{ block.settings.upload_hint_color }};
+  }
+
+  .ai-custom-frame-preview-{{ ai_gen_id }} {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-top: 10px;
+  }
+
+  .ai-custom-frame-action-buttons-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .ai-custom-frame-button-{{ ai_gen_id }} {
+    padding: 12px 20px;
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .ai-custom-frame-button-primary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.primary_button_color }};
+    color: {{ block.settings.primary_button_text }};
+  }
+
+  .ai-custom-frame-button-primary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.primary_button_hover }};
+  }
+
+  .ai-custom-frame-button-secondary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.secondary_button_color }};
+    color: {{ block.settings.secondary_button_text }};
+  }
+
+  .ai-custom-frame-button-secondary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.secondary_button_hover }};
+  }
+
+  .ai-custom-frame-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-custom-frame-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .ai-custom-frame-controls-{{ ai_gen_id }} {
+      order: -1;
+    }
+
+    .ai-custom-frame-canvas-wrapper-{{ ai_gen_id }} {
+      max-width: 100%;
+    }
+
+    .ai-custom-frame-default-canvas-{{ ai_gen_id }} {
+      width: 100%;
+      max-width: {{ block.settings.canvas_max_width }}px;
+      height: auto;
+      aspect-ratio: 1;
+    }
+  }
+{% endstyle %}
+
+<custom-frame-editor-{{ ai_gen_id }}
+  class="ai-custom-frame-editor-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-custom-frame-container-{{ ai_gen_id }}">
+    <div class="ai-custom-frame-canvas-area-{{ ai_gen_id }}">
+      <div class="ai-custom-frame-canvas-wrapper-{{ ai_gen_id }}">
+        {% if block.settings.frame_image %}
+          <div class="ai-custom-frame-shaped-canvas-{{ ai_gen_id }}">
+            <div class="ai-custom-frame-mask-layer-{{ ai_gen_id }}"></div>
+            <img
+              class="ai-custom-frame-user-image-{{ ai_gen_id }}"
+              alt="User uploaded image"
+            >
+            <img
+              src="{{ block.settings.frame_image | image_url: width: block.settings.canvas_max_width }}"
+              alt="Frame shape"
+              class="ai-custom-frame-frame-overlay-{{ ai_gen_id }}"
+              loading="lazy"
+              width="{{ block.settings.frame_image.width }}"
+              height="{{ block.settings.frame_image.height }}"
+            >
+            <div class="ai-custom-frame-placeholder-{{ ai_gen_id }}">
+              Upload your image
+            </div>
+          </div>
+        {% else %}
+          <div class="ai-custom-frame-default-canvas-{{ ai_gen_id }}">
+            <div class="ai-custom-frame-placeholder-{{ ai_gen_id }}">
+              Upload a frame to get started
+            </div>
+            <div class="ai-custom-frame-empty-state-{{ ai_gen_id }}">
+              Next, upload a PNG frame in the theme customizer
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-custom-frame-controls-{{ ai_gen_id }}">
+      <h3 class="ai-custom-frame-controls-title-{{ ai_gen_id }}">{{ block.settings.controls_title }}</h3>
+      
+      <div class="ai-custom-frame-upload-section-{{ ai_gen_id }}">
+        <label class="ai-custom-frame-upload-label-{{ ai_gen_id }}">
+          {{ block.settings.upload_label }}
+        </label>
+        <div class="ai-custom-frame-upload-area-{{ ai_gen_id }}">
+          <input
+            type="file"
+            accept="image/*"
+            class="ai-custom-frame-upload-input-{{ ai_gen_id }}"
+            data-upload-type="user-image"
+          >
+          <div class="ai-custom-frame-upload-text-{{ ai_gen_id }}">
+            {{ block.settings.upload_text }}
+          </div>
+          <div class="ai-custom-frame-upload-hint-{{ ai_gen_id }}">
+            {{ block.settings.upload_hint }}
+          </div>
+          <img class="ai-custom-frame-preview-{{ ai_gen_id }}" style="display: none;" alt="Preview">
+        </div>
+      </div>
+
+      <div class="ai-custom-frame-action-buttons-{{ ai_gen_id }}">
+        <button
+          class="ai-custom-frame-button-{{ ai_gen_id }} ai-custom-frame-button-primary-{{ ai_gen_id }}"
+          data-action="download"
+          disabled
+        >
+          {{ block.settings.download_button_text }}
+        </button>
+        <button
+          class="ai-custom-frame-button-{{ ai_gen_id }} ai-custom-frame-button-secondary-{{ ai_gen_id }}"
+          data-action="reset"
+        >
+          {{ block.settings.reset_button_text }}
+        </button>
+      </div>
+    </div>
+  </div>
+</custom-frame-editor-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CustomFrameEditor{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.userImage = null;
+        this.frameImage = null;
+        this.frameNaturalWidth = 0;
+        this.frameNaturalHeight = 0;
+      }
+
+      connectedCallback() {
+        this.setupElements();
+        this.setupEventListeners();
+        this.initializeFrame();
+      }
+
+      setupElements() {
+        this.uploadInput = this.querySelector('.ai-custom-frame-upload-input-{{ ai_gen_id }}');
+        this.uploadArea = this.querySelector('.ai-custom-frame-upload-area-{{ ai_gen_id }}');
+        this.userImageEl = this.querySelector('.ai-custom-frame-user-image-{{ ai_gen_id }}');
+        this.frameOverlay = this.querySelector('.ai-custom-frame-frame-overlay-{{ ai_gen_id }}');
+        this.maskLayer = this.querySelector('.ai-custom-frame-mask-layer-{{ ai_gen_id }}');
+        this.placeholder = this.querySelector('.ai-custom-frame-placeholder-{{ ai_gen_id }}');
+        this.preview = this.querySelector('.ai-custom-frame-preview-{{ ai_gen_id }}');
+        this.downloadBtn = this.querySelector('[data-action="download"]');
+        this.resetBtn = this.querySelector('[data-action="reset"]');
+        this.shapedCanvas = this.querySelector('.ai-custom-frame-shaped-canvas-{{ ai_gen_id }}');
+        this.canvas = document.createElement('canvas');
+        this.ctx = this.canvas.getContext('2d');
+      }
+
+      setupEventListeners() {
+        this.uploadInput.addEventListener('change', (e) => this.handleImageUpload(e));
+        this.uploadArea.addEventListener('dragover', (e) => this.handleDragOver(e));
+        this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
+        this.downloadBtn.addEventListener('click', () => this.downloadComposite());
+        this.resetBtn.addEventListener('click', () => this.resetEditor());
+      }
+
+      initializeFrame() {
+        if (this.frameOverlay) {
+          this.frameImage = new Image();
+          this.frameImage.crossOrigin = 'anonymous';
+          this.frameImage.onload = () => {
+            this.frameNaturalWidth = this.frameImage.naturalWidth;
+            this.frameNaturalHeight = this.frameImage.naturalHeight;
+            this.applyFrameMask();
+          };
+          this.frameImage.src = this.frameOverlay.src;
+        }
+      }
+
+      applyFrameMask() {
+        if (this.frameImage && this.maskLayer && this.userImageEl) {
+          const maskUrl = `url(${this.frameImage.src})`;
+          
+          this.maskLayer.style.mask = maskUrl;
+          this.maskLayer.style.webkitMask = maskUrl;
+          
+          this.userImageEl.style.mask = maskUrl;
+          this.userImageEl.style.webkitMask = maskUrl;
+        }
+      }
+
+      handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+          this.loadUserImage(file);
+        }
+      }
+
+      handleDragOver(event) {
+        event.preventDefault();
+        this.uploadArea.style.borderColor = '{{ block.settings.upload_hover_border }}';
+      }
+
+      handleDrop(event) {
+        event.preventDefault();
+        this.uploadArea.style.borderColor = '{{ block.settings.upload_border_color }}';
+        
+        const file = event.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+          this.loadUserImage(file);
+        }
+      }
+
+      loadUserImage(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.userImage = new Image();
+          this.userImage.crossOrigin = 'anonymous';
+          this.userImage.onload = () => {
+            this.displayUserImage();
+            this.downloadBtn.disabled = false;
+          };
+          this.userImage.src = e.target.result;
+          
+          this.preview.src = e.target.result;
+          this.preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+
+      displayUserImage() {
+        if (this.userImage && this.userImageEl) {
+          this.userImageEl.src = this.userImage.src;
+          this.userImageEl.style.display = 'block';
+          if (this.placeholder) {
+            this.placeholder.style.display = 'none';
+          }
+          if (this.maskLayer) {
+            this.maskLayer.style.display = 'none';
+          }
+        }
+      }
+
+      downloadComposite() {
+        if (!this.userImage || !this.frameImage) return;
+
+        this.canvas.width = this.frameNaturalWidth;
+        this.canvas.height = this.frameNaturalHeight;
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.drawImage(this.userImage, 0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.globalCompositeOperation = 'destination-in';
+        this.ctx.drawImage(this.frameImage, 0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.drawImage(this.frameImage, 0, 0, this.canvas.width, this.canvas.height);
+        
+        const link = document.createElement('a');
+        link.download = 'custom-framed-image.png';
+        link.href = this.canvas.toDataURL('image/png');
+        link.click();
+      }
+
+      resetEditor() {
+        this.userImage = null;
+        if (this.userImageEl) {
+          this.userImageEl.style.display = 'none';
+          this.userImageEl.src = '';
+        }
+        if (this.maskLayer) {
+          this.maskLayer.style.display = 'block';
+        }
+        if (this.placeholder) {
+          this.placeholder.style.display = 'block';
+        }
+        if (this.preview) {
+          this.preview.style.display = 'none';
+          this.preview.src = '';
+        }
+        this.uploadInput.value = '';
+        this.downloadBtn.disabled = true;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+    }
+
+    customElements.define('custom-frame-editor-{{ ai_gen_id }}', CustomFrameEditor{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Custom frame editor",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Frame settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "frame_image",
+      "label": "Frame overlay (PNG recommended)"
+    },
+    {
+      "type": "range",
+      "id": "canvas_max_width",
+      "min": 300,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Canvas maximum width",
+      "default": 500
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "controls_title",
+      "label": "Controls title",
+      "default": "Customize Your Image"
+    },
+    {
+      "type": "text",
+      "id": "upload_label",
+      "label": "Upload label",
+      "default": "Upload Your Image"
+    },
+    {
+      "type": "text",
+      "id": "upload_text",
+      "label": "Upload text",
+      "default": "Click or drag to upload"
+    },
+    {
+      "type": "text",
+      "id": "upload_hint",
+      "label": "Upload hint",
+      "default": "JPG, PNG up to 10MB"
+    },
+    {
+      "type": "text",
+      "id": "download_button_text",
+      "label": "Download button text",
+      "default": "Download Image"
+    },
+    {
+      "type": "text",
+      "id": "reset_button_text",
+      "label": "Reset button text",
+      "default": "Reset"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "canvas_background",
+      "label": "Canvas background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "canvas_fill_color",
+      "label": "Canvas fill color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "color",
+      "id": "controls_background",
+      "label": "Controls background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "upload_background",
+      "label": "Upload area background",
+      "default": "#fafafa"
+    },
+    {
+      "type": "color",
+      "id": "upload_hover_background",
+      "label": "Upload hover background",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "upload_border_color",
+      "label": "Upload border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "upload_hover_border",
+      "label": "Upload hover border",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "upload_text_color",
+      "label": "Upload text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "upload_hint_color",
+      "label": "Upload hint color",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_color",
+      "label": "Primary button color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Primary button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_hover",
+      "label": "Primary button hover",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_color",
+      "label": "Secondary button color",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text",
+      "label": "Secondary button text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover",
+      "label": "Secondary button hover",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Section border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "canvas_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Canvas border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "controls_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Controls border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "upload_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Upload area border radius",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "controls_title_size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Controls title size",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom frame editor"
+    }
+  ]
+}
 {% endschema %}
