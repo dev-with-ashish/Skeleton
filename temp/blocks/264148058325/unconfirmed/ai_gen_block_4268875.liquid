@@ -1,6 +1,850 @@
+{% doc %}
+  @prompt
+    a section for my acrylic page showing 15 different category with title each category with option to add multiple product (product title, product image, and customize now button below it) make according to you best styled and attractive dark theme, option to select the product should not be limited, selcted product not showing in the category fix that, no product is showing it is still showing select products to showcase in this category, add option to customize all colors including bg
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-acrylic-categories-{{ ai_gen_id }} {
+    background: {{ block.settings.section_bg_color }};
+    padding: {{ block.settings.section_padding }}px 20px;
+    min-height: 100vh;
+  }
+
+  .ai-acrylic-categories-container-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .ai-acrylic-categories-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .ai-acrylic-categories-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.main_title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, {{ block.settings.title_color }}, {{ block.settings.accent_color }});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .ai-acrylic-categories-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .ai-acrylic-category-{{ ai_gen_id }} {
+    margin-bottom: 80px;
+    padding: 40px;
+    background: {{ block.settings.category_bg_color }};
+    border-radius: {{ block.settings.category_border_radius }}px;
+    border: 1px solid {{ block.settings.category_border_color }};
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .ai-acrylic-category-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.category_hover_bg_color }};
+    border-color: {{ block.settings.accent_color }};
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px {{ block.settings.shadow_color }};
+  }
+
+  .ai-acrylic-category-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.category_title_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.category_title_color }};
+    margin: 0 0 30px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+  }
+
+  .ai-acrylic-category-title-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, {{ block.settings.accent_color }}, {{ block.settings.title_color }});
+    border-radius: 2px;
+  }
+
+  .ai-acrylic-products-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+  }
+
+  .ai-acrylic-product-card-{{ ai_gen_id }} {
+    background: {{ block.settings.product_card_bg_color }};
+    border-radius: {{ block.settings.product_border_radius }}px;
+    padding: 25px;
+    border: 1px solid {{ block.settings.product_card_border_color }};
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-acrylic-product-card-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, {{ block.settings.card_shine_color }}, transparent);
+    transition: left 0.5s ease;
+  }
+
+  .ai-acrylic-product-card-{{ ai_gen_id }}:hover::before {
+    left: 100%;
+  }
+
+  .ai-acrylic-product-card-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.product_card_hover_bg_color }};
+    border-color: {{ block.settings.accent_color }};
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px {{ block.settings.card_shadow_color }};
+  }
+
+  .ai-acrylic-product-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 20px;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    background: {{ block.settings.image_placeholder_bg_color }};
+  }
+
+  .ai-acrylic-product-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-acrylic-product-card-{{ ai_gen_id }}:hover .ai-acrylic-product-image-{{ ai_gen_id }} {
+    transform: scale(1.1);
+  }
+
+  .ai-acrylic-product-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: {{ block.settings.image_placeholder_bg_color }};
+    position: relative;
+  }
+
+  .ai-acrylic-product-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60px;
+    height: 60px;
+    opacity: 0.3;
+    color: {{ block.settings.placeholder_icon_color }};
+  }
+
+  .ai-acrylic-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.product_title_size }}px;
+    font-weight: 500;
+    color: {{ block.settings.product_title_color }};
+    margin: 0 0 20px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .ai-acrylic-customize-button-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px 24px;
+    background: linear-gradient(45deg, {{ block.settings.button_color }}, {{ block.settings.button_gradient_color }});
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_text_size }}px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-acrylic-customize-button-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, {{ block.settings.button_hover_color }}, {{ block.settings.button_hover_gradient_color }});
+    transition: left 0.3s ease;
+    z-index: -1;
+  }
+
+  .ai-acrylic-customize-button-{{ ai_gen_id }}:hover::before {
+    left: 0;
+  }
+
+  .ai-acrylic-customize-button-{{ ai_gen_id }}:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px {{ block.settings.button_shadow_color }};
+    color: {{ block.settings.button_hover_text_color }};
+  }
+
+  .ai-acrylic-empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 40px 20px;
+    color: {{ block.settings.empty_state_color }};
+    opacity: 0.7;
+    font-style: italic;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-acrylic-categories-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.7 }}px 15px;
+    }
+
+    .ai-acrylic-category-{{ ai_gen_id }} {
+      padding: 25px 20px;
+      margin-bottom: 50px;
+    }
+
+    .ai-acrylic-products-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .ai-acrylic-categories-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.main_title_size | times: 0.8 }}px;
+    }
+
+    .ai-acrylic-category-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.category_title_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-acrylic-categories-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-acrylic-categories-container-{{ ai_gen_id }}">
+    {% if block.settings.main_title != blank %}
+      <div class="ai-acrylic-categories-header-{{ ai_gen_id }}">
+        <h1 class="ai-acrylic-categories-title-{{ ai_gen_id }}">{{ block.settings.main_title }}</h1>
+        {% if block.settings.subtitle != blank %}
+          <p class="ai-acrylic-categories-subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% for i in (1..15) %}
+      {% liquid
+        assign category_title_key = 'category_' | append: i | append: '_title'
+        assign category_products_key = 'category_' | append: i | append: '_products'
+        assign category_title = block.settings[category_title_key]
+        assign category_products = block.settings[category_products_key]
+      %}
+
+      {% if category_title != blank %}
+        <div class="ai-acrylic-category-{{ ai_gen_id }}">
+          <h2 class="ai-acrylic-category-title-{{ ai_gen_id }}">{{ category_title }}</h2>
+          
+          <div class="ai-acrylic-products-grid-{{ ai_gen_id }}">
+            {% assign has_products = false %}
+            {% for product in category_products %}
+              {% if product %}
+                {% assign has_products = true %}
+                <div class="ai-acrylic-product-card-{{ ai_gen_id }}">
+                  <div class="ai-acrylic-product-image-wrapper-{{ ai_gen_id }}">
+                    {% if product.featured_image %}
+                      <img
+                        src="{{ product.featured_image | image_url: width: 400 }}"
+                        alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                        class="ai-acrylic-product-image-{{ ai_gen_id }}"
+                        loading="lazy"
+                        width="400"
+                        height="400"
+                      >
+                    {% else %}
+                      <div class="ai-acrylic-product-image-placeholder-{{ ai_gen_id }}">
+                        {{ 'product-apparel-1' | placeholder_svg_tag }}
+                      </div>
+                    {% endif %}
+                  </div>
+                  
+                  <h3 class="ai-acrylic-product-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                  
+                  <a
+                    href="{{ product.url }}"
+                    class="ai-acrylic-customize-button-{{ ai_gen_id }}"
+                  >
+                    {{ block.settings.button_text }}
+                  </a>
+                </div>
+              {% endif %}
+            {% endfor %}
+            
+            {% unless has_products %}
+              <div class="ai-acrylic-empty-state-{{ ai_gen_id }}">
+                Select products to showcase in this category
+              </div>
+            {% endunless %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Acrylic categories",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section content"
+    },
+    {
+      "type": "text",
+      "id": "main_title",
+      "label": "Main title",
+      "default": "Acrylic Collections"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Discover our premium acrylic products across 15 unique categories"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Customize Now"
+    },
+    {
+      "type": "header",
+      "content": "Background colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "category_bg_color",
+      "label": "Category background",
+      "default": "rgba(255, 255, 255, 0.05)"
+    },
+    {
+      "type": "color",
+      "id": "category_hover_bg_color",
+      "label": "Category hover background",
+      "default": "rgba(255, 255, 255, 0.08)"
+    },
+    {
+      "type": "color",
+      "id": "product_card_bg_color",
+      "label": "Product card background",
+      "default": "rgba(0, 0, 0, 0.4)"
+    },
+    {
+      "type": "color",
+      "id": "product_card_hover_bg_color",
+      "label": "Product card hover background",
+      "default": "rgba(0, 0, 0, 0.6)"
+    },
+    {
+      "type": "color",
+      "id": "image_placeholder_bg_color",
+      "label": "Image placeholder background",
+      "default": "rgba(255, 255, 255, 0.05)"
+    },
+    {
+      "type": "header",
+      "content": "Text colors"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "category_title_color",
+      "label": "Category title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "empty_state_color",
+      "label": "Empty state text color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "placeholder_icon_color",
+      "label": "Placeholder icon color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "header",
+      "content": "Button colors"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button background",
+      "default": "#ff6b35"
+    },
+    {
+      "type": "color",
+      "id": "button_gradient_color",
+      "label": "Button gradient color",
+      "default": "#00d4ff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover background",
+      "default": "#00d4ff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_gradient_color",
+      "label": "Button hover gradient",
+      "default": "#ff6b35"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "label": "Button hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_shadow_color",
+      "label": "Button shadow color",
+      "default": "rgba(0, 0, 0, 0.3)"
+    },
+    {
+      "type": "header",
+      "content": "Border and accent colors"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#00d4ff"
+    },
+    {
+      "type": "color",
+      "id": "category_border_color",
+      "label": "Category border color",
+      "default": "rgba(255, 255, 255, 0.1)"
+    },
+    {
+      "type": "color",
+      "id": "product_card_border_color",
+      "label": "Product card border color",
+      "default": "rgba(255, 255, 255, 0.1)"
+    },
+    {
+      "type": "header",
+      "content": "Effect colors"
+    },
+    {
+      "type": "color",
+      "id": "shadow_color",
+      "label": "Category shadow color",
+      "default": "rgba(0, 0, 0, 0.3)"
+    },
+    {
+      "type": "color",
+      "id": "card_shadow_color",
+      "label": "Card shadow color",
+      "default": "rgba(0, 0, 0, 0.4)"
+    },
+    {
+      "type": "color",
+      "id": "card_shine_color",
+      "label": "Card shine effect color",
+      "default": "rgba(255, 255, 255, 0.1)"
+    },
+    {
+      "type": "header",
+      "content": "Style settings"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "category_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Category border radius",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "product_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Product card border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "main_title_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Main title size",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "category_title_size",
+      "min": 18,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Category title size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "product_title_size",
+      "min": 14,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Product title size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Button text size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Category 1"
+    },
+    {
+      "type": "text",
+      "id": "category_1_title",
+      "label": "Category title",
+      "default": "Wall Art"
+    },
+    {
+      "type": "product_list",
+      "id": "category_1_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 2"
+    },
+    {
+      "type": "text",
+      "id": "category_2_title",
+      "label": "Category title",
+      "default": "Photo Frames"
+    },
+    {
+      "type": "product_list",
+      "id": "category_2_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 3"
+    },
+    {
+      "type": "text",
+      "id": "category_3_title",
+      "label": "Category title",
+      "default": "Signage"
+    },
+    {
+      "type": "product_list",
+      "id": "category_3_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 4"
+    },
+    {
+      "type": "text",
+      "id": "category_4_title",
+      "label": "Category title",
+      "default": "Display Stands"
+    },
+    {
+      "type": "product_list",
+      "id": "category_4_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 5"
+    },
+    {
+      "type": "text",
+      "id": "category_5_title",
+      "label": "Category title",
+      "default": "Awards & Trophies"
+    },
+    {
+      "type": "product_list",
+      "id": "category_5_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 6"
+    },
+    {
+      "type": "text",
+      "id": "category_6_title",
+      "label": "Category title",
+      "default": "Menu Boards"
+    },
+    {
+      "type": "product_list",
+      "id": "category_6_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 7"
+    },
+    {
+      "type": "text",
+      "id": "category_7_title",
+      "label": "Category title",
+      "default": "Desk Accessories"
+    },
+    {
+      "type": "product_list",
+      "id": "category_7_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 8"
+    },
+    {
+      "type": "text",
+      "id": "category_8_title",
+      "label": "Category title",
+      "default": "Lighting Panels"
+    },
+    {
+      "type": "product_list",
+      "id": "category_8_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 9"
+    },
+    {
+      "type": "text",
+      "id": "category_9_title",
+      "label": "Category title",
+      "default": "Protective Shields"
+    },
+    {
+      "type": "product_list",
+      "id": "category_9_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 10"
+    },
+    {
+      "type": "text",
+      "id": "category_10_title",
+      "label": "Category title",
+      "default": "Custom Shapes"
+    },
+    {
+      "type": "product_list",
+      "id": "category_10_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 11"
+    },
+    {
+      "type": "text",
+      "id": "category_11_title",
+      "label": "Category title",
+      "default": "Jewelry Display"
+    },
+    {
+      "type": "product_list",
+      "id": "category_11_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 12"
+    },
+    {
+      "type": "text",
+      "id": "category_12_title",
+      "label": "Category title",
+      "default": "Architectural Elements"
+    },
+    {
+      "type": "product_list",
+      "id": "category_12_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 13"
+    },
+    {
+      "type": "text",
+      "id": "category_13_title",
+      "label": "Category title",
+      "default": "Retail Displays"
+    },
+    {
+      "type": "product_list",
+      "id": "category_13_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 14"
+    },
+    {
+      "type": "text",
+      "id": "category_14_title",
+      "label": "Category title",
+      "default": "Event Displays"
+    },
+    {
+      "type": "product_list",
+      "id": "category_14_products",
+      "label": "Products"
+    },
+    {
+      "type": "header",
+      "content": "Category 15"
+    },
+    {
+      "type": "text",
+      "id": "category_15_title",
+      "label": "Category title",
+      "default": "Custom Solutions"
+    },
+    {
+      "type": "product_list",
+      "id": "category_15_products",
+      "label": "Products"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Acrylic categories"
+    }
+  ]
+}
 {% endschema %}
