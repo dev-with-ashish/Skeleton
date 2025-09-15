@@ -1,6 +1,1199 @@
+{% doc %}
+  @prompt
+    cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, the shape layer should be below the user image layer, add one more layer for the admin to upload some image above the user uploaded image layer with same masking of the shape so that if admin have some text in png form to add to this product he can add, everything working perfectly add drag to move, resize rotate feature to user image layer , everything working perfectly add option move, scale and rotate feature to user image layer but all should be inside the mask, user image can be scaled as wanted but constrained within the shape mask, user uploaded image should be uploaded in original aspect ratio then should be editable as now currently, add option to enter editable product variants (like size thickness material color in button style) in the right with toogle option (which variant to keep on and which to off) and also add price option linked to each variant should update when user select variant , keep everything as it is now just add option to enter editable product variants (like size and thickness) in button style with pricing , keep every feature same just remove these from info right section  Image opacity, transform control texts, original aspect ratio guide box, masked applied box, admin opecity box, , shift upload your image box to the left below the main area in the left, price should be below the title directly like Rs. 699.00 not in button style but linked to variants as now, add price color and size option
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-custom-product-{{ ai_gen_id }} {
+    padding: {{ block.settings.section_padding }}px 0;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-custom-product-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-custom-product-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .ai-custom-product-left-column-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ai-custom-product-canvas-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .ai-custom-product-canvas-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border: 2px dashed {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.canvas_background }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-custom-product-shape-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .ai-custom-product-shape-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-custom-product-user-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    -webkit-mask-image: var(--mask-image-{{ ai_gen_id }});
+    mask-image: var(--mask-image-{{ ai_gen_id }});
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    overflow: hidden;
+  }
+
+  .ai-custom-product-user-image-container-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: move;
+    user-select: none;
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  .ai-custom-product-user-image-container-{{ ai_gen_id }}.active {
+    border: 2px solid {{ block.settings.button_color }};
+    box-shadow: 0 0 0 1px rgba(0, 123, 186, 0.3);
+  }
+
+  .ai-custom-product-user-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: {{ block.settings.user_image_opacity }};
+    pointer-events: none;
+    display: block;
+  }
+
+  .ai-custom-product-resize-handle-{{ ai_gen_id }} {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: {{ block.settings.button_color }};
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: nw-resize;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-custom-product-user-image-container-{{ ai_gen_id }}.active .ai-custom-product-resize-handle-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.top-left {
+    top: -6px;
+    left: -6px;
+    cursor: nw-resize;
+  }
+
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.top-right {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+  }
+
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.bottom-left {
+    bottom: -6px;
+    left: -6px;
+    cursor: sw-resize;
+  }
+
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.bottom-right {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+  }
+
+  .ai-custom-product-rotate-handle-{{ ai_gen_id }} {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    background-color: {{ block.settings.button_color }};
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-custom-product-rotate-handle-{{ ai_gen_id }}:active {
+    cursor: grabbing;
+  }
+
+  .ai-custom-product-user-image-container-{{ ai_gen_id }}.active .ai-custom-product-rotate-handle-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-custom-product-rotate-handle-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background-color: #ffffff;
+    border-radius: 50%;
+  }
+
+  .ai-custom-product-admin-overlay-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    -webkit-mask-image: var(--mask-image-{{ ai_gen_id }});
+    mask-image: var(--mask-image-{{ ai_gen_id }});
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+
+  .ai-custom-product-admin-overlay-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: {{ block.settings.admin_overlay_opacity }};
+  }
+
+  .ai-custom-product-placeholder-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: {{ block.settings.placeholder_text_color }};
+    text-align: center;
+    padding: 20px;
+  }
+
+  .ai-custom-product-placeholder-{{ ai_gen_id }} svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .ai-custom-product-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ai-custom-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    font-family: {{ block.settings.title_font.family }}, {{ block.settings.title_font.fallback_families }};
+    font-weight: {{ block.settings.title_font.weight }};
+  }
+
+  .ai-custom-product-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_size }}px;
+    color: {{ block.settings.price_color }};
+    margin: 8px 0 0;
+    font-weight: 600;
+  }
+
+  .ai-custom-product-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.text_color }};
+    line-height: 1.6;
+  }
+
+  .ai-custom-product-upload-section-{{ ai_gen_id }} {
+    background-color: {{ block.settings.upload_section_bg }};
+    padding: 24px;
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-custom-product-upload-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+
+  .ai-custom-product-file-input-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .ai-custom-product-file-input-{{ ai_gen_id }} {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .ai-custom-product-file-button-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 24px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-custom-product-file-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-custom-product-file-name-{{ ai_gen_id }} {
+    margin-top: 8px;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .ai-custom-product-controls-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .ai-custom-product-control-button-{{ ai_gen_id }} {
+    padding: 8px 16px;
+    background-color: {{ block.settings.control_button_color }};
+    color: {{ block.settings.control_button_text_color }};
+    border: 1px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .ai-custom-product-control-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.control_button_hover_color }};
+  }
+
+  .ai-custom-product-variants-section-{{ ai_gen_id }} {
+    background-color: {{ block.settings.upload_section_bg }};
+    padding: 24px;
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-custom-product-variants-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+
+  .ai-custom-product-variant-group-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-custom-product-variant-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .ai-custom-product-variant-buttons-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ai-custom-product-variant-button-{{ ai_gen_id }} {
+    padding: 8px 16px;
+    background-color: {{ block.settings.control_button_color }};
+    color: {{ block.settings.control_button_text_color }};
+    border: 1px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .ai-custom-product-variant-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.control_button_hover_color }};
+  }
+
+  .ai-custom-product-variant-button-{{ ai_gen_id }}.selected {
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border-color: {{ block.settings.button_color }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-custom-product-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .ai-custom-product-canvas-{{ ai_gen_id }} {
+      height: 400px;
+    }
+
+    .ai-custom-product-controls-{{ ai_gen_id }} {
+      flex-wrap: wrap;
+    }
+
+    .ai-custom-product-variant-buttons-{{ ai_gen_id }} {
+      flex-wrap: wrap;
+    }
+  }
+{% endstyle %}
+
+<custom-product-designer-{{ ai_gen_id }}
+  class="ai-custom-product-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-custom-product-container-{{ ai_gen_id }}">
+    <div class="ai-custom-product-grid-{{ ai_gen_id }}">
+      <div class="ai-custom-product-left-column-{{ ai_gen_id }}">
+        <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }}">
+          <div class="ai-custom-product-canvas-{{ ai_gen_id }}" id="canvas-{{ ai_gen_id }}">
+            {% if block.settings.admin_shape_image %}
+              <div class="ai-custom-product-shape-layer-{{ ai_gen_id }}">
+                <img
+                  src="{{ block.settings.admin_shape_image | image_url: width: 500 }}"
+                  alt="Shape template"
+                  class="ai-custom-product-shape-image-{{ ai_gen_id }}"
+                  id="shape-image-{{ ai_gen_id }}"
+                >
+              </div>
+            {% endif %}
+            
+            <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="user-layer-{{ ai_gen_id }}">
+              <div class="ai-custom-product-placeholder-{{ ai_gen_id }}" id="placeholder-{{ ai_gen_id }}">
+                {{ 'image' | placeholder_svg_tag }}
+                <p>Upload your image to see the preview</p>
+              </div>
+            </div>
+
+            {% if block.settings.admin_overlay_image %}
+              <div class="ai-custom-product-admin-overlay-layer-{{ ai_gen_id }}">
+                <img
+                  src="{{ block.settings.admin_overlay_image | image_url: width: 500 }}"
+                  alt="Admin overlay"
+                  class="ai-custom-product-admin-overlay-image-{{ ai_gen_id }}"
+                  id="admin-overlay-image-{{ ai_gen_id }}"
+                >
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="ai-custom-product-upload-section-{{ ai_gen_id }}">
+          <h3 class="ai-custom-product-upload-title-{{ ai_gen_id }}">{{ block.settings.upload_title }}</h3>
+          
+          <div class="ai-custom-product-file-input-wrapper-{{ ai_gen_id }}">
+            <input
+              type="file"
+              accept="image/*"
+              class="ai-custom-product-file-input-{{ ai_gen_id }}"
+              id="user-image-input-{{ ai_gen_id }}"
+            >
+            <div class="ai-custom-product-file-button-{{ ai_gen_id }}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7,10 12,15 17,10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              {{ block.settings.upload_button_text }}
+            </div>
+          </div>
+          
+          <div class="ai-custom-product-file-name-{{ ai_gen_id }}" id="file-name-{{ ai_gen_id }}"></div>
+
+          <div class="ai-custom-product-controls-{{ ai_gen_id }}">
+            <button class="ai-custom-product-control-button-{{ ai_gen_id }}" id="reset-btn-{{ ai_gen_id }}">
+              Reset
+            </button>
+            <button class="ai-custom-product-control-button-{{ ai_gen_id }}" id="center-btn-{{ ai_gen_id }}">
+              Center
+            </button>
+            <button class="ai-custom-product-control-button-{{ ai_gen_id }}" id="fit-btn-{{ ai_gen_id }}">
+              Fit to Shape
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-custom-product-content-{{ ai_gen_id }}">
+        {% if block.settings.title != blank %}
+          <h2 class="ai-custom-product-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+        {% endif %}
+
+        <div class="ai-custom-product-price-{{ ai_gen_id }}" id="total-price-{{ ai_gen_id }}">
+          ₹{{ block.settings.base_price }}
+        </div>
+
+        {% if block.settings.description != blank %}
+          <div class="ai-custom-product-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+        {% endif %}
+
+        {% if block.settings.show_size_variant or block.settings.show_thickness_variant %}
+          <div class="ai-custom-product-variants-section-{{ ai_gen_id }}">
+            <h3 class="ai-custom-product-variants-title-{{ ai_gen_id }}">Product Options</h3>
+            
+            {% if block.settings.show_size_variant %}
+              <div class="ai-custom-product-variant-group-{{ ai_gen_id }}">
+                <div class="ai-custom-product-variant-label-{{ ai_gen_id }}">Size</div>
+                <div class="ai-custom-product-variant-buttons-{{ ai_gen_id }}" data-variant="size">
+                  {% assign size_options = block.settings.size_options | split: ',' %}
+                  {% assign size_prices = block.settings.size_prices | split: ',' %}
+                  {% for option in size_options %}
+                    {% assign index = forloop.index0 %}
+                    {% assign price = size_prices[index] | default: '0' %}
+                    <button 
+                      class="ai-custom-product-variant-button-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                      data-value="{{ option | strip }}"
+                      data-price="{{ price | strip }}"
+                    >
+                      {{ option | strip }}
+                    </button>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+
+            {% if block.settings.show_thickness_variant %}
+              <div class="ai-custom-product-variant-group-{{ ai_gen_id }}">
+                <div class="ai-custom-product-variant-label-{{ ai_gen_id }}">Thickness</div>
+                <div class="ai-custom-product-variant-buttons-{{ ai_gen_id }}" data-variant="thickness">
+                  {% assign thickness_options = block.settings.thickness_options | split: ',' %}
+                  {% assign thickness_prices = block.settings.thickness_prices | split: ',' %}
+                  {% for option in thickness_options %}
+                    {% assign index = forloop.index0 %}
+                    {% assign price = thickness_prices[index] | default: '0' %}
+                    <button 
+                      class="ai-custom-product-variant-button-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                      data-value="{{ option | strip }}"
+                      data-price="{{ price | strip }}"
+                    >
+                      {{ option | strip }}
+                    </button>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</custom-product-designer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CustomProductDesigner{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.userImageContainer = null;
+        this.userImage = null;
+        this.shapeImage = null;
+        this.adminOverlayImage = null;
+        this.isDragging = false;
+        this.isResizing = false;
+        this.isRotating = false;
+        this.dragStart = { x: 0, y: 0 };
+        this.initialTransform = { x: 0, y: 0, scale: 1, rotation: 0 };
+        this.currentTransform = { x: 0, y: 0, scale: 1, rotation: 0 };
+        this.resizeHandle = null;
+        this.rotationCenter = { x: 0, y: 0 };
+        this.canvasBounds = null;
+        this.userLayerBounds = null;
+        this.originalImageSize = { width: 0, height: 0 };
+        this.aspectRatio = 1;
+        this.basePrice = {{ block.settings.base_price }};
+        this.selectedVariants = {};
+      }
+
+      connectedCallback() {
+        this.initializeElements();
+        this.setupEventListeners();
+        this.initializeShapeMask();
+        this.initializeVariants();
+      }
+
+      initializeElements() {
+        this.fileInput = this.querySelector('#user-image-input-{{ ai_gen_id }}');
+        this.userLayer = this.querySelector('#user-layer-{{ ai_gen_id }}');
+        this.placeholder = this.querySelector('#placeholder-{{ ai_gen_id }}');
+        this.fileName = this.querySelector('#file-name-{{ ai_gen_id }}');
+        this.resetBtn = this.querySelector('#reset-btn-{{ ai_gen_id }}');
+        this.centerBtn = this.querySelector('#center-btn-{{ ai_gen_id }}');
+        this.fitBtn = this.querySelector('#fit-btn-{{ ai_gen_id }}');
+        this.shapeImageEl = this.querySelector('#shape-image-{{ ai_gen_id }}');
+        this.adminOverlayImageEl = this.querySelector('#admin-overlay-image-{{ ai_gen_id }}');
+        this.canvas = this.querySelector('#canvas-{{ ai_gen_id }}');
+        this.totalPriceEl = this.querySelector('#total-price-{{ ai_gen_id }}');
+      }
+
+      setupEventListeners() {
+        this.fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
+        this.resetBtn.addEventListener('click', () => this.resetImage());
+        this.centerBtn.addEventListener('click', () => this.centerImage());
+        this.fitBtn.addEventListener('click', () => this.fitToShape());
+
+        document.addEventListener('mousedown', (e) => this.handleGlobalMouseDown(e));
+        document.addEventListener('mousemove', (e) => this.handleGlobalMouseMove(e));
+        document.addEventListener('mouseup', (e) => this.handleGlobalMouseUp(e));
+
+        window.addEventListener('resize', () => this.updateBounds());
+      }
+
+      initializeShapeMask() {
+        if (this.shapeImageEl) {
+          const shapeImageUrl = this.shapeImageEl.src;
+          document.documentElement.style.setProperty(
+            '--mask-image-{{ ai_gen_id }}',
+            `url(${shapeImageUrl})`
+          );
+        }
+        this.updateBounds();
+      }
+
+      initializeVariants() {
+        const variantGroups = this.querySelectorAll('.ai-custom-product-variant-buttons-{{ ai_gen_id }}');
+        
+        variantGroups.forEach(group => {
+          const variantType = group.dataset.variant;
+          const buttons = group.querySelectorAll('.ai-custom-product-variant-button-{{ ai_gen_id }}');
+          
+          buttons.forEach(button => {
+            button.addEventListener('click', () => {
+              buttons.forEach(btn => btn.classList.remove('selected'));
+              button.classList.add('selected');
+              
+              this.selectedVariants[variantType] = {
+                value: button.dataset.value,
+                price: parseFloat(button.dataset.price) || 0
+              };
+              
+              this.updateTotalPrice();
+            });
+          });
+
+          const firstButton = buttons[0];
+          if (firstButton) {
+            this.selectedVariants[variantType] = {
+              value: firstButton.dataset.value,
+              price: parseFloat(firstButton.dataset.price) || 0
+            };
+          }
+        });
+
+        this.updateTotalPrice();
+      }
+
+      updateTotalPrice() {
+        if (!this.totalPriceEl) return;
+        
+        let totalPrice = this.basePrice;
+        
+        Object.values(this.selectedVariants).forEach(variant => {
+          totalPrice += variant.price;
+        });
+
+        this.totalPriceEl.textContent = `₹${totalPrice}`;
+      }
+
+      updateBounds() {
+        if (this.canvas) {
+          this.canvasBounds = this.canvas.getBoundingClientRect();
+        }
+        if (this.userLayer) {
+          this.userLayerBounds = this.userLayer.getBoundingClientRect();
+        }
+      }
+
+      handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          alert('Please select a valid image file.');
+          return;
+        }
+
+        this.fileName.textContent = file.name;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.loadImageWithOriginalAspectRatio(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      loadImageWithOriginalAspectRatio(imageSrc) {
+        const tempImg = new Image();
+        tempImg.onload = () => {
+          this.originalImageSize = {
+            width: tempImg.naturalWidth,
+            height: tempImg.naturalHeight
+          };
+          this.aspectRatio = tempImg.naturalWidth / tempImg.naturalHeight;
+          this.displayUserImage(imageSrc);
+        };
+        tempImg.src = imageSrc;
+      }
+
+      displayUserImage(imageSrc) {
+        this.placeholder.style.display = 'none';
+        
+        if (this.userImageContainer) {
+          this.userImageContainer.remove();
+        }
+
+        this.userImageContainer = document.createElement('div');
+        this.userImageContainer.className = 'ai-custom-product-user-image-container-{{ ai_gen_id }}';
+
+        const baseSize = 200;
+        let containerWidth, containerHeight;
+
+        if (this.aspectRatio > 1) {
+          containerWidth = baseSize;
+          containerHeight = baseSize / this.aspectRatio;
+        } else {
+          containerWidth = baseSize * this.aspectRatio;
+          containerHeight = baseSize;
+        }
+
+        this.userImageContainer.style.width = containerWidth + 'px';
+        this.userImageContainer.style.height = containerHeight + 'px';
+
+        this.userImage = document.createElement('img');
+        this.userImage.src = imageSrc;
+        this.userImage.className = 'ai-custom-product-user-image-{{ ai_gen_id }}';
+        this.userImage.alt = 'User uploaded image';
+
+        this.userImageContainer.appendChild(this.userImage);
+        this.createTransformHandles();
+        this.userLayer.appendChild(this.userImageContainer);
+
+        this.currentTransform = { x: 0, y: 0, scale: 1, rotation: 0 };
+        this.updateTransform();
+      }
+
+      createTransformHandles() {
+        const handles = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+        handles.forEach(position => {
+          const handle = document.createElement('div');
+          handle.className = `ai-custom-product-resize-handle-{{ ai_gen_id }} ${position}`;
+          handle.dataset.position = position;
+          this.userImageContainer.appendChild(handle);
+        });
+
+        const rotateHandle = document.createElement('div');
+        rotateHandle.className = 'ai-custom-product-rotate-handle-{{ ai_gen_id }}';
+        this.userImageContainer.appendChild(rotateHandle);
+      }
+
+      handleGlobalMouseDown(event) {
+        if (!this.userImageContainer) return;
+
+        const target = event.target;
+        
+        if (target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) {
+          this.startResize(event, target);
+        } else if (target.classList.contains('ai-custom-product-rotate-handle-{{ ai_gen_id }}')) {
+          this.startRotate(event);
+        } else if (target === this.userImageContainer || target === this.userImage) {
+          this.startDrag(event);
+          this.userImageContainer.classList.add('active');
+        } else {
+          this.userImageContainer.classList.remove('active');
+        }
+      }
+
+      startDrag(event) {
+        this.isDragging = true;
+        this.updateBounds();
+        this.dragStart = {
+          x: event.clientX - this.currentTransform.x,
+          y: event.clientY - this.currentTransform.y
+        };
+        event.preventDefault();
+      }
+
+      startResize(event, handle) {
+        this.isResizing = true;
+        this.resizeHandle = handle.dataset.position;
+        this.dragStart = { x: event.clientX, y: event.clientY };
+        this.initialTransform = { ...this.currentTransform };
+        this.updateBounds();
+        event.preventDefault();
+      }
+
+      startRotate(event) {
+        this.isRotating = true;
+        this.updateBounds();
+        const rect = this.userImageContainer.getBoundingClientRect();
+        this.rotationCenter = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+        this.dragStart = { x: event.clientX, y: event.clientY };
+        this.initialTransform = { ...this.currentTransform };
+        event.preventDefault();
+      }
+
+      handleGlobalMouseMove(event) {
+        if (this.isDragging) {
+          this.handleDrag(event);
+        } else if (this.isResizing) {
+          this.handleResize(event);
+        } else if (this.isRotating) {
+          this.handleRotate(event);
+        }
+      }
+
+      handleDrag(event) {
+        const newX = event.clientX - this.dragStart.x;
+        const newY = event.clientY - this.dragStart.y;
+
+        this.currentTransform.x = newX;
+        this.currentTransform.y = newY;
+        this.updateTransform();
+      }
+
+      handleResize(event) {
+        const deltaX = event.clientX - this.dragStart.x;
+        const deltaY = event.clientY - this.dragStart.y;
+        const delta = Math.max(deltaX, deltaY);
+        
+        let scaleFactor = 1 + (delta / 200);
+        scaleFactor = Math.max(0.1, scaleFactor);
+        
+        this.currentTransform.scale = this.initialTransform.scale * scaleFactor;
+        this.updateTransform();
+        this.updateContainerSize();
+      }
+
+      updateContainerSize() {
+        if (!this.userImageContainer) return;
+
+        const baseSize = 200;
+        let containerWidth, containerHeight;
+
+        if (this.aspectRatio > 1) {
+          containerWidth = baseSize * this.currentTransform.scale;
+          containerHeight = (baseSize / this.aspectRatio) * this.currentTransform.scale;
+        } else {
+          containerWidth = (baseSize * this.aspectRatio) * this.currentTransform.scale;
+          containerHeight = baseSize * this.currentTransform.scale;
+        }
+
+        this.userImageContainer.style.width = containerWidth + 'px';
+        this.userImageContainer.style.height = containerHeight + 'px';
+      }
+
+      handleRotate(event) {
+        const currentAngle = Math.atan2(
+          event.clientY - this.rotationCenter.y,
+          event.clientX - this.rotationCenter.x
+        );
+        const startAngle = Math.atan2(
+          this.dragStart.y - this.rotationCenter.y,
+          this.dragStart.x - this.rotationCenter.x
+        );
+        
+        const deltaAngle = (currentAngle - startAngle) * (180 / Math.PI);
+        this.currentTransform.rotation = this.initialTransform.rotation + deltaAngle;
+        this.updateTransform();
+      }
+
+      handleGlobalMouseUp() {
+        this.isDragging = false;
+        this.isResizing = false;
+        this.isRotating = false;
+        this.resizeHandle = null;
+      }
+
+      updateTransform() {
+        if (!this.userImageContainer) return;
+        
+        const transform = `translate(${this.currentTransform.x}px, ${this.currentTransform.y}px) rotate(${this.currentTransform.rotation}deg)`;
+        this.userImageContainer.style.transform = `translate(-50%, -50%) ${transform}`;
+      }
+
+      resetImage() {
+        if (this.userImageContainer) {
+          this.userImageContainer.remove();
+          this.userImageContainer = null;
+          this.userImage = null;
+        }
+        this.placeholder.style.display = 'flex';
+        this.fileInput.value = '';
+        this.fileName.textContent = '';
+        this.currentTransform = { x: 0, y: 0, scale: 1, rotation: 0 };
+        this.originalImageSize = { width: 0, height: 0 };
+        this.aspectRatio = 1;
+      }
+
+      centerImage() {
+        if (this.userImageContainer) {
+          this.currentTransform.x = 0;
+          this.currentTransform.y = 0;
+          this.updateTransform();
+        }
+      }
+
+      fitToShape() {
+        if (this.userImage) {
+          this.userImage.style.objectFit = this.userImage.style.objectFit === 'contain' ? 'cover' : 'contain';
+        }
+      }
+    }
+
+    customElements.define('custom-product-designer-{{ ai_gen_id }}', CustomProductDesigner{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Custom product designer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Design Your Custom Product"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Upload your image in its original aspect ratio and customize it with unlimited scaling. The mask will constrain visibility to the shape boundaries while preserving natural proportions.</p>"
+    },
+    {
+      "type": "text",
+      "id": "upload_title",
+      "label": "Upload section title",
+      "default": "Upload Your Image"
+    },
+    {
+      "type": "text",
+      "id": "upload_button_text",
+      "label": "Upload button text",
+      "default": "Choose Image"
+    },
+    {
+      "type": "header",
+      "content": "Admin shape template"
+    },
+    {
+      "type": "image_picker",
+      "id": "admin_shape_image",
+      "label": "Shape template image"
+    },
+    {
+      "type": "header",
+      "content": "Admin overlay layer"
+    },
+    {
+      "type": "image_picker",
+      "id": "admin_overlay_image",
+      "label": "Overlay image"
+    },
+    {
+      "type": "range",
+      "id": "admin_overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Overlay opacity",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "User image settings"
+    },
+    {
+      "type": "range",
+      "id": "user_image_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Default image opacity",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Product variants"
+    },
+    {
+      "type": "range",
+      "id": "base_price",
+      "min": 0,
+      "max": 500,
+      "step": 5,
+      "unit": "₹",
+      "label": "Base price",
+      "default": 100
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_variant",
+      "label": "Enable size variant",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "size_options",
+      "label": "Size options",
+      "default": "Small, Medium, Large, Extra Large"
+    },
+    {
+      "type": "textarea",
+      "id": "size_prices",
+      "label": "Size prices",
+      "default": "0, 50, 100, 150"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_thickness_variant",
+      "label": "Enable thickness variant",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "thickness_options",
+      "label": "Thickness options",
+      "default": "0.5mm, 1mm, 2mm"
+    },
+    {
+      "type": "textarea",
+      "id": "thickness_prices",
+      "label": "Thickness prices",
+      "default": "0, 25, 50"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "min": 16,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Price size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "canvas_background",
+      "label": "Canvas background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "placeholder_text_color",
+      "label": "Placeholder text color",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "upload_section_bg",
+      "label": "Upload section background",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#007cba"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#005a87"
+    },
+    {
+      "type": "color",
+      "id": "control_button_color",
+      "label": "Control button color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "control_button_text_color",
+      "label": "Control button text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "control_button_hover_color",
+      "label": "Control button hover color",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom product designer"
+    }
+  ]
+}
 {% endschema %}
