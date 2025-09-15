@@ -71,6 +71,21 @@
         "margin_left": 0
       }
     },
+    "custom_section_Pr3nbh": {
+      "type": "custom-section",
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 40,
+        "padding_bottom": 40,
+        "padding_left": 40,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
+    },
     "custom_section_Dg67Hd": {
       "type": "custom-section",
       "blocks": {
@@ -81,7 +96,7 @@
             "subtitle": "Discover our premium acrylic products across 15 unique categories",
             "button_text": "Customize Now",
             "section_bg_color": "#1a1a1a",
-            "category_bg_color": "rgba(255, 255, 255, 0.05)",
+            "category_bg_color": "#ffffff0d",
             "product_card_bg_color": "#1a1a1a",
             "product_card_hover_bg_color": "#1a1a1a",
             "image_placeholder_bg_color": "#1a1a1a",
@@ -97,12 +112,12 @@
             "button_hover_color": "#00d4ff",
             "button_hover_gradient_color": "#007bff",
             "button_hover_text_color": "#ffffff",
-            "button_shadow_color": "rgba(0, 0, 0, 0.3)",
+            "button_shadow_color": "#0000004d",
             "accent_color": "#00d4ff",
-            "category_border_color": "rgba(255, 255, 255, 0.1)",
-            "product_card_border_color": "rgba(255, 255, 255, 0.1)",
-            "card_shadow_color": "rgba(0, 0, 0, 0.4)",
-            "card_shine_color": "rgba(255, 255, 255, 0.1)",
+            "category_border_color": "#ffffff1a",
+            "product_card_border_color": "#ffffff1a",
+            "card_shadow_color": "#00000066",
+            "card_shine_color": "#ffffff1a",
             "section_padding": 60,
             "category_border_radius": 16,
             "product_border_radius": 12,
@@ -743,6 +758,7 @@
   },
   "order": [
     "custom_section_xATcRE",
+    "custom_section_Pr3nbh",
     "custom_section_Dg67Hd",
     "custom_section_i9e3xe",
     "custom_section_JkWAb6",
