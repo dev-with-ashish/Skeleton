@@ -1,6 +1,818 @@
+{% doc %}
+  @prompt
+    cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, the shape layer should be below the user image layer, add one more layer for the admin to upload some image above the user uploaded image layer with same masking of the shape so that if admin have some text in png form to add to this product he can add, everything working perfectly add drag to move, resize rotate feature to user image layer , everything working perfectly add option move, scale and rotate feature to user image layer but all should be inside the mask, user image can be scaled as wanted but constrained within the shape mask, user uploaded image should be uploaded in original aspect ratio then should be editable as now currently, add option to enter editable product variants (like size thickness material color in button style) in the right with toogle option (which variant to keep on and which to off) and also add price option linked to each variant should update when user select variant 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-customizer-{{ ai_gen_id }} {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-product-canvas-{{ ai_gen_id }} {
+    flex: 1;
+    position: relative;
+    min-height: 400px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .ai-product-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-shape-layer-{{ ai_gen_id }} {
+    z-index: 1;
+  }
+
+  .ai-user-layer-{{ ai_gen_id }} {
+    z-index: 2;
+    -webkit-mask-image: var(--ai-mask-image-{{ ai_gen_id }});
+    mask-image: var(--ai-mask-image-{{ ai_gen_id }});
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+
+  .ai-overlay-layer-{{ ai_gen_id }} {
+    z-index: 3;
+    -webkit-mask-image: var(--ai-mask-image-{{ ai_gen_id }});
+    mask-image: var(--ai-mask-image-{{ ai_gen_id }});
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+
+  .ai-layer-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .ai-user-image-{{ ai_gen_id }} {
+    position: absolute;
+    cursor: move;
+    transform-origin: center;
+    transition: none;
+  }
+
+  .ai-user-image-{{ ai_gen_id }}.ai-dragging-{{ ai_gen_id }} {
+    cursor: grabbing;
+  }
+
+  .ai-resize-handle-{{ ai_gen_id }} {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #007cba;
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: nw-resize;
+    z-index: 10;
+  }
+
+  .ai-rotate-handle-{{ ai_gen_id }} {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #ff6b35;
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: grab;
+    z-index: 10;
+  }
+
+  .ai-controls-panel-{{ ai_gen_id }} {
+    width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .ai-upload-section-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-upload-button-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .ai-upload-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-file-input-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-variants-section-{{ ai_gen_id }} {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+  }
+
+  .ai-variant-group-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-variant-title-{{ ai_gen_id }} {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: {{ block.settings.text_color }};
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-variant-toggle-{{ ai_gen_id }} {
+    width: 16px;
+    height: 16px;
+  }
+
+  .ai-variant-options-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ai-variant-option-{{ ai_gen_id }} {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    background-color: white;
+    transition: all 0.2s ease;
+  }
+
+  .ai-variant-option-{{ ai_gen_id }}.selected {
+    background-color: {{ block.settings.button_color }};
+    color: white;
+    border-color: {{ block.settings.button_color }};
+  }
+
+  .ai-variant-option-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.button_color }};
+  }
+
+  .ai-price-display-{{ ai_gen_id }} {
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .ai-price-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+  .ai-price-amount-{{ ai_gen_id }} {
+    font-size: 24px;
+    font-weight: 700;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-placeholder-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #999;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-product-customizer-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-controls-panel-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<product-customizer-{{ ai_gen_id }}
+  class="ai-product-customizer-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-product-canvas-{{ ai_gen_id }}">
+    <div class="ai-product-layer-{{ ai_gen_id }} ai-shape-layer-{{ ai_gen_id }}">
+      {% if block.settings.shape_image %}
+        <img
+          src="{{ block.settings.shape_image | image_url: width: 800 }}"
+          alt="Shape layer"
+          class="ai-layer-image-{{ ai_gen_id }}"
+          id="ai-shape-image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-placeholder-{{ ai_gen_id }}">
+          Shape layer placeholder
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-product-layer-{{ ai_gen_id }} ai-user-layer-{{ ai_gen_id }}">
+      <div class="ai-placeholder-{{ ai_gen_id }}" id="ai-user-placeholder-{{ ai_gen_id }}">
+        Upload your image to customize
+      </div>
+    </div>
+
+    <div class="ai-product-layer-{{ ai_gen_id }} ai-overlay-layer-{{ ai_gen_id }}">
+      {% if block.settings.overlay_image %}
+        <img
+          src="{{ block.settings.overlay_image | image_url: width: 800 }}"
+          alt="Overlay layer"
+          class="ai-layer-image-{{ ai_gen_id }}"
+        >
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ai-controls-panel-{{ ai_gen_id }}">
+    <div class="ai-upload-section-{{ ai_gen_id }}">
+      <button class="ai-upload-button-{{ ai_gen_id }}" onclick="document.getElementById('ai-user-upload-{{ ai_gen_id }}').click()">
+        Upload Your Image
+      </button>
+      <input
+        type="file"
+        id="ai-user-upload-{{ ai_gen_id }}"
+        class="ai-file-input-{{ ai_gen_id }}"
+        accept="image/*"
+      >
+    </div>
+
+    <div class="ai-variants-section-{{ ai_gen_id }}">
+      {% if block.settings.show_size_variant %}
+        <div class="ai-variant-group-{{ ai_gen_id }}">
+          <div class="ai-variant-title-{{ ai_gen_id }}">
+            <input type="checkbox" class="ai-variant-toggle-{{ ai_gen_id }}" checked>
+            Size
+          </div>
+          <div class="ai-variant-options-{{ ai_gen_id }}" data-variant="size">
+            {% assign size_options = block.settings.size_options | split: ',' %}
+            {% assign size_prices = block.settings.size_prices | split: ',' %}
+            {% for option in size_options %}
+              {% assign index = forloop.index0 %}
+              {% assign price = size_prices[index] | default: '0' %}
+              <div 
+                class="ai-variant-option-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                data-value="{{ option | strip }}"
+                data-price="{{ price | strip }}"
+              >
+                {{ option | strip }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.show_thickness_variant %}
+        <div class="ai-variant-group-{{ ai_gen_id }}">
+          <div class="ai-variant-title-{{ ai_gen_id }}">
+            <input type="checkbox" class="ai-variant-toggle-{{ ai_gen_id }}" checked>
+            Thickness
+          </div>
+          <div class="ai-variant-options-{{ ai_gen_id }}" data-variant="thickness">
+            {% assign thickness_options = block.settings.thickness_options | split: ',' %}
+            {% assign thickness_prices = block.settings.thickness_prices | split: ',' %}
+            {% for option in thickness_options %}
+              {% assign index = forloop.index0 %}
+              {% assign price = thickness_prices[index] | default: '0' %}
+              <div 
+                class="ai-variant-option-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                data-value="{{ option | strip }}"
+                data-price="{{ price | strip }}"
+              >
+                {{ option | strip }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.show_material_variant %}
+        <div class="ai-variant-group-{{ ai_gen_id }}">
+          <div class="ai-variant-title-{{ ai_gen_id }}">
+            <input type="checkbox" class="ai-variant-toggle-{{ ai_gen_id }}" checked>
+            Material
+          </div>
+          <div class="ai-variant-options-{{ ai_gen_id }}" data-variant="material">
+            {% assign material_options = block.settings.material_options | split: ',' %}
+            {% assign material_prices = block.settings.material_prices | split: ',' %}
+            {% for option in material_options %}
+              {% assign index = forloop.index0 %}
+              {% assign price = material_prices[index] | default: '0' %}
+              <div 
+                class="ai-variant-option-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                data-value="{{ option | strip }}"
+                data-price="{{ price | strip }}"
+              >
+                {{ option | strip }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.show_color_variant %}
+        <div class="ai-variant-group-{{ ai_gen_id }}">
+          <div class="ai-variant-title-{{ ai_gen_id }}">
+            <input type="checkbox" class="ai-variant-toggle-{{ ai_gen_id }}" checked>
+            Color
+          </div>
+          <div class="ai-variant-options-{{ ai_gen_id }}" data-variant="color">
+            {% assign color_options = block.settings.color_options | split: ',' %}
+            {% assign color_prices = block.settings.color_prices | split: ',' %}
+            {% for option in color_options %}
+              {% assign index = forloop.index0 %}
+              {% assign price = color_prices[index] | default: '0' %}
+              <div 
+                class="ai-variant-option-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                data-value="{{ option | strip }}"
+                data-price="{{ price | strip }}"
+              >
+                {{ option | strip }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="ai-price-display-{{ ai_gen_id }}">
+        <div class="ai-price-label-{{ ai_gen_id }}">Total Price</div>
+        <div class="ai-price-amount-{{ ai_gen_id }}" id="ai-total-price-{{ ai_gen_id }}">
+          ₹{{ block.settings.base_price }}
+        </div>
+      </div>
+    </div>
+  </div>
+</product-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.userImage = null;
+        this.isDragging = false;
+        this.isResizing = false;
+        this.isRotating = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.startWidth = 0;
+        this.startHeight = 0;
+        this.startRotation = 0;
+        this.currentRotation = 0;
+        this.basePrice = {{ block.settings.base_price }};
+        this.selectedVariants = {};
+      }
+
+      connectedCallback() {
+        this.setupMask();
+        this.setupFileUpload();
+        this.setupVariants();
+        this.calculatePrice();
+      }
+
+      setupMask() {
+        const shapeImage = this.querySelector('#ai-shape-image-{{ ai_gen_id }}');
+        if (shapeImage) {
+          const maskUrl = `url(${shapeImage.src})`;
+          document.documentElement.style.setProperty('--ai-mask-image-{{ ai_gen_id }}', maskUrl);
+        }
+      }
+
+      setupFileUpload() {
+        const fileInput = this.querySelector('#ai-user-upload-{{ ai_gen_id }}');
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            this.loadUserImage(file);
+          }
+        });
+      }
+
+      loadUserImage(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            this.createUserImageElement(e.target.result, img.naturalWidth, img.naturalHeight);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      createUserImageElement(src, naturalWidth, naturalHeight) {
+        const userLayer = this.querySelector('.ai-user-layer-{{ ai_gen_id }}');
+        const placeholder = this.querySelector('#ai-user-placeholder-{{ ai_gen_id }}');
+        
+        if (placeholder) {
+          placeholder.style.display = 'none';
+        }
+
+        if (this.userImage) {
+          this.userImage.remove();
+        }
+
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+        container.style.width = '100%';
+        container.style.height = '100%';
+
+        this.userImage = document.createElement('img');
+        this.userImage.src = src;
+        this.userImage.className = 'ai-user-image-{{ ai_gen_id }}';
+        
+        const canvasRect = userLayer.getBoundingClientRect();
+        const aspectRatio = naturalWidth / naturalHeight;
+        
+        let imageWidth, imageHeight;
+        if (aspectRatio > 1) {
+          imageWidth = Math.min(canvasRect.width * 0.6, 300);
+          imageHeight = imageWidth / aspectRatio;
+        } else {
+          imageHeight = Math.min(canvasRect.height * 0.6, 300);
+          imageWidth = imageHeight * aspectRatio;
+        }
+
+        this.userImage.style.width = imageWidth + 'px';
+        this.userImage.style.height = imageHeight + 'px';
+        this.userImage.style.left = '50%';
+        this.userImage.style.top = '50%';
+        this.userImage.style.transform = 'translate(-50%, -50%)';
+
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'ai-resize-handle-{{ ai_gen_id }}';
+        resizeHandle.style.right = '-6px';
+        resizeHandle.style.bottom = '-6px';
+
+        const rotateHandle = document.createElement('div');
+        rotateHandle.className = 'ai-rotate-handle-{{ ai_gen_id }}';
+        rotateHandle.style.right = '-6px';
+        rotateHandle.style.top = '-6px';
+
+        container.appendChild(this.userImage);
+        container.appendChild(resizeHandle);
+        container.appendChild(rotateHandle);
+        userLayer.appendChild(container);
+
+        this.setupImageControls(container, resizeHandle, rotateHandle);
+      }
+
+      setupImageControls(container, resizeHandle, rotateHandle) {
+        this.userImage.addEventListener('mousedown', (e) => this.startDrag(e));
+        resizeHandle.addEventListener('mousedown', (e) => this.startResize(e));
+        rotateHandle.addEventListener('mousedown', (e) => this.startRotate(e));
+
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', () => this.stopInteraction());
+      }
+
+      startDrag(e) {
+        e.preventDefault();
+        this.isDragging = true;
+        this.userImage.classList.add('ai-dragging-{{ ai_gen_id }}');
+        this.startX = e.clientX - this.userImage.offsetLeft;
+        this.startY = e.clientY - this.userImage.offsetTop;
+      }
+
+      startResize(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.isResizing = true;
+        this.startX = e.clientX;
+        this.startY = e.clientY;
+        this.startWidth = this.userImage.offsetWidth;
+        this.startHeight = this.userImage.offsetHeight;
+      }
+
+      startRotate(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.isRotating = true;
+        const rect = this.userImage.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        this.startRotation = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+      }
+
+      handleMouseMove(e) {
+        if (this.isDragging) {
+          const userLayer = this.querySelector('.ai-user-layer-{{ ai_gen_id }}');
+          const layerRect = userLayer.getBoundingClientRect();
+          
+          let newX = e.clientX - this.startX;
+          let newY = e.clientY - this.startY;
+          
+          newX = Math.max(0, Math.min(newX, layerRect.width - this.userImage.offsetWidth));
+          newY = Math.max(0, Math.min(newY, layerRect.height - this.userImage.offsetHeight));
+          
+          this.userImage.style.left = newX + 'px';
+          this.userImage.style.top = newY + 'px';
+          this.userImage.style.transform = `rotate(${this.currentRotation}deg)`;
+        }
+
+        if (this.isResizing) {
+          const deltaX = e.clientX - this.startX;
+          const deltaY = e.clientY - this.startY;
+          const delta = Math.max(deltaX, deltaY);
+          
+          const newWidth = Math.max(50, this.startWidth + delta);
+          const newHeight = Math.max(50, this.startHeight + delta);
+          
+          this.userImage.style.width = newWidth + 'px';
+          this.userImage.style.height = newHeight + 'px';
+        }
+
+        if (this.isRotating) {
+          const rect = this.userImage.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+          const deltaAngle = currentAngle - this.startRotation;
+          
+          this.currentRotation += deltaAngle * (180 / Math.PI);
+          this.userImage.style.transform = `rotate(${this.currentRotation}deg)`;
+          this.startRotation = currentAngle;
+        }
+      }
+
+      stopInteraction() {
+        this.isDragging = false;
+        this.isResizing = false;
+        this.isRotating = false;
+        if (this.userImage) {
+          this.userImage.classList.remove('ai-dragging-{{ ai_gen_id }}');
+        }
+      }
+
+      setupVariants() {
+        const variantGroups = this.querySelectorAll('.ai-variant-group-{{ ai_gen_id }}');
+        
+        variantGroups.forEach(group => {
+          const toggle = group.querySelector('.ai-variant-toggle-{{ ai_gen_id }}');
+          const options = group.querySelector('.ai-variant-options-{{ ai_gen_id }}');
+          const variantType = options.dataset.variant;
+          
+          toggle.addEventListener('change', () => {
+            if (toggle.checked) {
+              options.style.display = 'flex';
+              const firstOption = options.querySelector('.ai-variant-option-{{ ai_gen_id }}');
+              if (firstOption) {
+                firstOption.click();
+              }
+            } else {
+              options.style.display = 'none';
+              delete this.selectedVariants[variantType];
+              this.calculatePrice();
+            }
+          });
+
+          const variantOptions = options.querySelectorAll('.ai-variant-option-{{ ai_gen_id }}');
+          variantOptions.forEach(option => {
+            option.addEventListener('click', () => {
+              variantOptions.forEach(opt => opt.classList.remove('selected'));
+              option.classList.add('selected');
+              
+              this.selectedVariants[variantType] = {
+                value: option.dataset.value,
+                price: parseFloat(option.dataset.price) || 0
+              };
+              
+              this.calculatePrice();
+            });
+          });
+
+          if (toggle.checked) {
+            const firstOption = options.querySelector('.ai-variant-option-{{ ai_gen_id }}');
+            if (firstOption) {
+              firstOption.click();
+            }
+          }
+        });
+      }
+
+      calculatePrice() {
+        let totalPrice = this.basePrice;
+        
+        Object.values(this.selectedVariants).forEach(variant => {
+          totalPrice += variant.price;
+        });
+
+        const priceDisplay = this.querySelector('#ai-total-price-{{ ai_gen_id }}');
+        priceDisplay.textContent = `₹${totalPrice}`;
+      }
+    }
+
+    customElements.define('product-customizer-{{ ai_gen_id }}', ProductCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product customizer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "shape_image",
+      "label": "Shape mask image"
+    },
+    {
+      "type": "image_picker",
+      "id": "overlay_image",
+      "label": "Overlay image"
+    },
+    {
+      "type": "header",
+      "content": "Pricing"
+    },
+    {
+      "type": "range",
+      "id": "base_price",
+      "min": 0,
+      "max": 500,
+      "step": 5,
+      "unit": "₹",
+      "label": "Base price",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Size variant"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_variant",
+      "label": "Enable size variant",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "size_options",
+      "label": "Size options",
+      "default": "Small, Medium, Large, Extra Large"
+    },
+    {
+      "type": "textarea",
+      "id": "size_prices",
+      "label": "Size prices",
+      "default": "0, 50, 100, 150"
+    },
+    {
+      "type": "header",
+      "content": "Thickness variant"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_thickness_variant",
+      "label": "Enable thickness variant",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "thickness_options",
+      "label": "Thickness options",
+      "default": "0.5mm, 1mm, 2mm"
+    },
+    {
+      "type": "textarea",
+      "id": "thickness_prices",
+      "label": "Thickness prices",
+      "default": "0, 25, 50"
+    },
+    {
+      "type": "header",
+      "content": "Material variant"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_material_variant",
+      "label": "Enable material variant",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "material_options",
+      "label": "Material options",
+      "default": "Aluminum, Steel, Brass"
+    },
+    {
+      "type": "textarea",
+      "id": "material_prices",
+      "label": "Material prices",
+      "default": "0, 75, 125"
+    },
+    {
+      "type": "header",
+      "content": "Color variant"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_color_variant",
+      "label": "Enable color variant",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "color_options",
+      "label": "Color options",
+      "default": "Silver, Black, Gold"
+    },
+    {
+      "type": "textarea",
+      "id": "color_prices",
+      "label": "Color prices",
+      "default": "0, 30, 60"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#007cba"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#005a87"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product customizer"
+    }
+  ]
+}
 {% endschema %}
