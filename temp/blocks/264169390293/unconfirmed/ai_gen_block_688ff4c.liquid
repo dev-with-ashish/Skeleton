@@ -1,6 +1,977 @@
+{% doc %}
+  @prompt
+    customizable product where admin have option to upload frame image and below that frame image another layer to which user will upload their image, the user image layer should be croped to the farame image overlay, photoshop like layer feature
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-layer-editor-{{ ai_gen_id }} {
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    font-family: {{ settings.type_primary_font.family }};
+  }
+
+  .ai-layer-editor__title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.text_color }};
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .ai-layer-editor__workspace-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .ai-layer-editor__canvas-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: {{ block.settings.canvas_ratio }};
+    border: 2px solid {{ block.settings.canvas_border_color }};
+    border-radius: {{ block.settings.canvas_border_radius }}px;
+    overflow: hidden;
+    background: {{ block.settings.canvas_bg_color }};
+    background-image: 
+      linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+      linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+      linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+      linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  }
+
+  .ai-layer-editor__canvas-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-layer-editor__frame-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .ai-layer-editor__panels-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-layer-editor__panel-{{ ai_gen_id }} {
+    background: {{ block.settings.panel_bg_color }};
+    border: 1px solid {{ block.settings.panel_border_color }};
+    border-radius: {{ block.settings.panel_border_radius }}px;
+    padding: 15px;
+  }
+
+  .ai-layer-editor__panel-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-layer-editor__add-layer-btn-{{ ai_gen_id }} {
+    padding: 6px 12px;
+    background: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-layer-editor__add-layer-btn-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-layer-editor__layers-list-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .ai-layer-editor__layer-item-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: {{ block.settings.layer_item_bg }};
+    border: 1px solid {{ block.settings.layer_item_border }};
+    border-radius: 4px;
+    cursor: grab;
+    transition: all 0.3s ease;
+  }
+
+  .ai-layer-editor__layer-item-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.layer_item_hover_bg }};
+  }
+
+  .ai-layer-editor__layer-item-{{ ai_gen_id }}.active {
+    border-color: {{ block.settings.button_color }};
+    background: {{ block.settings.layer_item_active_bg }};
+  }
+
+  .ai-layer-editor__layer-item-{{ ai_gen_id }}.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+
+  .ai-layer-editor__layer-thumbnail-{{ ai_gen_id }} {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f0f0f0;
+    flex-shrink: 0;
+  }
+
+  .ai-layer-editor__layer-info-{{ ai_gen_id }} {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .ai-layer-editor__layer-name-{{ ai_gen_id }} {
+    font-size: 12px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ai-layer-editor__layer-opacity-{{ ai_gen_id }} {
+    font-size: 10px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .ai-layer-editor__layer-controls-{{ ai_gen_id }} {
+    display: flex;
+    gap: 4px;
+  }
+
+  .ai-layer-editor__layer-btn-{{ ai_gen_id }} {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: {{ block.settings.text_color }};
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-layer-editor__layer-btn-{{ ai_gen_id }}:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-layer-editor__properties-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .ai-layer-editor__property-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .ai-layer-editor__property-label-{{ ai_gen_id }} {
+    font-size: 12px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-layer-editor__slider-{{ ai_gen_id }} {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: {{ block.settings.slider_bg }};
+    outline: none;
+    appearance: none;
+  }
+
+  .ai-layer-editor__slider-{{ ai_gen_id }}::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: {{ block.settings.button_color }};
+    cursor: pointer;
+  }
+
+  .ai-layer-editor__slider-{{ ai_gen_id }}::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: {{ block.settings.button_color }};
+    cursor: pointer;
+    border: none;
+  }
+
+  .ai-layer-editor__select-{{ ai_gen_id }} {
+    padding: 6px 8px;
+    border: 1px solid {{ block.settings.input_border }};
+    border-radius: 4px;
+    background: {{ block.settings.input_bg }};
+    color: {{ block.settings.text_color }};
+    font-size: 12px;
+  }
+
+  .ai-layer-editor__file-input-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-layer-editor__actions-{{ ai_gen_id }} {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .ai-layer-editor__action-btn-{{ ai_gen_id }} {
+    padding: 10px 20px;
+    border: 1px solid {{ block.settings.secondary_button_border }};
+    background: {{ block.settings.secondary_button_bg }};
+    color: {{ block.settings.secondary_button_text }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .ai-layer-editor__action-btn-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.secondary_button_hover_bg }};
+    color: {{ block.settings.secondary_button_hover_text }};
+  }
+
+  .ai-layer-editor__empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-layer-editor__workspace-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .ai-layer-editor-{{ ai_gen_id }} {
+      padding: 15px;
+    }
+
+    .ai-layer-editor__panels-{{ ai_gen_id }} {
+      order: -1;
+    }
+  }
+{% endstyle %}
+
+<layer-editor-{{ ai_gen_id }}
+  class="ai-layer-editor-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.title != blank %}
+    <h2 class="ai-layer-editor__title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+  {% endif %}
+
+  <div class="ai-layer-editor__workspace-{{ ai_gen_id }}">
+    <div class="ai-layer-editor__canvas-container-{{ ai_gen_id }}">
+      <div class="ai-layer-editor__empty-state-{{ ai_gen_id }}">
+        Add layers to start creating
+      </div>
+      
+      {% if block.settings.frame_image %}
+        <img
+          src="{{ block.settings.frame_image | image_url: width: 800 }}"
+          alt="Frame overlay"
+          class="ai-layer-editor__frame-overlay-{{ ai_gen_id }}"
+          width="{{ block.settings.frame_image.width }}"
+          height="{{ block.settings.frame_image.height }}"
+          loading="lazy"
+        >
+      {% endif %}
+    </div>
+
+    <div class="ai-layer-editor__panels-{{ ai_gen_id }}">
+      <div class="ai-layer-editor__panel-{{ ai_gen_id }}">
+        <div class="ai-layer-editor__panel-title-{{ ai_gen_id }}">
+          Layers
+          <button class="ai-layer-editor__add-layer-btn-{{ ai_gen_id }}" data-action="add-layer">
+            + Add Layer
+          </button>
+        </div>
+        <div class="ai-layer-editor__layers-list-{{ ai_gen_id }}"></div>
+        <input type="file" class="ai-layer-editor__file-input-{{ ai_gen_id }}" accept="image/*" multiple>
+      </div>
+
+      <div class="ai-layer-editor__panel-{{ ai_gen_id }}">
+        <div class="ai-layer-editor__panel-title-{{ ai_gen_id }}">Properties</div>
+        <div class="ai-layer-editor__properties-{{ ai_gen_id }}">
+          <div class="ai-layer-editor__property-{{ ai_gen_id }}">
+            <label class="ai-layer-editor__property-label-{{ ai_gen_id }}">Opacity: <span class="opacity-value">100%</span></label>
+            <input type="range" class="ai-layer-editor__slider-{{ ai_gen_id }}" data-property="opacity" min="0" max="100" value="100">
+          </div>
+          
+          <div class="ai-layer-editor__property-{{ ai_gen_id }}">
+            <label class="ai-layer-editor__property-label-{{ ai_gen_id }}">Blend Mode</label>
+            <select class="ai-layer-editor__select-{{ ai_gen_id }}" data-property="blend-mode">
+              <option value="normal">Normal</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="overlay">Overlay</option>
+              <option value="soft-light">Soft Light</option>
+              <option value="hard-light">Hard Light</option>
+              <option value="color-dodge">Color Dodge</option>
+              <option value="color-burn">Color Burn</option>
+              <option value="darken">Darken</option>
+              <option value="lighten">Lighten</option>
+              <option value="difference">Difference</option>
+              <option value="exclusion">Exclusion</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-layer-editor__actions-{{ ai_gen_id }}">
+    <button class="ai-layer-editor__action-btn-{{ ai_gen_id }}" data-action="clear-all">
+      Clear All
+    </button>
+    <button class="ai-layer-editor__action-btn-{{ ai_gen_id }}" data-action="export">
+      Export Image
+    </button>
+  </div>
+</layer-editor-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class LayerEditor{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.layers = [];
+        this.activeLayerId = null;
+        this.layerCounter = 0;
+        this.canvas = null;
+        this.layersList = null;
+        this.fileInput = null;
+        this.emptyState = null;
+      }
+
+      connectedCallback() {
+        this.canvas = this.querySelector('.ai-layer-editor__canvas-container-{{ ai_gen_id }}');
+        this.layersList = this.querySelector('.ai-layer-editor__layers-list-{{ ai_gen_id }}');
+        this.fileInput = this.querySelector('.ai-layer-editor__file-input-{{ ai_gen_id }}');
+        this.emptyState = this.querySelector('.ai-layer-editor__empty-state-{{ ai_gen_id }}');
+        
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.querySelector('[data-action="add-layer"]').addEventListener('click', () => {
+          this.fileInput.click();
+        });
+
+        this.fileInput.addEventListener('change', (e) => {
+          this.handleFileUpload(e);
+        });
+
+        this.querySelectorAll('[data-action]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const action = e.target.getAttribute('data-action');
+            if (action === 'clear-all') {
+              this.clearAllLayers();
+            } else if (action === 'export') {
+              this.exportImage();
+            }
+          });
+        });
+
+        this.querySelectorAll('[data-property]').forEach(control => {
+          control.addEventListener('input', (e) => {
+            this.updateActiveLayerProperty(e.target.getAttribute('data-property'), e.target.value);
+          });
+        });
+
+        this.layersList.addEventListener('dragstart', (e) => {
+          if (e.target.classList.contains('ai-layer-editor__layer-item-{{ ai_gen_id }}')) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.layerId);
+          }
+        });
+
+        this.layersList.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        });
+
+        this.layersList.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const dropTarget = e.target.closest('.ai-layer-editor__layer-item-{{ ai_gen_id }}');
+          
+          if (dropTarget && dropTarget.dataset.layerId !== draggedId) {
+            this.reorderLayers(draggedId, dropTarget.dataset.layerId);
+          }
+        });
+
+        this.layersList.addEventListener('dragend', (e) => {
+          e.target.classList.remove('dragging');
+        });
+      }
+
+      handleFileUpload(event) {
+        const files = Array.from(event.target.files);
+        files.forEach(file => {
+          if (file.type.startsWith('image/')) {
+            this.addLayer(file);
+          }
+        });
+        event.target.value = '';
+      }
+
+      addLayer(file) {
+        const layerId = `layer-${++this.layerCounter}`;
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          const layer = {
+            id: layerId,
+            name: file.name,
+            src: e.target.result,
+            opacity: 100,
+            blendMode: 'normal',
+            zIndex: this.layers.length + 1
+          };
+
+          this.layers.push(layer);
+          this.createLayerElement(layer);
+          this.createLayerItem(layer);
+          this.setActiveLayer(layerId);
+          this.updateEmptyState();
+        };
+        
+        reader.readAsDataURL(file);
+      }
+
+      createLayerElement(layer) {
+        const img = document.createElement('img');
+        img.src = layer.src;
+        img.alt = layer.name;
+        img.className = 'ai-layer-editor__canvas-layer-{{ ai_gen_id }}';
+        img.dataset.layerId = layer.id;
+        img.style.zIndex = layer.zIndex;
+        img.style.opacity = layer.opacity / 100;
+        img.style.mixBlendMode = layer.blendMode;
+        
+        this.canvas.appendChild(img);
+      }
+
+      createLayerItem(layer) {
+        const item = document.createElement('div');
+        item.className = 'ai-layer-editor__layer-item-{{ ai_gen_id }}';
+        item.dataset.layerId = layer.id;
+        item.draggable = true;
+        
+        item.innerHTML = `
+          <img src="${layer.src}" alt="${layer.name}" class="ai-layer-editor__layer-thumbnail-{{ ai_gen_id }}">
+          <div class="ai-layer-editor__layer-info-{{ ai_gen_id }}">
+            <div class="ai-layer-editor__layer-name-{{ ai_gen_id }}">${layer.name}</div>
+            <div class="ai-layer-editor__layer-opacity-{{ ai_gen_id }}">${layer.opacity}%</div>
+          </div>
+          <div class="ai-layer-editor__layer-controls-{{ ai_gen_id }}">
+            <button class="ai-layer-editor__layer-btn-{{ ai_gen_id }}" data-action="toggle-visibility" title="Toggle visibility">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button class="ai-layer-editor__layer-btn-{{ ai_gen_id }}" data-action="delete-layer" title="Delete layer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3,6 5,6 21,6"></polyline>
+                <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+              </svg>
+            </button>
+          </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+          if (!e.target.closest('.ai-layer-editor__layer-btn-{{ ai_gen_id }}')) {
+            this.setActiveLayer(layer.id);
+          }
+        });
+
+        item.querySelector('[data-action="toggle-visibility"]').addEventListener('click', () => {
+          this.toggleLayerVisibility(layer.id);
+        });
+
+        item.querySelector('[data-action="delete-layer"]').addEventListener('click', () => {
+          this.deleteLayer(layer.id);
+        });
+
+        this.layersList.prepend(item);
+      }
+
+      setActiveLayer(layerId) {
+        this.activeLayerId = layerId;
+        
+        this.querySelectorAll('.ai-layer-editor__layer-item-{{ ai_gen_id }}').forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        const activeItem = this.querySelector(`[data-layer-id="${layerId}"]`);
+        if (activeItem) {
+          activeItem.classList.add('active');
+        }
+
+        const layer = this.layers.find(l => l.id === layerId);
+        if (layer) {
+          this.updatePropertiesPanel(layer);
+        }
+      }
+
+      updatePropertiesPanel(layer) {
+        const opacitySlider = this.querySelector('[data-property="opacity"]');
+        const blendModeSelect = this.querySelector('[data-property="blend-mode"]');
+        const opacityValue = this.querySelector('.opacity-value');
+        
+        opacitySlider.value = layer.opacity;
+        blendModeSelect.value = layer.blendMode;
+        opacityValue.textContent = `${layer.opacity}%`;
+      }
+
+      updateActiveLayerProperty(property, value) {
+        if (!this.activeLayerId) return;
+
+        const layer = this.layers.find(l => l.id === this.activeLayerId);
+        const layerElement = this.canvas.querySelector(`[data-layer-id="${this.activeLayerId}"]`);
+        const layerItem = this.layersList.querySelector(`[data-layer-id="${this.activeLayerId}"]`);
+
+        if (!layer || !layerElement) return;
+
+        if (property === 'opacity') {
+          layer.opacity = parseInt(value);
+          layerElement.style.opacity = layer.opacity / 100;
+          layerItem.querySelector('.ai-layer-editor__layer-opacity-{{ ai_gen_id }}').textContent = `${layer.opacity}%`;
+          this.querySelector('.opacity-value').textContent = `${layer.opacity}%`;
+        } else if (property === 'blend-mode') {
+          layer.blendMode = value;
+          layerElement.style.mixBlendMode = value;
+        }
+      }
+
+      toggleLayerVisibility(layerId) {
+        const layerElement = this.canvas.querySelector(`[data-layer-id="${layerId}"]`);
+        if (layerElement) {
+          layerElement.style.display = layerElement.style.display === 'none' ? 'block' : 'none';
+        }
+      }
+
+      deleteLayer(layerId) {
+        this.layers = this.layers.filter(l => l.id !== layerId);
+        
+        const layerElement = this.canvas.querySelector(`[data-layer-id="${layerId}"]`);
+        const layerItem = this.layersList.querySelector(`[data-layer-id="${layerId}"]`);
+        
+        if (layerElement) layerElement.remove();
+        if (layerItem) layerItem.remove();
+
+        if (this.activeLayerId === layerId) {
+          this.activeLayerId = this.layers.length > 0 ? this.layers[0].id : null;
+          if (this.activeLayerId) {
+            this.setActiveLayer(this.activeLayerId);
+          }
+        }
+
+        this.updateEmptyState();
+      }
+
+      reorderLayers(draggedId, targetId) {
+        const draggedIndex = this.layers.findIndex(l => l.id === draggedId);
+        const targetIndex = this.layers.findIndex(l => l.id === targetId);
+        
+        if (draggedIndex === -1 || targetIndex === -1) return;
+
+        const [draggedLayer] = this.layers.splice(draggedIndex, 1);
+        this.layers.splice(targetIndex, 0, draggedLayer);
+
+        this.layers.forEach((layer, index) => {
+          layer.zIndex = index + 1;
+          const element = this.canvas.querySelector(`[data-layer-id="${layer.id}"]`);
+          if (element) {
+            element.style.zIndex = layer.zIndex;
+          }
+        });
+
+        this.renderLayersList();
+      }
+
+      renderLayersList() {
+        this.layersList.innerHTML = '';
+        this.layers.slice().reverse().forEach(layer => {
+          this.createLayerItem(layer);
+        });
+      }
+
+      clearAllLayers() {
+        if (confirm('Are you sure you want to clear all layers?')) {
+          this.layers = [];
+          this.activeLayerId = null;
+          this.canvas.querySelectorAll('.ai-layer-editor__canvas-layer-{{ ai_gen_id }}').forEach(el => el.remove());
+          this.layersList.innerHTML = '';
+          this.updateEmptyState();
+        }
+      }
+
+      updateEmptyState() {
+        this.emptyState.style.display = this.layers.length === 0 ? 'block' : 'none';
+      }
+
+      exportImage() {
+        if (this.layers.length === 0) {
+          alert('Please add some layers first.');
+          return;
+        }
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const containerRect = this.canvas.getBoundingClientRect();
+        
+        canvas.width = containerRect.width * 2;
+        canvas.height = containerRect.height * 2;
+        ctx.scale(2, 2);
+
+        let loadedImages = 0;
+        const totalImages = this.layers.length;
+
+        if (totalImages === 0) return;
+
+        this.layers.forEach((layer, index) => {
+          const img = new Image();
+          img.onload = () => {
+            ctx.save();
+            ctx.globalAlpha = layer.opacity / 100;
+            ctx.globalCompositeOperation = layer.blendMode;
+            ctx.drawImage(img, 0, 0, containerRect.width, containerRect.height);
+            ctx.restore();
+
+            loadedImages++;
+            if (loadedImages === totalImages) {
+              const frameImg = this.querySelector('.ai-layer-editor__frame-overlay-{{ ai_gen_id }}');
+              if (frameImg) {
+                const frame = new Image();
+                frame.onload = () => {
+                  ctx.drawImage(frame, 0, 0, containerRect.width, containerRect.height);
+                  this.downloadCanvas(canvas);
+                };
+                frame.src = frameImg.src;
+              } else {
+                this.downloadCanvas(canvas);
+              }
+            }
+          };
+          img.src = layer.src;
+        });
+      }
+
+      downloadCanvas(canvas) {
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'layered-composition.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      }
+    }
+
+    customElements.define('layer-editor-{{ ai_gen_id }}', LayerEditor{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Photoshop layer editor",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Layer Editor"
+    },
+    {
+      "type": "header",
+      "content": "Canvas settings"
+    },
+    {
+      "type": "select",
+      "id": "canvas_ratio",
+      "label": "Canvas aspect ratio",
+      "options": [
+        {
+          "value": "1/1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "4/3",
+          "label": "Standard (4:3)"
+        },
+        {
+          "value": "3/2",
+          "label": "Photo (3:2)"
+        },
+        {
+          "value": "16/9",
+          "label": "Widescreen (16:9)"
+        }
+      ],
+      "default": "4/3"
+    },
+    {
+      "type": "image_picker",
+      "id": "frame_image",
+      "label": "Frame overlay image"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 600,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 1000
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "canvas_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Canvas border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "panel_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Panel border radius",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "canvas_bg_color",
+      "label": "Canvas background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "canvas_border_color",
+      "label": "Canvas border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "panel_bg_color",
+      "label": "Panel background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "panel_border_color",
+      "label": "Panel border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "layer_item_bg",
+      "label": "Layer item background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "layer_item_border",
+      "label": "Layer item border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "layer_item_hover_bg",
+      "label": "Layer item hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "layer_item_active_bg",
+      "label": "Layer item active background",
+      "default": "#e8f4fd"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Primary button color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Primary button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Primary button hover color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_bg",
+      "label": "Secondary button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text",
+      "label": "Secondary button text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_border",
+      "label": "Secondary button border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover_bg",
+      "label": "Secondary button hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover_text",
+      "label": "Secondary button hover text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "slider_bg",
+      "label": "Slider background",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "input_bg",
+      "label": "Input background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border",
+      "label": "Input border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 18,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Photoshop layer editor"
+    }
+  ]
+}
 {% endschema %}
