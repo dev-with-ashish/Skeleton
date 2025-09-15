@@ -1,6 +1,523 @@
+{% doc %}
+  @prompt
+    a cutomizable product section with 2 layer one below the other, the  shape and size of both the layers will be decided by an shapesize.png file(upload option) then there should be option for the admin to add a overlay png for the top layer (shape and size as decided by the .png file) and the user to upload the image that will appear just below the overlay png layer
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-layered-product-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: {{ block.settings.section_padding }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-layered-product-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ai-layered-product-shape-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ai-layered-product-shape-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+
+  .ai-layered-product-shape-{{ ai_gen_id }} img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-layered-product-shape-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 400px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .ai-layered-product-shape-placeholder-{{ ai_gen_id }} svg {
+    width: 100px;
+    height: 100px;
+    opacity: 0.5;
+  }
+
+  .ai-layered-product-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+  }
+
+  .ai-layered-product-user-image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .ai-layered-product-user-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .ai-layered-product-user-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(244, 244, 244, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #999;
+    border-radius: 4px;
+  }
+
+  .ai-layered-product-user-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60px;
+    height: 60px;
+    opacity: 0.6;
+  }
+
+  .ai-layered-product-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .ai-layered-product-overlay-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .ai-layered-product-upload-section-{{ ai_gen_id }} {
+    margin-top: {{ block.settings.upload_section_spacing }}px;
+    padding: 20px;
+    background-color: {{ block.settings.upload_bg_color }};
+    border-radius: {{ block.settings.upload_border_radius }}px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .ai-layered-product-upload-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.upload_title_size }}px;
+    color: {{ block.settings.upload_text_color }};
+    margin: 0 0 10px;
+    font-family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
+    font-weight: {{ settings.type_primary_font.weight }};
+  }
+
+  .ai-layered-product-upload-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.upload_description_size }}px;
+    color: {{ block.settings.upload_text_color }};
+    margin: 0 0 20px;
+    opacity: 0.8;
+  }
+
+  .ai-layered-product-upload-button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_text_size }}px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-layered-product-upload-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-layered-product-file-input-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-layered-product-preview-info-{{ ai_gen_id }} {
+    margin-top: 15px;
+    font-size: 12px;
+    color: {{ block.settings.upload_text_color }};
+    opacity: 0.7;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-layered-product-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.7 }}px;
+    }
+
+    .ai-layered-product-upload-section-{{ ai_gen_id }} {
+      margin-top: {{ block.settings.upload_section_spacing | times: 0.7 }}px;
+      padding: 15px;
+    }
+
+    .ai-layered-product-upload-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.upload_title_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<layered-product-{{ ai_gen_id }}
+  class="ai-layered-product-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-layered-product-container-{{ ai_gen_id }}">
+    <div class="ai-layered-product-shape-container-{{ ai_gen_id }}">
+      {% if block.settings.shape_size_image %}
+        <div class="ai-layered-product-shape-{{ ai_gen_id }}">
+          <img
+            src="{{ block.settings.shape_size_image | image_url: width: 1000 }}"
+            alt="Product shape template"
+            loading="lazy"
+            width="{{ block.settings.shape_size_image.width }}"
+            height="{{ block.settings.shape_size_image.height }}"
+          >
+          
+          <div class="ai-layered-product-user-image-{{ ai_gen_id }}">
+            {% if block.settings.user_preview_image %}
+              <img
+                src="{{ block.settings.user_preview_image | image_url: width: 1000 }}"
+                alt="User uploaded preview"
+                loading="lazy"
+                id="ai-user-preview-{{ ai_gen_id }}"
+              >
+            {% else %}
+              <div class="ai-layered-product-user-image-placeholder-{{ ai_gen_id }}">
+                {{ 'image' | placeholder_svg_tag }}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if block.settings.overlay_image %}
+            <div class="ai-layered-product-overlay-{{ ai_gen_id }}">
+              <img
+                src="{{ block.settings.overlay_image | image_url: width: 1000 }}"
+                alt="Product overlay"
+                loading="lazy"
+              >
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="ai-layered-product-shape-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+          <div class="ai-layered-product-empty-state-{{ ai_gen_id }}">
+            Upload a shape/size template image to get started
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if block.settings.show_upload_section %}
+      <div class="ai-layered-product-upload-section-{{ ai_gen_id }}">
+        {% if block.settings.upload_title != blank %}
+          <h3 class="ai-layered-product-upload-title-{{ ai_gen_id }}">{{ block.settings.upload_title }}</h3>
+        {% endif %}
+        
+        {% if block.settings.upload_description != blank %}
+          <p class="ai-layered-product-upload-description-{{ ai_gen_id }}">{{ block.settings.upload_description }}</p>
+        {% endif %}
+
+        <label for="ai-file-input-{{ ai_gen_id }}" class="ai-layered-product-upload-button-{{ ai_gen_id }}">
+          {{ block.settings.upload_button_text }}
+        </label>
+        
+        <input
+          type="file"
+          id="ai-file-input-{{ ai_gen_id }}"
+          class="ai-layered-product-file-input-{{ ai_gen_id }}"
+          accept="image/*"
+        >
+
+        <div class="ai-layered-product-preview-info-{{ ai_gen_id }}">
+          Supported formats: JPG, PNG, GIF (Max 5MB)
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</layered-product-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class LayeredProduct{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.fileInput = this.querySelector('#ai-file-input-{{ ai_gen_id }}');
+        this.userPreview = this.querySelector('#ai-user-preview-{{ ai_gen_id }}');
+        this.userImageContainer = this.querySelector('.ai-layered-product-user-image-{{ ai_gen_id }}');
+        
+        if (this.fileInput) {
+          this.setupFileUpload();
+        }
+      }
+
+      setupFileUpload() {
+        this.fileInput.addEventListener('change', (event) => {
+          const file = event.target.files[0];
+          if (file && file.type.startsWith('image/')) {
+            this.handleImageUpload(file);
+          }
+        });
+      }
+
+      handleImageUpload(file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File size must be less than 5MB');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (this.userPreview) {
+            this.userPreview.src = e.target.result;
+          } else {
+            this.userImageContainer.innerHTML = `
+              <img
+                src="${e.target.result}"
+                alt="User uploaded image"
+                id="ai-user-preview-{{ ai_gen_id }}"
+                style="width: 100%; height: 100%; object-fit: cover; object-position: center;"
+              >
+            `;
+            this.userPreview = this.querySelector('#ai-user-preview-{{ ai_gen_id }}');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    customElements.define('layered-product-{{ ai_gen_id }}', LayeredProduct{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product customizer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Shape and size template"
+    },
+    {
+      "type": "image_picker",
+      "id": "shape_size_image",
+      "label": "Shape/size template image"
+    },
+    {
+      "type": "image_picker",
+      "id": "overlay_image",
+      "label": "Overlay image (top layer)"
+    },
+    {
+      "type": "image_picker",
+      "id": "user_preview_image",
+      "label": "Preview user image (for demo)"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 300,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Upload section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_upload_section",
+      "label": "Show upload section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "upload_title",
+      "label": "Upload title",
+      "default": "Customize Your Product"
+    },
+    {
+      "type": "textarea",
+      "id": "upload_description",
+      "label": "Upload description",
+      "default": "Upload your image to see how it looks on the product"
+    },
+    {
+      "type": "text",
+      "id": "upload_button_text",
+      "label": "Upload button text",
+      "default": "Choose Image"
+    },
+    {
+      "type": "range",
+      "id": "upload_section_spacing",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Upload section spacing",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Upload section style"
+    },
+    {
+      "type": "color",
+      "id": "upload_bg_color",
+      "label": "Upload section background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "upload_text_color",
+      "label": "Upload section text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "upload_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Upload section border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "upload_title_size",
+      "min": 14,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Upload title size",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "upload_description_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Upload description size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Button text size",
+      "default": 14
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product customizer"
+    }
+  ]
+}
 {% endschema %}
