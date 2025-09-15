@@ -1,6 +1,278 @@
+{% doc %}
+  @prompt
+    a section that will offer three layers two for the admin and one for the user admin editable layer should contain frame with frame thickness option minimum thickness can be 0 and above that there will be image layer that is inaside that frame and after that again a frame png overlay option where admin can upload glass png
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-layered-frame-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .ai-layered-frame-container-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.frame_width }}px;
+    height: {{ block.settings.frame_height }}px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .ai-frame-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: {{ block.settings.frame_color }};
+    border-radius: {{ block.settings.frame_border_radius }}px;
+    z-index: 1;
+  }
+
+  .ai-image-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: {{ block.settings.frame_thickness }}px;
+    left: {{ block.settings.frame_thickness }}px;
+    width: calc(100% - {{ block.settings.frame_thickness | times: 2 }}px);
+    height: calc(100% - {{ block.settings.frame_thickness | times: 2 }}px);
+    z-index: 2;
+    overflow: hidden;
+    border-radius: {% if block.settings.frame_border_radius > block.settings.frame_thickness %}{{ block.settings.frame_border_radius | minus: block.settings.frame_thickness }}px{% else %}0px{% endif %};
+  }
+
+  .ai-image-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-glass-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .ai-glass-overlay-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ai-frame-shadow-{{ ai_gen_id }} {
+    box-shadow: {{ block.settings.frame_shadow_x }}px {{ block.settings.frame_shadow_y }}px {{ block.settings.frame_shadow_blur }}px {{ block.settings.frame_shadow_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-layered-frame-container-{{ ai_gen_id }} {
+      width: 100%;
+      height: auto;
+      aspect-ratio: {{ block.settings.frame_width }} / {{ block.settings.frame_height }};
+    }
+  }
+{% endstyle %}
+
+<div
+  class="ai-layered-frame-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-layered-frame-container-{{ ai_gen_id }}">
+    <div class="ai-frame-layer-{{ ai_gen_id }} {% if block.settings.enable_frame_shadow %}ai-frame-shadow-{{ ai_gen_id }}{% endif %}"></div>
+    
+    <div class="ai-image-layer-{{ ai_gen_id }}">
+      {% if block.settings.main_image %}
+        <img
+          src="{{ block.settings.main_image | image_url: width: 1000 }}"
+          alt="{{ block.settings.main_image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.main_image.width }}"
+          height="{{ block.settings.main_image.height }}"
+        >
+      {% else %}
+        <div class="ai-image-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+          <div class="ai-empty-state-{{ ai_gen_id }}">
+            Add an image
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if block.settings.glass_overlay %}
+      <div class="ai-glass-overlay-{{ ai_gen_id }}">
+        <img
+          src="{{ block.settings.glass_overlay | image_url: width: 1000 }}"
+          alt="Glass overlay"
+          loading="lazy"
+          width="{{ block.settings.glass_overlay.width }}"
+          height="{{ block.settings.glass_overlay.height }}"
+        >
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Layered frame",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Frame dimensions"
+    },
+    {
+      "type": "range",
+      "id": "frame_width",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Frame width",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "frame_height",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Frame height",
+      "default": 400
+    },
+    {
+      "type": "header",
+      "content": "Frame style"
+    },
+    {
+      "type": "range",
+      "id": "frame_thickness",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Frame thickness",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "frame_color",
+      "label": "Frame color",
+      "default": "#8B4513"
+    },
+    {
+      "type": "range",
+      "id": "frame_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Frame corner radius",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Frame shadow"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_frame_shadow",
+      "label": "Enable frame shadow",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "frame_shadow_x",
+      "min": -20,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow horizontal offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "frame_shadow_y",
+      "min": -20,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow vertical offset",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "frame_shadow_blur",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "frame_shadow_color",
+      "label": "Shadow color",
+      "default": "rgba(0, 0, 0, 0.3)"
+    },
+    {
+      "type": "header",
+      "content": "Main image"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main image"
+    },
+    {
+      "type": "header",
+      "content": "Glass overlay"
+    },
+    {
+      "type": "image_picker",
+      "id": "glass_overlay",
+      "label": "Glass overlay PNG"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Layered frame"
+    }
+  ]
+}
 {% endschema %}
