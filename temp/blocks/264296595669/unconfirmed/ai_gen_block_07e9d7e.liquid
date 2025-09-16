@@ -2,7 +2,7 @@
   @prompt
     cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, apply shape image layer mask to the user uploaded image, apply shape image masking to the user image layer , everything fine just display selected product title description and prices (whcih updated with product variant price), variant should be in button style and make sure shape image opecity becomes 0 after user selected the image, unable to change variants fix that , unable to select a variant, keep everything as it is just change variant style make sure the user can select variant as it was when in list style, change variant style to button just change style of the variant, add an png overlay for the admin above the user image layer with the same masking feature, do not display selected shape template and overlay image in the website in the right panel, keep everything as it is now just make sure the the user uploaded Image gets stored and the URL is saved as a line item property.
     
-    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask 
+    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask , all property as it is now but by default the file should be covering the mask 
 {% enddoc %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
@@ -844,10 +844,6 @@
 
         const wrapper = document.createElement('div');
         wrapper.className = 'ai-custom-product-user-image-wrapper-{{ ai_gen_id }}';
-        wrapper.style.left = `${this.imageX}px`;
-        wrapper.style.top = `${this.imageY}px`;
-        wrapper.style.width = `${this.imageWidth}px`;
-        wrapper.style.height = `${this.imageHeight}px`;
 
         const img = document.createElement('img');
         img.src = this.userImage;
@@ -877,7 +873,7 @@
         }, { passive: false });
 
         img.onload = () => {
-          this.fillContainer();
+          this.setDefaultImageSize();
         };
 
         wrapper.appendChild(img);
@@ -891,6 +887,21 @@
         this.userImageElement = img;
         this.userImageContainer = container;
         this.resizeHandles = resizeHandles;
+      }
+
+      setDefaultImageSize() {
+        if (!this.userImageWrapper || !this.userLayer) return;
+
+        const containerWidth = this.userLayer.offsetWidth;
+        const containerHeight = this.userLayer.offsetHeight;
+
+        this.imageWidth = containerWidth;
+        this.imageHeight = containerHeight;
+        this.imageX = 0;
+        this.imageY = 0;
+
+        this.updateImageTransform();
+        this.updateFormInputs();
       }
 
       fitImageToContainer() {
@@ -1061,7 +1072,7 @@
             this.fillContainer();
             break;
           case 'reset':
-            this.fillContainer();
+            this.setDefaultImageSize();
             break;
         }
       }
@@ -1075,10 +1086,6 @@
 
         this.updateImageTransform();
         this.updateFormInputs();
-      }
-
-      resetImage() {
-        this.fillContainer();
       }
 
       showFileInfo(fileName) {
