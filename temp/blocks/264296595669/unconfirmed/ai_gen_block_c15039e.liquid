@@ -1,6 +1,919 @@
+{% doc %}
+  @prompt
+    cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, apply shape image layer mask to the user uploaded image, apply shape image masking to the user image layer , everything fine just display selected product title description and prices (whcih updated with product variant price), variant should be in button style and make sure shape image opecity becomes 0 after user selected the image, unable to change variants fix that , unable to select a variant, keep everything as it is just change variant style make sure the user can select variant as it was when in list style, change variant style to button just change style of the variant, add an png overlay for the admin above the user image layer with the same masking feature, do not display selected shape template and overlay image in the website in the right panel, keep everything as it is now just make sure the the user uploaded Image gets stored and the URL is saved as a line item property.
+    
+    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask , all property as it is now but by default the file should be covering the mask , keep everything same just do not display the postion & size: box from the right panel, make sure user uploaded image get stored and url get saved using line item property
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-customizer-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .ai-customizer-canvas-{{ ai_gen_id }} {
+    position: relative;
+    background-color: {{ block.settings.canvas_background_color }};
+    border-radius: {{ block.settings.canvas_border_radius }}px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .ai-canvas-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-shape-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-shape-layer-{{ ai_gen_id }}.hidden {
+    opacity: 0;
+  }
+
+  .ai-shape-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-user-image-container-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+
+  .ai-user-image-{{ ai_gen_id }} {
+    position: absolute;
+    cursor: move;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .ai-user-image-{{ ai_gen_id }}.selected {
+    border-color: #007cba;
+  }
+
+  .ai-user-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ai-resize-handle-{{ ai_gen_id }} {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #007cba;
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: nw-resize;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-user-image-{{ ai_gen_id }}.selected .ai-resize-handle-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-resize-handle-{{ ai_gen_id }}.top-left {
+    top: -6px;
+    left: -6px;
+    cursor: nw-resize;
+  }
+
+  .ai-resize-handle-{{ ai_gen_id }}.top-right {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+  }
+
+  .ai-resize-handle-{{ ai_gen_id }}.bottom-left {
+    bottom: -6px;
+    left: -6px;
+    cursor: sw-resize;
+  }
+
+  .ai-resize-handle-{{ ai_gen_id }}.bottom-right {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+  }
+
+  .ai-overlay-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .ai-overlay-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-upload-area-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .ai-upload-area-{{ ai_gen_id }}.hidden {
+    display: none;
+  }
+
+  .ai-upload-button-{{ ai_gen_id }} {
+    background-color: {{ block.settings.upload_button_color }};
+    color: {{ block.settings.upload_button_text_color }};
+    border: none;
+    padding: 12px 24px;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 16px;
+    pointer-events: auto;
+  }
+
+  .ai-upload-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.upload_button_hover_color }};
+  }
+
+  .ai-file-input-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-product-panel-{{ ai_gen_id }} {
+    padding: 20px;
+  }
+
+  .ai-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_font_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 16px;
+    font-family: {{ block.settings.title_font.family }}, {{ block.settings.title_font.fallback_families }};
+    font-weight: {{ block.settings.title_font.weight }};
+  }
+
+  .ai-product-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_font_size }}px;
+    color: {{ block.settings.description_color }};
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+
+  .ai-product-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    color: {{ block.settings.price_color }};
+    margin: 0 0 24px;
+    font-weight: 600;
+  }
+
+  .ai-variant-section-{{ ai_gen_id }} {
+    margin-bottom: 24px;
+  }
+
+  .ai-variant-label-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-variant-buttons-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ai-variant-button-{{ ai_gen_id }} {
+    padding: 10px 16px;
+    border: 2px solid {{ block.settings.variant_border_color }};
+    background-color: {{ block.settings.variant_background_color }};
+    color: {{ block.settings.variant_text_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .ai-variant-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.variant_hover_background_color }};
+    border-color: {{ block.settings.variant_hover_border_color }};
+  }
+
+  .ai-variant-button-{{ ai_gen_id }}.selected {
+    background-color: {{ block.settings.variant_selected_background_color }};
+    border-color: {{ block.settings.variant_selected_border_color }};
+    color: {{ block.settings.variant_selected_text_color }};
+  }
+
+  .ai-add-to-cart-button-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: {{ block.settings.add_to_cart_button_color }};
+    color: {{ block.settings.add_to_cart_button_text_color }};
+    border: none;
+    padding: 16px 24px;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-add-to-cart-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.add_to_cart_button_hover_color }};
+  }
+
+  .ai-add-to-cart-button-{{ ai_gen_id }}:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-product-customizer-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+{% endstyle %}
+
+<product-customizer-{{ ai_gen_id }}
+  class="ai-product-customizer-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+  data-product-id="{{ block.settings.product.id }}"
+>
+  <div class="ai-customizer-canvas-{{ ai_gen_id }}">
+    <div class="ai-canvas-container-{{ ai_gen_id }}">
+      {% if block.settings.shape_template %}
+        <div class="ai-shape-layer-{{ ai_gen_id }}" data-shape-layer>
+          <img
+            src="{{ block.settings.shape_template | image_url: width: 500 }}"
+            alt="Shape template"
+            loading="lazy"
+          >
+        </div>
+      {% endif %}
+
+      <div class="ai-user-image-container-{{ ai_gen_id }}" data-user-image-container>
+        {% if block.settings.shape_template %}
+          <div
+            class="ai-user-image-container-{{ ai_gen_id }}"
+            style="
+              -webkit-mask-image: url('{{ block.settings.shape_template | image_url: width: 500 }}');
+              mask-image: url('{{ block.settings.shape_template | image_url: width: 500 }}');
+              -webkit-mask-size: contain;
+              mask-size: contain;
+              -webkit-mask-repeat: no-repeat;
+              mask-repeat: no-repeat;
+              -webkit-mask-position: center;
+              mask-position: center;
+            "
+            data-mask-container
+          ></div>
+        {% else %}
+          <div data-mask-container></div>
+        {% endif %}
+      </div>
+
+      {% if block.settings.overlay_image %}
+        <div class="ai-overlay-layer-{{ ai_gen_id }}">
+          <img
+            src="{{ block.settings.overlay_image | image_url: width: 500 }}"
+            alt="Overlay"
+            loading="lazy"
+            style="
+              -webkit-mask-image: url('{{ block.settings.shape_template | image_url: width: 500 }}');
+              mask-image: url('{{ block.settings.shape_template | image_url: width: 500 }}');
+              -webkit-mask-size: contain;
+              mask-size: contain;
+              -webkit-mask-repeat: no-repeat;
+              mask-repeat: no-repeat;
+              -webkit-mask-position: center;
+              mask-position: center;
+            "
+          >
+        </div>
+      {% endif %}
+
+      <div class="ai-upload-area-{{ ai_gen_id }}" data-upload-area>
+        <button class="ai-upload-button-{{ ai_gen_id }}" data-upload-trigger>
+          {{ block.settings.upload_button_text }}
+        </button>
+        <input
+          type="file"
+          class="ai-file-input-{{ ai_gen_id }}"
+          accept="image/*"
+          data-file-input
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-product-panel-{{ ai_gen_id }}">
+    {% if block.settings.product %}
+      <h1 class="ai-product-title-{{ ai_gen_id }}">{{ block.settings.product.title }}</h1>
+      
+      {% if block.settings.product.description != blank %}
+        <div class="ai-product-description-{{ ai_gen_id }}">
+          {{ block.settings.product.description | truncate: 200 }}
+        </div>
+      {% endif %}
+
+      <div class="ai-product-price-{{ ai_gen_id }}" data-price-display>
+        {{ block.settings.product.price | money }}
+      </div>
+
+      {% if block.settings.product.variants.size > 1 %}
+        <div class="ai-variant-section-{{ ai_gen_id }}">
+          <div class="ai-variant-label-{{ ai_gen_id }}">{{ block.settings.product.options.first }}</div>
+          <div class="ai-variant-buttons-{{ ai_gen_id }}" data-variant-buttons>
+            {% for variant in block.settings.product.variants %}
+              <button
+                class="ai-variant-button-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                data-variant-id="{{ variant.id }}"
+                data-variant-price="{{ variant.price }}"
+                {% unless variant.available %}disabled{% endunless %}
+              >
+                {{ variant.title }}
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <form action="/cart/add" method="post" enctype="multipart/form-data" data-add-to-cart-form>
+        <input type="hidden" name="id" value="{{ block.settings.product.selected_or_first_available_variant.id }}" data-variant-input>
+        <input type="hidden" name="properties[Custom Image]" value="" data-image-property>
+        <input type="hidden" name="properties[Image Position X]" value="" data-position-x-property>
+        <input type="hidden" name="properties[Image Position Y]" value="" data-position-y-property>
+        <input type="hidden" name="properties[Image Scale]" value="" data-scale-property>
+        
+        <button
+          type="submit"
+          class="ai-add-to-cart-button-{{ ai_gen_id }}"
+          data-add-to-cart-button
+          disabled
+        >
+          {{ block.settings.add_to_cart_button_text }}
+        </button>
+      </form>
+    {% else %}
+      <div style="text-align: center; padding: 40px; color: #666;">
+        Please select a product in the block settings
+      </div>
+    {% endif %}
+  </div>
+</product-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.isDragging = false;
+        this.isResizing = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        this.resizeStartX = 0;
+        this.resizeStartY = 0;
+        this.resizeStartWidth = 0;
+        this.resizeStartHeight = 0;
+        this.currentHandle = null;
+        this.userImageData = null;
+      }
+
+      connectedCallback() {
+        this.setupEventListeners();
+        this.initializeVariants();
+      }
+
+      setupEventListeners() {
+        const uploadTrigger = this.querySelector('[data-upload-trigger]');
+        const fileInput = this.querySelector('[data-file-input]');
+        const addToCartForm = this.querySelector('[data-add-to-cart-form]');
+
+        uploadTrigger?.addEventListener('click', () => {
+          fileInput?.click();
+        });
+
+        fileInput?.addEventListener('change', (e) => {
+          this.handleFileUpload(e);
+        });
+
+        addToCartForm?.addEventListener('submit', (e) => {
+          this.handleAddToCart(e);
+        });
+
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', () => this.handleMouseUp());
+      }
+
+      initializeVariants() {
+        const variantButtons = this.querySelectorAll('[data-variant-id]');
+        const priceDisplay = this.querySelector('[data-price-display]');
+        const variantInput = this.querySelector('[data-variant-input]');
+
+        variantButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            variantButtons.forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            
+            const variantId = button.dataset.variantId;
+            const variantPrice = button.dataset.variantPrice;
+            
+            if (variantInput) variantInput.value = variantId;
+            if (priceDisplay) {
+              const formattedPrice = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+              }).format(variantPrice / 100);
+              priceDisplay.textContent = formattedPrice;
+            }
+          });
+        });
+      }
+
+      async handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch('/admin/api/2023-10/files.json', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Shopify-Access-Token': 'your-access-token'
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const imageUrl = data.file.url;
+            this.createUserImage(file, imageUrl);
+          } else {
+            const imageUrl = URL.createObjectURL(file);
+            this.createUserImage(file, imageUrl);
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          const imageUrl = URL.createObjectURL(file);
+          this.createUserImage(file, imageUrl);
+        }
+      }
+
+      createUserImage(file, imageUrl) {
+        const maskContainer = this.querySelector('[data-mask-container]');
+        const uploadArea = this.querySelector('[data-upload-area]');
+        const shapeLayer = this.querySelector('[data-shape-layer]');
+        const addToCartButton = this.querySelector('[data-add-to-cart-button]');
+
+        if (!maskContainer) return;
+
+        maskContainer.innerHTML = '';
+
+        const userImageDiv = document.createElement('div');
+        userImageDiv.className = `ai-user-image-{{ ai_gen_id }} selected`;
+        
+        const containerRect = maskContainer.getBoundingClientRect();
+        const size = Math.min(containerRect.width, containerRect.height) * 0.8;
+        
+        userImageDiv.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        `;
+
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = 'User uploaded image';
+        img.draggable = false;
+
+        userImageDiv.appendChild(img);
+
+        const handles = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+        handles.forEach(position => {
+          const handle = document.createElement('div');
+          handle.className = `ai-resize-handle-{{ ai_gen_id }} ${position}`;
+          handle.addEventListener('mousedown', (e) => this.startResize(e, position, userImageDiv));
+          userImageDiv.appendChild(handle);
+        });
+
+        userImageDiv.addEventListener('mousedown', (e) => {
+          if (!e.target.classList.contains('ai-resize-handle-{{ ai_gen_id }}')) {
+            this.startDrag(e, userImageDiv);
+          }
+        });
+
+        maskContainer.appendChild(userImageDiv);
+
+        this.userImageData = {
+          file: file,
+          url: imageUrl,
+          element: userImageDiv
+        };
+
+        if (uploadArea) uploadArea.classList.add('hidden');
+        if (shapeLayer) shapeLayer.classList.add('hidden');
+        if (addToCartButton) addToCartButton.disabled = false;
+
+        this.updateImageProperties();
+      }
+
+      startDrag(event, element) {
+        this.isDragging = true;
+        this.dragStartX = event.clientX - element.offsetLeft;
+        this.dragStartY = event.clientY - element.offsetTop;
+        this.currentElement = element;
+        event.preventDefault();
+      }
+
+      startResize(event, handle, element) {
+        this.isResizing = true;
+        this.currentHandle = handle;
+        this.currentElement = element;
+        this.resizeStartX = event.clientX;
+        this.resizeStartY = event.clientY;
+        this.resizeStartWidth = element.offsetWidth;
+        this.resizeStartHeight = element.offsetHeight;
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      handleMouseMove(event) {
+        if (this.isDragging && this.currentElement) {
+          const container = this.querySelector('[data-mask-container]');
+          const containerRect = container.getBoundingClientRect();
+          
+          let newX = event.clientX - this.dragStartX;
+          let newY = event.clientY - this.dragStartY;
+          
+          const elementWidth = this.currentElement.offsetWidth;
+          const elementHeight = this.currentElement.offsetHeight;
+          
+          newX = Math.max(-elementWidth/2, Math.min(newX, containerRect.width - elementWidth/2));
+          newY = Math.max(-elementHeight/2, Math.min(newY, containerRect.height - elementHeight/2));
+          
+          this.currentElement.style.left = newX + 'px';
+          this.currentElement.style.top = newY + 'px';
+          this.currentElement.style.transform = 'none';
+          
+          this.updateImageProperties();
+        }
+
+        if (this.isResizing && this.currentElement) {
+          const deltaX = event.clientX - this.resizeStartX;
+          const deltaY = event.clientY - this.resizeStartY;
+          
+          let newWidth = this.resizeStartWidth;
+          let newHeight = this.resizeStartHeight;
+          
+          if (this.currentHandle.includes('right')) {
+            newWidth = this.resizeStartWidth + deltaX;
+          }
+          if (this.currentHandle.includes('left')) {
+            newWidth = this.resizeStartWidth - deltaX;
+          }
+          if (this.currentHandle.includes('bottom')) {
+            newHeight = this.resizeStartHeight + deltaY;
+          }
+          if (this.currentHandle.includes('top')) {
+            newHeight = this.resizeStartHeight - deltaY;
+          }
+          
+          const minSize = 50;
+          newWidth = Math.max(minSize, newWidth);
+          newHeight = Math.max(minSize, newHeight);
+          
+          this.currentElement.style.width = newWidth + 'px';
+          this.currentElement.style.height = newHeight + 'px';
+          
+          this.updateImageProperties();
+        }
+      }
+
+      handleMouseUp() {
+        this.isDragging = false;
+        this.isResizing = false;
+        this.currentElement = null;
+        this.currentHandle = null;
+      }
+
+      updateImageProperties() {
+        if (!this.userImageData || !this.userImageData.element) return;
+
+        const element = this.userImageData.element;
+        const container = this.querySelector('[data-mask-container]');
+        
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        
+        const positionX = ((elementRect.left - containerRect.left) / containerRect.width * 100).toFixed(2);
+        const positionY = ((elementRect.top - containerRect.top) / containerRect.height * 100).toFixed(2);
+        const scale = (element.offsetWidth / containerRect.width).toFixed(2);
+
+        const imageProperty = this.querySelector('[data-image-property]');
+        const positionXProperty = this.querySelector('[data-position-x-property]');
+        const positionYProperty = this.querySelector('[data-position-y-property]');
+        const scaleProperty = this.querySelector('[data-scale-property]');
+
+        if (imageProperty) imageProperty.value = this.userImageData.url;
+        if (positionXProperty) positionXProperty.value = positionX;
+        if (positionYProperty) positionYProperty.value = positionY;
+        if (scaleProperty) scaleProperty.value = scale;
+      }
+
+      async handleAddToCart(event) {
+        if (!this.userImageData) {
+          event.preventDefault();
+          alert('Please upload an image first');
+          return;
+        }
+
+        try {
+          const formData = new FormData();
+          formData.append('file', this.userImageData.file);
+
+          const uploadResponse = await fetch('/admin/api/2023-10/files.json', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            const imageProperty = this.querySelector('[data-image-property]');
+            if (imageProperty) {
+              imageProperty.value = uploadData.file.url;
+            }
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+        }
+      }
+    }
+
+    customElements.define('product-customizer-{{ ai_gen_id }}', ProductCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product customizer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "Canvas"
+    },
+    {
+      "type": "image_picker",
+      "id": "shape_template",
+      "label": "Shape template"
+    },
+    {
+      "type": "image_picker",
+      "id": "overlay_image",
+      "label": "Overlay image"
+    },
+    {
+      "type": "color",
+      "id": "canvas_background_color",
+      "label": "Canvas background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "range",
+      "id": "canvas_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Canvas border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Upload button"
+    },
+    {
+      "type": "text",
+      "id": "upload_button_text",
+      "label": "Upload button text",
+      "default": "Upload Image"
+    },
+    {
+      "type": "color",
+      "id": "upload_button_color",
+      "label": "Upload button color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "upload_button_text_color",
+      "label": "Upload button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "upload_button_hover_color",
+      "label": "Upload button hover color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Product info"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 28
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Price font size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Variants"
+    },
+    {
+      "type": "color",
+      "id": "variant_background_color",
+      "label": "Variant background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_text_color",
+      "label": "Variant text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "variant_border_color",
+      "label": "Variant border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "variant_hover_background_color",
+      "label": "Variant hover background color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "variant_hover_border_color",
+      "label": "Variant hover border color",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_background_color",
+      "label": "Variant selected background color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_text_color",
+      "label": "Variant selected text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_border_color",
+      "label": "Variant selected border color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "header",
+      "content": "Add to cart button"
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_button_text",
+      "label": "Add to cart button text",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "color",
+      "id": "add_to_cart_button_color",
+      "label": "Add to cart button color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "add_to_cart_button_text_color",
+      "label": "Add to cart button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "add_to_cart_button_hover_color",
+      "label": "Add to cart button hover color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product customizer"
+    }
+  ]
+}
 {% endschema %}
