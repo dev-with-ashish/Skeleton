@@ -1,6 +1,1084 @@
+{% doc %}
+  @prompt
+    a responsive product section for product page which diplay the product title and price along with its variant prices and in the left three layer setuep one for the admin to upload the base shape image above that a user uploaded image layer which will have the mask of the base shape and above all the third layer having the mask of the base shape too, option to select the product so that the product variants and its prices can be displayed, option to select the product so that the user can select the variants to see the price, unable to select the variant, make the variant selection work map it using theme varaint picker or similarly so it works smoothly, why price update takes time it should be updated instantly as variant change or selected, user uploaded image option should not be in the admin panel it is for the user to upload the image, where is the third admin layer(having base shape mask property) to upload the overlay image above the user uplaoded design, let the user click on the whole left panel to uplaod the design
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-section-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: {{ block.settings.image_background_color }};
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px dashed transparent;
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.upload_button_color }};
+    background-color: {{ block.settings.image_background_color | color_modify: 'alpha', 0.8 }};
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }}.dragover {
+    border-color: {{ block.settings.upload_button_color }};
+    background-color: {{ block.settings.upload_button_color | color_modify: 'alpha', 0.1 }};
+  }
+
+  .ai-product-image-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .ai-base-shape-layer-{{ ai_gen_id }} {
+    z-index: 1;
+  }
+
+  .ai-base-shape-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-user-image-layer-{{ ai_gen_id }} {
+    z-index: 2;
+    mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    -webkit-mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+  }
+
+  .ai-user-image-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-admin-overlay-layer-{{ ai_gen_id }} {
+    z-index: 3;
+    mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    -webkit-mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+  }
+
+  .ai-admin-overlay-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: {{ block.settings.admin_overlay_opacity }};
+  }
+
+  .ai-color-overlay-layer-{{ ai_gen_id }} {
+    z-index: 4;
+    mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    -webkit-mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    background: {{ block.settings.overlay_color }};
+    opacity: {{ block.settings.overlay_opacity }};
+  }
+
+  .ai-upload-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }}:hover .ai-upload-overlay-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }}.has-user-image:hover .ai-upload-overlay-{{ ai_gen_id }} {
+    opacity: 0.9;
+  }
+
+  .ai-upload-icon-{{ ai_gen_id }} {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    stroke: currentColor;
+  }
+
+  .ai-upload-text-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .ai-upload-subtext-{{ ai_gen_id }} {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  .ai-file-input-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-remove-image-button-{{ ai_gen_id }} {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #666;
+    z-index: 11;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+  }
+
+  .ai-remove-image-button-{{ ai_gen_id }}:hover {
+    background-color: rgba(255, 255, 255, 1);
+    color: #333;
+    transform: scale(1.1);
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }}.has-user-image .ai-remove-image-button-{{ ai_gen_id }} {
+    display: flex;
+  }
+
+  .ai-product-info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px 0;
+  }
+
+  .ai-product-title-{{ ai_gen_id }} {
+    font-family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
+    font-weight: {{ settings.type_primary_font.weight }};
+    font-size: {{ block.settings.title_font_size }}px;
+    line-height: 1.2;
+    color: {{ block.settings.title_color }};
+    margin: 0;
+  }
+
+  .ai-product-price-section-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-price-display-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-current-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.price_color }};
+    transition: all 0.2s ease;
+  }
+
+  .ai-compare-price-{{ ai_gen_id }} {
+    text-decoration: line-through;
+    opacity: 0.7;
+    font-size: {{ block.settings.price_font_size | times: 0.8 }}px;
+    color: {{ block.settings.variant_text_color }};
+    transition: all 0.2s ease;
+  }
+
+  .ai-variant-picker-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-variant-input-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-variant-label-{{ ai_gen_id }} {
+    font-size: {{ block.settings.variant_label_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.variant_text_color }};
+    margin: 0;
+  }
+
+  .ai-variant-fieldset-{{ ai_gen_id }} {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ai-variant-input-{{ ai_gen_id }} {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ai-variant-label-option-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    background-color: {{ block.settings.variant_background_color }};
+    border: 2px solid {{ block.settings.variant_border_color }};
+    border-radius: {{ block.settings.variant_border_radius }}px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: {{ block.settings.variant_font_size }}px;
+    color: {{ block.settings.variant_text_color }};
+    min-width: 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .ai-variant-label-option-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.variant_hover_border_color }};
+    background-color: {{ block.settings.variant_hover_background_color }};
+  }
+
+  .ai-variant-input-{{ ai_gen_id }}:checked + .ai-variant-label-option-{{ ai_gen_id }} {
+    border-color: {{ block.settings.variant_selected_border_color }};
+    background-color: {{ block.settings.variant_selected_background_color }};
+    color: {{ block.settings.variant_selected_text_color }};
+  }
+
+  .ai-variant-input-{{ ai_gen_id }}:disabled + .ai-variant-label-option-{{ ai_gen_id }} {
+    opacity: 0.5;
+    cursor: not-allowed;
+    position: relative;
+  }
+
+  .ai-variant-input-{{ ai_gen_id }}:disabled + .ai-variant-label-option-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background-color: currentColor;
+    transform: translateY(-50%);
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .ai-no-product-message-{{ ai_gen_id }} {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px 20px;
+  }
+
+  .ai-availability-status-{{ ai_gen_id }} {
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .ai-availability-status-{{ ai_gen_id }}.in-stock {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .ai-availability-status-{{ ai_gen_id }}.out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .ai-drag-drop-text-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 12;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }}.dragover .ai-drag-drop-text-{{ ai_gen_id }} {
+    display: block;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-product-section-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 16px;
+    }
+
+    .ai-product-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_font_size | times: 0.9 }}px;
+    }
+
+    .ai-current-price-{{ ai_gen_id }} {
+      font-size: {{ block.settings.price_font_size | times: 0.9 }}px;
+    }
+
+    .ai-variant-label-option-{{ ai_gen_id }} {
+      padding: 8px 12px;
+      font-size: {{ block.settings.variant_font_size | times: 0.9 }}px;
+    }
+
+    .ai-upload-text-{{ ai_gen_id }} {
+      font-size: 16px;
+    }
+
+    .ai-upload-subtext-{{ ai_gen_id }} {
+      font-size: 12px;
+    }
+
+    .ai-upload-icon-{{ ai_gen_id }} {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 12px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-product-section-{{ ai_gen_id }} {
+      gap: 20px;
+      padding: 12px;
+    }
+
+    .ai-product-info-{{ ai_gen_id }} {
+      gap: 20px;
+    }
+
+    .ai-variant-fieldset-{{ ai_gen_id }} {
+      gap: 6px;
+    }
+
+    .ai-variant-label-option-{{ ai_gen_id }} {
+      padding: 6px 10px;
+      min-width: 50px;
+    }
+
+    .ai-upload-text-{{ ai_gen_id }} {
+      font-size: 14px;
+    }
+
+    .ai-upload-subtext-{{ ai_gen_id }} {
+      font-size: 11px;
+    }
+  }
+{% endstyle %}
+
+<variant-selects-{{ ai_gen_id }}
+  class="ai-product-section-{{ ai_gen_id }}"
+  data-section="{{ section.id }}"
+  data-url="{{ product.url }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-product-image-container-{{ ai_gen_id }}" id="image-container-{{ ai_gen_id }}">
+    {% comment %} Layer 1: Base Shape Image (Bottom Layer) {% endcomment %}
+    {% if block.settings.base_shape_image %}
+      <div class="ai-product-image-layer-{{ ai_gen_id }} ai-base-shape-layer-{{ ai_gen_id }}">
+        <img
+          src="{{ block.settings.base_shape_image | image_url: width: 800 }}"
+          alt="Base shape"
+          loading="lazy"
+          width="{{ block.settings.base_shape_image.width }}"
+          height="{{ block.settings.base_shape_image.height }}"
+        >
+      </div>
+    {% endif %}
+
+    {% comment %} Layer 2: User Uploaded Image (Middle Layer with base shape mask) {% endcomment %}
+    <div class="ai-product-image-layer-{{ ai_gen_id }} ai-user-image-layer-{{ ai_gen_id }}" id="user-image-layer-{{ ai_gen_id }}">
+    </div>
+
+    {% comment %} Layer 3: Admin Overlay Image (Top Layer with base shape mask) {% endcomment %}
+    {% if block.settings.admin_overlay_image %}
+      <div class="ai-product-image-layer-{{ ai_gen_id }} ai-admin-overlay-layer-{{ ai_gen_id }}">
+        <img
+          src="{{ block.settings.admin_overlay_image | image_url: width: 800 }}"
+          alt="Overlay design"
+          loading="lazy"
+          width="{{ block.settings.admin_overlay_image.width }}"
+          height="{{ block.settings.admin_overlay_image.height }}"
+        >
+      </div>
+    {% endif %}
+
+    {% comment %} Optional Color Overlay Layer {% endcomment %}
+    {% if block.settings.show_color_overlay %}
+      <div class="ai-product-image-layer-{{ ai_gen_id }} ai-color-overlay-layer-{{ ai_gen_id }}"></div>
+    {% endif %}
+
+    {% comment %} Upload Overlay {% endcomment %}
+    <div class="ai-upload-overlay-{{ ai_gen_id }}">
+      <svg class="ai-upload-icon-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7,10 12,15 17,10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <div class="ai-upload-text-{{ ai_gen_id }}">{{ block.settings.upload_text }}</div>
+      <div class="ai-upload-subtext-{{ ai_gen_id }}">{{ block.settings.upload_subtext }}</div>
+    </div>
+
+    {% comment %} Drag and Drop Text {% endcomment %}
+    <div class="ai-drag-drop-text-{{ ai_gen_id }}">
+      <div style="font-weight: 600; margin-bottom: 8px;">Drop your image here</div>
+      <div style="font-size: 14px; color: #666;">Release to upload</div>
+    </div>
+
+    {% comment %} Remove Image Button {% endcomment %}
+    <button class="ai-remove-image-button-{{ ai_gen_id }}" id="remove-image-{{ ai_gen_id }}" aria-label="Remove uploaded image">×</button>
+
+    {% comment %} Hidden File Input {% endcomment %}
+    <input
+      type="file"
+      id="image-upload-{{ ai_gen_id }}"
+      class="ai-file-input-{{ ai_gen_id }}"
+      accept="image/*"
+      aria-label="Upload your design"
+    >
+
+    {% unless block.settings.base_shape_image %}
+      <div class="ai-image-placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-empty-state-{{ ai_gen_id }}">
+          Add base shape image
+        </div>
+      </div>
+    {% endunless %}
+  </div>
+
+  <div class="ai-product-info-{{ ai_gen_id }}">
+    {% assign selected_product = block.settings.selected_product %}
+    
+    {% if selected_product %}
+      <h1 class="ai-product-title-{{ ai_gen_id }}">{{ selected_product.title }}</h1>
+      
+      <div class="ai-product-price-section-{{ ai_gen_id }}">
+        <div class="ai-price-display-{{ ai_gen_id }}">
+          <span class="ai-current-price-{{ ai_gen_id }}" data-price="{{ selected_product.selected_or_first_available_variant.price }}">
+            {{ selected_product.selected_or_first_available_variant.price | money }}
+          </span>
+          {% if selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %}
+            <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="{{ selected_product.selected_or_first_available_variant.compare_at_price }}">
+              {{ selected_product.selected_or_first_available_variant.compare_at_price | money }}
+            </span>
+          {% else %}
+            <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="" style="display: none;"></span>
+          {% endif %}
+        </div>
+
+        <div class="ai-availability-status-{{ ai_gen_id }} {% if selected_product.selected_or_first_available_variant.available %}in-stock{% else %}out-of-stock{% endif %}">
+          {% if selected_product.selected_or_first_available_variant.available %}
+            In stock
+          {% else %}
+            Out of stock
+          {% endif %}
+        </div>
+
+        {% unless selected_product.has_only_default_variant %}
+          <variant-radios class="ai-variant-picker-{{ ai_gen_id }}" data-section="{{ section.id }}" data-url="{{ selected_product.url }}">
+            {% for option in selected_product.options_with_values %}
+              <div class="ai-variant-input-wrapper-{{ ai_gen_id }}">
+                <legend class="ai-variant-label-{{ ai_gen_id }}">{{ option.name }}</legend>
+                <fieldset class="ai-variant-fieldset-{{ ai_gen_id }}" name="{{ option.name }}">
+                  {% for value in option.values %}
+                    <input
+                      type="radio"
+                      id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}-{{ ai_gen_id }}"
+                      name="{{ option.name }}"
+                      value="{{ value | escape }}"
+                      {% if option.selected_value == value %}checked{% endif %}
+                      class="ai-variant-input-{{ ai_gen_id }}"
+                    >
+                    <label 
+                      class="ai-variant-label-option-{{ ai_gen_id }}"
+                      for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}-{{ ai_gen_id }}"
+                    >
+                      {{ value }}
+                    </label>
+                  {% endfor %}
+                </fieldset>
+              </div>
+            {% endfor %}
+            <script type="application/json">
+              {{ selected_product.variants | json }}
+            </script>
+          </variant-radios>
+        {% endunless %}
+      </div>
+    {% else %}
+      <div class="ai-no-product-message-{{ ai_gen_id }}">
+        Select a product to display its details and pricing
+      </div>
+    {% endif %}
+  </div>
+</variant-selects-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class VariantSelects{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.addEventListener('change', this.onVariantChange.bind(this));
+        this.currencyFormatter = new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR'
+        });
+        this.setupImageUpload();
+      }
+
+      setupImageUpload() {
+        const fileInput = this.querySelector('#image-upload-{{ ai_gen_id }}');
+        const imageContainer = this.querySelector('#image-container-{{ ai_gen_id }}');
+        const userImageLayer = this.querySelector('#user-image-layer-{{ ai_gen_id }}');
+        const removeButton = this.querySelector('#remove-image-{{ ai_gen_id }}');
+
+        if (fileInput && imageContainer) {
+          imageContainer.addEventListener('click', (event) => {
+            if (event.target !== removeButton && !removeButton.contains(event.target)) {
+              fileInput.click();
+            }
+          });
+
+          fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                this.displayUserImage(e.target.result);
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+
+          imageContainer.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            imageContainer.classList.add('dragover');
+          });
+
+          imageContainer.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            if (!imageContainer.contains(event.relatedTarget)) {
+              imageContainer.classList.remove('dragover');
+            }
+          });
+
+          imageContainer.addEventListener('drop', (event) => {
+            event.preventDefault();
+            imageContainer.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                this.displayUserImage(e.target.result);
+              };
+              reader.readAsDataURL(files[0]);
+            }
+          });
+        }
+
+        if (removeButton) {
+          removeButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            this.removeUserImage();
+          });
+        }
+      }
+
+      displayUserImage(imageSrc) {
+        const userImageLayer = this.querySelector('#user-image-layer-{{ ai_gen_id }}');
+        const imageContainer = this.querySelector('#image-container-{{ ai_gen_id }}');
+        
+        if (userImageLayer) {
+          let img = userImageLayer.querySelector('img');
+          if (!img) {
+            img = document.createElement('img');
+            userImageLayer.appendChild(img);
+          }
+          img.src = imageSrc;
+          img.alt = 'User uploaded design';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          
+          imageContainer.classList.add('has-user-image');
+        }
+      }
+
+      removeUserImage() {
+        const userImageLayer = this.querySelector('#user-image-layer-{{ ai_gen_id }}');
+        const fileInput = this.querySelector('#image-upload-{{ ai_gen_id }}');
+        const imageContainer = this.querySelector('#image-container-{{ ai_gen_id }}');
+        
+        if (userImageLayer) {
+          const img = userImageLayer.querySelector('img');
+          if (img) {
+            img.remove();
+          }
+        }
+        
+        if (imageContainer) {
+          imageContainer.classList.remove('has-user-image');
+        }
+        
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      }
+
+      onVariantChange() {
+        this.updateOptions();
+        this.updateMasterId();
+        this.updateVariantStatuses();
+        this.updatePriceInstantly();
+        this.updateAvailabilityStatus();
+
+        if (!this.currentVariant) {
+          this.setUnavailable();
+        } else {
+          this.updateURL();
+          this.updateVariantInput();
+        }
+      }
+
+      updateOptions() {
+        const fieldsets = Array.from(this.querySelectorAll('fieldset'));
+        this.options = fieldsets.map((fieldset) => {
+          return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked)?.value;
+        });
+      }
+
+      updateMasterId() {
+        this.currentVariant = this.getVariantData().find((variant) => {
+          return !variant.options.map((option, index) => {
+            return this.options[index] === option;
+          }).includes(false);
+        });
+      }
+
+      updatePriceInstantly() {
+        const priceElement = this.querySelector('.ai-current-price-{{ ai_gen_id }}');
+        const comparePriceElement = this.querySelector('.ai-compare-price-{{ ai_gen_id }}');
+
+        if (!this.currentVariant || !priceElement) return;
+
+        priceElement.textContent = this.currencyFormatter.format(this.currentVariant.price / 100);
+        priceElement.setAttribute('data-price', this.currentVariant.price);
+
+        if (comparePriceElement) {
+          if (this.currentVariant.compare_at_price && this.currentVariant.compare_at_price > this.currentVariant.price) {
+            comparePriceElement.textContent = this.currencyFormatter.format(this.currentVariant.compare_at_price / 100);
+            comparePriceElement.setAttribute('data-compare-price', this.currentVariant.compare_at_price);
+            comparePriceElement.style.display = 'inline';
+          } else {
+            comparePriceElement.setAttribute('data-compare-price', '');
+            comparePriceElement.style.display = 'none';
+          }
+        }
+      }
+
+      updateAvailabilityStatus() {
+        const statusElement = this.querySelector('.ai-availability-status-{{ ai_gen_id }}');
+        if (!statusElement || !this.currentVariant) return;
+
+        statusElement.className = 'ai-availability-status-{{ ai_gen_id }}';
+        
+        if (this.currentVariant.available) {
+          statusElement.classList.add('in-stock');
+          statusElement.textContent = 'In stock';
+        } else {
+          statusElement.classList.add('out-of-stock');
+          statusElement.textContent = 'Out of stock';
+        }
+      }
+
+      updateURL() {
+        if (!this.currentVariant || this.dataset.updateUrl === 'false') return;
+        window.history.replaceState({}, '', `${this.dataset.url}?variant=${this.currentVariant.id}`);
+      }
+
+      updateVariantInput() {
+        const productForms = document.querySelectorAll(`#product-form-{{ section.id }}, #product-form-installment-{{ section.id }}`);
+        productForms.forEach((productForm) => {
+          const input = productForm.querySelector('input[name="id"]');
+          if (input) {
+            input.value = this.currentVariant.id;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      }
+
+      updateVariantStatuses() {
+        const selectedOptionOneVariants = this.getVariantData().filter(
+          (variant) => this.querySelector(':checked').value === variant.option1
+        );
+        const inputWrappers = [...this.querySelectorAll('.ai-variant-input-wrapper-{{ ai_gen_id }}')];
+        
+        inputWrappers.forEach((option, index) => {
+          if (index === 0) return;
+          const optionInputs = [...option.querySelectorAll('input[type="radio"]')];
+          const previousOptionSelected = inputWrappers[index - 1].querySelector(':checked').value;
+          const availableOptionInputsValue = selectedOptionOneVariants
+            .filter((variant) => variant.available && variant[`option${index}`] === previousOptionSelected)
+            .map((variantOption) => variantOption[`option${index + 1}`]);
+          this.setInputAvailability(optionInputs, availableOptionInputsValue);
+        });
+      }
+
+      setInputAvailability(listOfOptions, listOfAvailableOptions) {
+        listOfOptions.forEach((input) => {
+          if (listOfAvailableOptions.includes(input.getAttribute('value'))) {
+            input.removeAttribute('disabled');
+          } else {
+            input.setAttribute('disabled', true);
+          }
+        });
+      }
+
+      setUnavailable() {
+        const priceElement = this.querySelector('.ai-current-price-{{ ai_gen_id }}');
+        const comparePriceElement = this.querySelector('.ai-compare-price-{{ ai_gen_id }}');
+        const statusElement = this.querySelector('.ai-availability-status-{{ ai_gen_id }}');
+
+        if (priceElement) {
+          priceElement.textContent = 'Unavailable';
+        }
+        if (comparePriceElement) {
+          comparePriceElement.style.display = 'none';
+        }
+        if (statusElement) {
+          statusElement.className = 'ai-availability-status-{{ ai_gen_id }} out-of-stock';
+          statusElement.textContent = 'Unavailable';
+        }
+      }
+
+      getVariantData() {
+        this.variantData = this.variantData || JSON.parse(this.querySelector('[type="application/json"]').textContent);
+        return this.variantData;
+      }
+    }
+
+    class VariantRadios{{ ai_gen_id }} extends VariantSelects{{ ai_gen_id }} {
+      constructor() {
+        super();
+      }
+
+      setInputAvailability(listOfOptions, listOfAvailableOptions) {
+        listOfOptions.forEach((input) => {
+          if (listOfAvailableOptions.includes(input.getAttribute('value'))) {
+            input.removeAttribute('disabled');
+          } else {
+            input.setAttribute('disabled', true);
+          }
+        });
+      }
+
+      updateOptions() {
+        const fieldsets = Array.from(this.querySelectorAll('fieldset'));
+        this.options = fieldsets.map((fieldset) => {
+          return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked)?.value;
+        });
+      }
+    }
+
+    customElements.define('variant-selects-{{ ai_gen_id }}', VariantSelects{{ ai_gen_id }});
+    customElements.define('variant-radios', VariantRadios{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product variant selector",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product selection"
+    },
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Select product"
+    },
+    {
+      "type": "header",
+      "content": "Layer 1 - Base shape image"
+    },
+    {
+      "type": "image_picker",
+      "id": "base_shape_image",
+      "label": "Base shape image"
+    },
+    {
+      "type": "color",
+      "id": "image_background_color",
+      "label": "Image background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layer 3 - Admin overlay image"
+    },
+    {
+      "type": "image_picker",
+      "id": "admin_overlay_image",
+      "label": "Admin overlay image"
+    },
+    {
+      "type": "range",
+      "id": "admin_overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Admin overlay opacity",
+      "default": 0.8
+    },
+    {
+      "type": "header",
+      "content": "Optional color overlay"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_color_overlay",
+      "label": "Show color overlay layer",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Color overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Color overlay opacity",
+      "default": 0.3
+    },
+    {
+      "type": "header",
+      "content": "User image upload"
+    },
+    {
+      "type": "text",
+      "id": "upload_text",
+      "label": "Upload text",
+      "default": "Upload Your Design"
+    },
+    {
+      "type": "text",
+      "id": "upload_subtext",
+      "label": "Upload subtext",
+      "default": "Click or drag and drop"
+    },
+    {
+      "type": "color",
+      "id": "upload_button_color",
+      "label": "Upload highlight color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "header",
+      "content": "Product title"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Product pricing"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Price font size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "header",
+      "content": "Variant options"
+    },
+    {
+      "type": "range",
+      "id": "variant_label_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Variant label font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "variant_font_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Variant option font size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "variant_background_color",
+      "label": "Variant background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_border_color",
+      "label": "Variant border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "variant_text_color",
+      "label": "Variant text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "variant_hover_background_color",
+      "label": "Variant hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "variant_hover_border_color",
+      "label": "Variant hover border",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_background_color",
+      "label": "Selected variant background",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_border_color",
+      "label": "Selected variant border",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_text_color",
+      "label": "Selected variant text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "variant_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Variant border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product variant selector"
+    }
+  ]
+}
 {% endschema %}
