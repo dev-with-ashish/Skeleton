@@ -1,6 +1,432 @@
+{% doc %}
+  @prompt
+    a responsive product section for product page which diplay the product title and price along with its variant prices and in the left three layer setuep one for the admin to upload the base shape image above that a user uploaded image layer which will have the mask of the base shape and above all the third layer having the mask of the base shape too, option to select the product so that the product variants and its prices can be displayed
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-section-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: {{ block.settings.image_background_color }};
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-product-image-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-base-shape-layer-{{ ai_gen_id }} {
+    z-index: 1;
+  }
+
+  .ai-base-shape-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-user-image-layer-{{ ai_gen_id }} {
+    z-index: 2;
+    mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    -webkit-mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+  }
+
+  .ai-user-image-layer-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-overlay-layer-{{ ai_gen_id }} {
+    z-index: 3;
+    mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    -webkit-mask: url({{ block.settings.base_shape_image | image_url }}) no-repeat center/contain;
+    background: {{ block.settings.overlay_color }};
+    opacity: {{ block.settings.overlay_opacity }};
+  }
+
+  .ai-product-info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px 0;
+  }
+
+  .ai-product-title-{{ ai_gen_id }} {
+    font-family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
+    font-weight: {{ settings.type_primary_font.weight }};
+    font-size: {{ block.settings.title_font_size }}px;
+    line-height: 1.2;
+    color: {{ block.settings.title_color }};
+    margin: 0;
+  }
+
+  .ai-product-price-section-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-main-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.price_color }};
+  }
+
+  .ai-variant-prices-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-variant-price-item-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: {{ block.settings.variant_background_color }};
+    border-radius: {{ block.settings.variant_border_radius }}px;
+    border: 1px solid {{ block.settings.variant_border_color }};
+  }
+
+  .ai-variant-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.variant_font_size }}px;
+    color: {{ block.settings.variant_text_color }};
+    font-weight: 500;
+  }
+
+  .ai-variant-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.variant_font_size }}px;
+    color: {{ block.settings.variant_price_color }};
+    font-weight: 600;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .ai-no-product-message-{{ ai_gen_id }} {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px 20px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-product-section-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 16px;
+    }
+
+    .ai-product-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_font_size | times: 0.9 }}px;
+    }
+
+    .ai-main-price-{{ ai_gen_id }} {
+      font-size: {{ block.settings.price_font_size | times: 0.9 }}px;
+    }
+
+    .ai-variant-price-item-{{ ai_gen_id }} {
+      padding: 10px 12px;
+    }
+
+    .ai-variant-title-{{ ai_gen_id }},
+    .ai-variant-price-{{ ai_gen_id }} {
+      font-size: {{ block.settings.variant_font_size | times: 0.9 }}px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-product-section-{{ ai_gen_id }} {
+      gap: 20px;
+      padding: 12px;
+    }
+
+    .ai-product-info-{{ ai_gen_id }} {
+      gap: 20px;
+    }
+
+    .ai-variant-prices-{{ ai_gen_id }} {
+      gap: 6px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-product-section-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-product-image-container-{{ ai_gen_id }}">
+    {% if block.settings.base_shape_image %}
+      <div class="ai-product-image-layer-{{ ai_gen_id }} ai-base-shape-layer-{{ ai_gen_id }}">
+        <img
+          src="{{ block.settings.base_shape_image | image_url: width: 800 }}"
+          alt="Base shape"
+          loading="lazy"
+          width="{{ block.settings.base_shape_image.width }}"
+          height="{{ block.settings.base_shape_image.height }}"
+        >
+      </div>
+    {% endif %}
+
+    {% if block.settings.user_image %}
+      <div class="ai-product-image-layer-{{ ai_gen_id }} ai-user-image-layer-{{ ai_gen_id }}">
+        <img
+          src="{{ block.settings.user_image | image_url: width: 800 }}"
+          alt="User uploaded design"
+          loading="lazy"
+          width="{{ block.settings.user_image.width }}"
+          height="{{ block.settings.user_image.height }}"
+        >
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_overlay %}
+      <div class="ai-product-image-layer-{{ ai_gen_id }} ai-overlay-layer-{{ ai_gen_id }}"></div>
+    {% endif %}
+
+    {% unless block.settings.base_shape_image %}
+      <div class="ai-image-placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-empty-state-{{ ai_gen_id }}">
+          Add base shape image
+        </div>
+      </div>
+    {% endunless %}
+  </div>
+
+  <div class="ai-product-info-{{ ai_gen_id }}">
+    {% assign selected_product = block.settings.selected_product %}
+    
+    {% if selected_product %}
+      <h1 class="ai-product-title-{{ ai_gen_id }}">{{ selected_product.title }}</h1>
+      
+      <div class="ai-product-price-section-{{ ai_gen_id }}">
+        <div class="ai-main-price-{{ ai_gen_id }}">
+          {% if selected_product.compare_at_price > selected_product.price %}
+            <span style="text-decoration: line-through; opacity: 0.7; margin-right: 8px;">
+              {{ selected_product.compare_at_price | money }}
+            </span>
+          {% endif %}
+          {{ selected_product.price | money }}
+        </div>
+
+        {% if selected_product.variants.size > 1 %}
+          <div class="ai-variant-prices-{{ ai_gen_id }}">
+            {% for variant in selected_product.variants %}
+              <div class="ai-variant-price-item-{{ ai_gen_id }}">
+                <span class="ai-variant-title-{{ ai_gen_id }}">{{ variant.title }}</span>
+                <span class="ai-variant-price-{{ ai_gen_id }}">{{ variant.price | money }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="ai-no-product-message-{{ ai_gen_id }}">
+        Select a product to display its details and pricing
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Layered product display",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product selection"
+    },
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Select product"
+    },
+    {
+      "type": "header",
+      "content": "Product images"
+    },
+    {
+      "type": "image_picker",
+      "id": "base_shape_image",
+      "label": "Base shape image"
+    },
+    {
+      "type": "image_picker",
+      "id": "user_image",
+      "label": "User uploaded image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Show overlay layer",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Overlay opacity",
+      "default": 0.3
+    },
+    {
+      "type": "color",
+      "id": "image_background_color",
+      "label": "Image background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Product title"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Product pricing"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Price font size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "header",
+      "content": "Variant pricing"
+    },
+    {
+      "type": "range",
+      "id": "variant_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Variant font size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "variant_background_color",
+      "label": "Variant background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_border_color",
+      "label": "Variant border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "variant_text_color",
+      "label": "Variant text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "variant_price_color",
+      "label": "Variant price color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "variant_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Variant border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Layered product display"
+    }
+  ]
+}
 {% endschema %}
