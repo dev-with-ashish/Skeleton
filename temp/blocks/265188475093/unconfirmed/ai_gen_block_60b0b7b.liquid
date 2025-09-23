@@ -1,6 +1,562 @@
+{% doc %}
+  @prompt
+    a customisable nameplate section where users can preview their name over the selected nameplate design (which will be the product first image)
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-nameplate-preview-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-nameplate-preview__container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-nameplate-preview__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.preview_height }}px;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    background-color: #f4f4f4;
+  }
+
+  .ai-nameplate-preview__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-nameplate-preview__placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+    position: relative;
+  }
+
+  .ai-nameplate-preview__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .ai-nameplate-preview__empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-nameplate-preview__text-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: {{ block.settings.text_color }};
+    font-family: {{ block.settings.text_font.family }}, {{ block.settings.text_font.fallback_families }};
+    font-weight: {{ block.settings.text_font.weight }};
+    font-size: {{ block.settings.text_size }}px;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+    pointer-events: none;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ai-nameplate-preview__controls-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-nameplate-preview__input-group-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-nameplate-preview__label-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.label_color }};
+  }
+
+  .ai-nameplate-preview__input-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+    transition: border-color 0.3s ease;
+  }
+
+  .ai-nameplate-preview__input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-preview__character-count-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+  }
+
+  .ai-nameplate-preview__character-count-{{ ai_gen_id }}.warning {
+    color: #ff6b35;
+  }
+
+  .ai-nameplate-preview__character-count-{{ ai_gen_id }}.error {
+    color: #d82c0d;
+  }
+
+  .ai-nameplate-preview__product-info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background-color: {{ block.settings.product_info_bg_color }};
+    border-radius: {{ block.settings.product_info_border_radius }}px;
+  }
+
+  .ai-nameplate-preview__product-title-{{ ai_gen_id }} {
+    font-size: 20px;
+    font-weight: 600;
+    color: {{ block.settings.product_title_color }};
+    margin: 0;
+  }
+
+  .ai-nameplate-preview__product-price-{{ ai_gen_id }} {
+    font-size: 18px;
+    color: {{ block.settings.product_price_color }};
+    font-weight: 500;
+  }
+
+  .ai-nameplate-preview__product-description-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.product_description_color }};
+    line-height: 1.5;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-nameplate-preview-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.7 }}px;
+    }
+
+    .ai-nameplate-preview__image-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.preview_height | times: 0.8 }}px;
+    }
+
+    .ai-nameplate-preview__text-overlay-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<nameplate-preview-{{ ai_gen_id }}
+  class="ai-nameplate-preview-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-preview__container-{{ ai_gen_id }}">
+    <div class="ai-nameplate-preview__image-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.selected_product and block.settings.selected_product.featured_image %}
+        <img
+          src="{{ block.settings.selected_product.featured_image | image_url: width: 800 }}"
+          alt="{{ block.settings.selected_product.featured_image.alt | escape }}"
+          class="ai-nameplate-preview__image-{{ ai_gen_id }}"
+          loading="lazy"
+          width="{{ block.settings.selected_product.featured_image.width }}"
+          height="{{ block.settings.selected_product.featured_image.height }}"
+        >
+      {% else %}
+        <div class="ai-nameplate-preview__placeholder-{{ ai_gen_id }}">
+          {{ 'product-apparel-1' | placeholder_svg_tag }}
+          <div class="ai-nameplate-preview__empty-state-{{ ai_gen_id }}">
+            Select a nameplate product to preview
+          </div>
+        </div>
+      {% endif %}
+
+      <div
+        class="ai-nameplate-preview__text-overlay-{{ ai_gen_id }}"
+        data-preview-text
+      >
+        {{ block.settings.default_text }}
+      </div>
+    </div>
+
+    <div class="ai-nameplate-preview__controls-{{ ai_gen_id }}">
+      <div class="ai-nameplate-preview__input-group-{{ ai_gen_id }}">
+        <label class="ai-nameplate-preview__label-{{ ai_gen_id }}" for="nameplate-input-{{ ai_gen_id }}">
+          {{ block.settings.input_label }}
+        </label>
+        <input
+          type="text"
+          id="nameplate-input-{{ ai_gen_id }}"
+          class="ai-nameplate-preview__input-{{ ai_gen_id }}"
+          placeholder="{{ block.settings.input_placeholder }}"
+          maxlength="{{ block.settings.max_characters }}"
+          data-nameplate-input
+        >
+        <div class="ai-nameplate-preview__character-count-{{ ai_gen_id }}" data-character-count>
+          0 / {{ block.settings.max_characters }} characters
+        </div>
+      </div>
+    </div>
+
+    {% if block.settings.selected_product %}
+      <div class="ai-nameplate-preview__product-info-{{ ai_gen_id }}">
+        <h3 class="ai-nameplate-preview__product-title-{{ ai_gen_id }}">
+          {{ block.settings.selected_product.title }}
+        </h3>
+        <div class="ai-nameplate-preview__product-price-{{ ai_gen_id }}">
+          {{ block.settings.selected_product.price | money }}
+        </div>
+        {% if block.settings.selected_product.description != blank %}
+          <div class="ai-nameplate-preview__product-description-{{ ai_gen_id }}">
+            {{ block.settings.selected_product.description | strip_html | truncate: 150 }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</nameplate-preview-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplatePreview{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.input = null;
+        this.previewText = null;
+        this.characterCount = null;
+        this.maxCharacters = {{ block.settings.max_characters }};
+        this.defaultText = "{{ block.settings.default_text | escape }}";
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('[data-nameplate-input]');
+        this.previewText = this.querySelector('[data-preview-text]');
+        this.characterCount = this.querySelector('[data-character-count]');
+
+        if (this.input && this.previewText && this.characterCount) {
+          this.setupEventListeners();
+          this.updatePreview();
+        }
+      }
+
+      setupEventListeners() {
+        this.input.addEventListener('input', () => {
+          this.updatePreview();
+          this.updateCharacterCount();
+        });
+
+        this.input.addEventListener('keyup', () => {
+          this.updatePreview();
+        });
+      }
+
+      updatePreview() {
+        const inputValue = this.input.value.trim();
+        this.previewText.textContent = inputValue || this.defaultText;
+      }
+
+      updateCharacterCount() {
+        const currentLength = this.input.value.length;
+        const remaining = this.maxCharacters - currentLength;
+        
+        this.characterCount.textContent = `${currentLength} / ${this.maxCharacters} characters`;
+        
+        this.characterCount.classList.remove('warning', 'error');
+        
+        if (remaining <= 5 && remaining > 0) {
+          this.characterCount.classList.add('warning');
+        } else if (remaining <= 0) {
+          this.characterCount.classList.add('error');
+        }
+      }
+    }
+
+    customElements.define('nameplate-preview-{{ ai_gen_id }}', NameplatePreview{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Nameplate preview",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product"
+    },
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Nameplate product"
+    },
+    {
+      "type": "header",
+      "content": "Preview settings"
+    },
+    {
+      "type": "range",
+      "id": "preview_height",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Preview height",
+      "default": 400
+    },
+    {
+      "type": "text",
+      "id": "default_text",
+      "label": "Default preview text",
+      "default": "Your Name"
+    },
+    {
+      "type": "header",
+      "content": "Text customization"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Text font",
+      "default": "big_shoulders_n4"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_x",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Text shadow X offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_y",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Text shadow Y offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_blur",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text shadow blur",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_shadow_color",
+      "label": "Text shadow color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Input settings"
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Enter your name"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Type your name here..."
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "label": "Maximum characters",
+      "default": 25
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Product info"
+    },
+    {
+      "type": "color",
+      "id": "product_info_bg_color",
+      "label": "Product info background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product title color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "product_price_color",
+      "label": "Product price color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "product_description_color",
+      "label": "Product description color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "product_info_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Product info border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 400,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Section border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#333333"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nameplate preview"
+    }
+  ]
+}
 {% endschema %}
