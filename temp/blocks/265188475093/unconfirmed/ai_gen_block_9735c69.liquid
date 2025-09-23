@@ -1,6 +1,1139 @@
+{% doc %}
+  @prompt
+    a shopify section with 3 layers for displaying a custom nameplate first layer will the nameplate board layer (product first image) 2nd layer (with 2d or 3d toogle option) will be the name layer which will be typed by the user 3rd layer (if 3d is off ) will be glowing shadow (lighted shadow of the same name typed by the user) , option to select font, font is not changing , give me ready to toggle 5 text box layer which can be dragged over the nameplate board layer by the admin and can not be edited by the user i will place this textbox layer anywhere on the nameplate according to choise
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-nameplate-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-nameplate-preview-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.preview_height }}px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .ai-nameplate-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-nameplate-board-{{ ai_gen_id }} {
+    z-index: 1;
+  }
+
+  .ai-nameplate-board-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-nameplate-board-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .ai-nameplate-board-placeholder-{{ ai_gen_id }} svg {
+    width: 100px;
+    height: 100px;
+    opacity: 0.5;
+  }
+
+  .ai-nameplate-shadow-{{ ai_gen_id }} {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: {{ block.settings.shadow_opacity }};
+  }
+
+  .ai-nameplate-shadow-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.shadow_color }};
+    text-shadow: 
+      0 0 {{ block.settings.glow_intensity }}px {{ block.settings.shadow_color }},
+      0 0 {{ block.settings.glow_intensity | times: 2 }}px {{ block.settings.shadow_color }},
+      0 0 {{ block.settings.glow_intensity | times: 3 }}px {{ block.settings.shadow_color }};
+    transform: translate({{ block.settings.shadow_offset_x }}px, {{ block.settings.shadow_offset_y }}px);
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-{{ ai_gen_id }} {
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-nameplate-text-content-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-3d-{{ ai_gen_id }} {
+    text-shadow: 
+      1px 1px 0 {{ block.settings.text_3d_color }},
+      2px 2px 0 {{ block.settings.text_3d_color }},
+      3px 3px 0 {{ block.settings.text_3d_color }},
+      4px 4px 0 {{ block.settings.text_3d_color }},
+      5px 5px 0 {{ block.settings.text_3d_color }},
+      6px 6px 10px rgba(0,0,0,0.3);
+  }
+
+  .ai-nameplate-admin-textbox-{{ ai_gen_id }} {
+    position: absolute;
+    z-index: 4;
+    cursor: move;
+    user-select: none;
+    min-width: 50px;
+    min-height: 20px;
+    padding: 8px 12px;
+    background-color: {{ block.settings.admin_textbox_bg }};
+    color: {{ block.settings.admin_textbox_color }};
+    border: 2px solid {{ block.settings.admin_textbox_border }};
+    border-radius: {{ block.settings.admin_textbox_radius }}px;
+    font-size: {{ block.settings.admin_textbox_size }}px;
+    font-weight: {{ block.settings.admin_textbox_weight }};
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+  }
+
+  .ai-nameplate-admin-textbox-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.admin_textbox_hover_border }};
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.02);
+  }
+
+  .ai-nameplate-admin-textbox-{{ ai_gen_id }}.dragging {
+    opacity: 0.8;
+    transform: scale(1.05);
+    z-index: 10;
+  }
+
+  .ai-nameplate-controls-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-nameplate-input-group-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-nameplate-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    color: {{ block.settings.label_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-select-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+    cursor: pointer;
+  }
+
+  .ai-nameplate-select-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-toggle-group-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }} {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    background-color: {{ block.settings.toggle_bg_color }};
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.toggle_active_color }};
+  }
+
+  .ai-nameplate-toggle-slider-{{ ai_gen_id }} {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}.active .ai-nameplate-toggle-slider-{{ ai_gen_id }} {
+    transform: translateX(24px);
+  }
+
+  .ai-nameplate-toggle-labels-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+    color: {{ block.settings.label_color }};
+  }
+
+  .ai-nameplate-toggle-label-{{ ai_gen_id }} {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-nameplate-toggle-label-{{ ai_gen_id }}.active {
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  .ai-nameplate-admin-controls-{{ ai_gen_id }} {
+    margin-top: 20px;
+    padding: 16px;
+    background-color: {{ block.settings.admin_panel_bg }};
+    border-radius: 8px;
+    border: 2px dashed {{ block.settings.admin_panel_border }};
+  }
+
+  .ai-nameplate-admin-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.admin_panel_text }};
+    margin-bottom: 12px;
+  }
+
+  .ai-nameplate-textbox-controls-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .ai-nameplate-textbox-control-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+
+  .ai-nameplate-textbox-toggle-{{ ai_gen_id }} {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-nameplate-textbox-toggle-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.toggle_active_color }};
+  }
+
+  .ai-nameplate-textbox-toggle-slider-{{ ai_gen_id }} {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .ai-nameplate-textbox-toggle-{{ ai_gen_id }}.active .ai-nameplate-textbox-toggle-slider-{{ ai_gen_id }} {
+    transform: translateX(20px);
+  }
+
+  .ai-nameplate-textbox-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.admin_panel_text }};
+    flex-grow: 1;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-nameplate-container-{{ ai_gen_id }} {
+      padding: 16px;
+    }
+
+    .ai-nameplate-preview-{{ ai_gen_id }} {
+      height: {{ block.settings.preview_height | times: 0.7 }}px;
+    }
+
+    .ai-nameplate-text-content-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+    }
+
+    .ai-nameplate-shadow-text-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+    }
+
+    .ai-nameplate-admin-textbox-{{ ai_gen_id }} {
+      font-size: {{ block.settings.admin_textbox_size | times: 0.8 }}px;
+      padding: 6px 10px;
+    }
+
+    .ai-nameplate-textbox-controls-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstyle %}
+
+<nameplate-customizer-{{ ai_gen_id }}
+  class="ai-nameplate-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-preview-{{ ai_gen_id }}" data-preview-container>
+    <div class="ai-nameplate-layer-{{ ai_gen_id }} ai-nameplate-board-{{ ai_gen_id }}">
+      {% if block.settings.nameplate_image %}
+        <img
+          src="{{ block.settings.nameplate_image | image_url: width: 800 }}"
+          alt="{{ block.settings.nameplate_image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.nameplate_image.width }}"
+          height="{{ block.settings.nameplate_image.height }}"
+        >
+      {% else %}
+        <div class="ai-nameplate-board-placeholder-{{ ai_gen_id }}">
+          {{ 'product-apparel-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-nameplate-layer-{{ ai_gen_id }} ai-nameplate-shadow-{{ ai_gen_id }}" data-shadow-layer>
+      <div class="ai-nameplate-shadow-text-{{ ai_gen_id }}" data-shadow-text>
+        {{ block.settings.default_text }}
+      </div>
+    </div>
+
+    <div class="ai-nameplate-layer-{{ ai_gen_id }} ai-nameplate-text-{{ ai_gen_id }}">
+      <div class="ai-nameplate-text-content-{{ ai_gen_id }}" data-nameplate-text>
+        {{ block.settings.default_text }}
+      </div>
+    </div>
+
+    {% for i in (1..5) %}
+      {% liquid
+        assign textbox_enabled_key = 'textbox_' | append: i | append: '_enabled'
+        assign textbox_text_key = 'textbox_' | append: i | append: '_text'
+        assign textbox_x_key = 'textbox_' | append: i | append: '_x'
+        assign textbox_y_key = 'textbox_' | append: i | append: '_y'
+
+        assign textbox_enabled = block.settings[textbox_enabled_key]
+        assign textbox_text = block.settings[textbox_text_key]
+        assign textbox_x = block.settings[textbox_x_key]
+        assign textbox_y = block.settings[textbox_y_key]
+      %}
+
+      {% if textbox_enabled and textbox_text != blank %}
+        <div
+          class="ai-nameplate-admin-textbox-{{ ai_gen_id }}"
+          data-textbox="{{ i }}"
+          style="
+            left: {{ textbox_x }}%;
+            top: {{ textbox_y }}%;
+            transform: translate(-50%, -50%);
+          "
+        >
+          {{ textbox_text }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="ai-nameplate-controls-{{ ai_gen_id }}">
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <label class="ai-nameplate-label-{{ ai_gen_id }}" for="nameplate-input-{{ ai_gen_id }}">
+        {{ block.settings.input_label }}
+      </label>
+      <input
+        type="text"
+        id="nameplate-input-{{ ai_gen_id }}"
+        class="ai-nameplate-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        value="{{ block.settings.default_text }}"
+        maxlength="{{ block.settings.max_characters }}"
+        data-nameplate-input
+      >
+    </div>
+
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <label class="ai-nameplate-label-{{ ai_gen_id }}" for="font-select-{{ ai_gen_id }}">
+        {{ block.settings.font_select_label }}
+      </label>
+      <select
+        id="font-select-{{ ai_gen_id }}"
+        class="ai-nameplate-select-{{ ai_gen_id }}"
+        data-font-select
+      >
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="Helvetica, sans-serif">Helvetica</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Courier New', monospace">Courier New</option>
+        <option value="Verdana, sans-serif">Verdana</option>
+        <option value="Impact, sans-serif">Impact</option>
+        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        <option value="'Lucida Console', monospace">Lucida Console</option>
+        <option value="'Brush Script MT', cursive">Brush Script</option>
+        <option value="'Palatino Linotype', serif">Palatino</option>
+        <option value="'Book Antiqua', serif">Book Antiqua</option>
+        <option value="Tahoma, sans-serif">Tahoma</option>
+        <option value="'Century Gothic', sans-serif">Century Gothic</option>
+      </select>
+    </div>
+
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <div class="ai-nameplate-toggle-group-{{ ai_gen_id }}">
+        <span class="ai-nameplate-label-{{ ai_gen_id }}">{{ block.settings.toggle_label }}</span>
+        <div class="ai-nameplate-toggle-{{ ai_gen_id }}" data-3d-toggle>
+          <div class="ai-nameplate-toggle-slider-{{ ai_gen_id }}"></div>
+        </div>
+        <div class="ai-nameplate-toggle-labels-{{ ai_gen_id }}">
+          <span class="ai-nameplate-toggle-label-{{ ai_gen_id }} active" data-2d-label>2D</span>
+          <span class="ai-nameplate-toggle-label-{{ ai_gen_id }}" data-3d-label>3D</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-nameplate-admin-controls-{{ ai_gen_id }}">
+    <div class="ai-nameplate-admin-title-{{ ai_gen_id }}">Admin Text Boxes (Drag to position)</div>
+    <div class="ai-nameplate-textbox-controls-{{ ai_gen_id }}">
+      {% for i in (1..5) %}
+        {% liquid
+          assign textbox_enabled_key = 'textbox_' | append: i | append: '_enabled'
+          assign textbox_text_key = 'textbox_' | append: i | append: '_text'
+          assign textbox_enabled = block.settings[textbox_enabled_key]
+          assign textbox_text = block.settings[textbox_text_key]
+        %}
+        <div class="ai-nameplate-textbox-control-{{ ai_gen_id }}">
+          <div 
+            class="ai-nameplate-textbox-toggle-{{ ai_gen_id }} {% if textbox_enabled %}active{% endif %}"
+            data-textbox-toggle="{{ i }}"
+          >
+            <div class="ai-nameplate-textbox-toggle-slider-{{ ai_gen_id }}"></div>
+          </div>
+          <span class="ai-nameplate-textbox-label-{{ ai_gen_id }}">
+            Text Box {{ i }}: {% if textbox_text != blank %}"{{ textbox_text }}"{% else %}Empty{% endif %}
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</nameplate-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.is3D = false;
+        this.currentFont = 'Arial, sans-serif';
+        this.isDragging = false;
+        this.dragElement = null;
+        this.dragOffset = { x: 0, y: 0 };
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('[data-nameplate-input]');
+        this.nameplateText = this.querySelector('[data-nameplate-text]');
+        this.shadowText = this.querySelector('[data-shadow-text]');
+        this.shadowLayer = this.querySelector('[data-shadow-layer]');
+        this.toggle = this.querySelector('[data-3d-toggle]');
+        this.label2D = this.querySelector('[data-2d-label]');
+        this.label3D = this.querySelector('[data-3d-label]');
+        this.fontSelect = this.querySelector('[data-font-select]');
+        this.previewContainer = this.querySelector('[data-preview-container]');
+        this.textboxes = this.querySelectorAll('[data-textbox]');
+        this.textboxToggles = this.querySelectorAll('[data-textbox-toggle]');
+
+        this.setupEventListeners();
+        this.updateShadowVisibility();
+        this.updateFontFamily();
+        this.setupDragAndDrop();
+        this.setupTextboxToggles();
+      }
+
+      setupEventListeners() {
+        this.input.addEventListener('input', (e) => {
+          const text = e.target.value || '{{ block.settings.default_text }}';
+          this.nameplateText.textContent = text;
+          this.shadowText.textContent = text;
+        });
+
+        this.toggle.addEventListener('click', () => {
+          this.is3D = !this.is3D;
+          this.updateToggleState();
+          this.updateTextEffect();
+          this.updateShadowVisibility();
+        });
+
+        this.fontSelect.addEventListener('change', (e) => {
+          this.currentFont = e.target.value;
+          this.updateFontFamily();
+        });
+      }
+
+      setupTextboxToggles() {
+        this.textboxToggles.forEach((toggle) => {
+          toggle.addEventListener('click', () => {
+            const textboxId = toggle.getAttribute('data-textbox-toggle');
+            const textbox = this.querySelector(`[data-textbox="${textboxId}"]`);
+            const isActive = toggle.classList.contains('active');
+            
+            toggle.classList.toggle('active');
+            
+            if (textbox) {
+              textbox.style.display = isActive ? 'none' : 'block';
+            }
+          });
+        });
+      }
+
+      setupDragAndDrop() {
+        this.textboxes.forEach((textbox) => {
+          textbox.addEventListener('mousedown', (e) => this.startDrag(e, textbox));
+          textbox.addEventListener('touchstart', (e) => this.startDrag(e, textbox));
+        });
+
+        document.addEventListener('mousemove', (e) => this.drag(e));
+        document.addEventListener('touchmove', (e) => this.drag(e));
+        document.addEventListener('mouseup', () => this.endDrag());
+        document.addEventListener('touchend', () => this.endDrag());
+      }
+
+      startDrag(e, element) {
+        e.preventDefault();
+        this.isDragging = true;
+        this.dragElement = element;
+        element.classList.add('dragging');
+
+        const rect = this.previewContainer.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+        this.dragOffset = {
+          x: clientX - elementRect.left - elementRect.width / 2,
+          y: clientY - elementRect.top - elementRect.height / 2
+        };
+      }
+
+      drag(e) {
+        if (!this.isDragging || !this.dragElement) return;
+
+        e.preventDefault();
+        const rect = this.previewContainer.getBoundingClientRect();
+        
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+        const x = clientX - rect.left - this.dragOffset.x;
+        const y = clientY - rect.top - this.dragOffset.y;
+
+        const percentX = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        const percentY = Math.max(0, Math.min(100, (y / rect.height) * 100));
+
+        this.dragElement.style.left = percentX + '%';
+        this.dragElement.style.top = percentY + '%';
+      }
+
+      endDrag() {
+        if (this.dragElement) {
+          this.dragElement.classList.remove('dragging');
+        }
+        this.isDragging = false;
+        this.dragElement = null;
+      }
+
+      updateToggleState() {
+        this.toggle.classList.toggle('active', this.is3D);
+        this.label2D.classList.toggle('active', !this.is3D);
+        this.label3D.classList.toggle('active', this.is3D);
+      }
+
+      updateTextEffect() {
+        this.nameplateText.classList.toggle('ai-nameplate-text-3d-{{ ai_gen_id }}', this.is3D);
+      }
+
+      updateShadowVisibility() {
+        this.shadowLayer.style.display = this.is3D ? 'none' : 'flex';
+      }
+
+      updateFontFamily() {
+        this.nameplateText.style.fontFamily = this.currentFont;
+        this.shadowText.style.fontFamily = this.currentFont;
+        this.nameplateText.style.fontWeight = this.getFontWeight(this.currentFont);
+        this.shadowText.style.fontWeight = this.getFontWeight(this.currentFont);
+      }
+
+      getFontWeight(fontFamily) {
+        if (fontFamily.includes('Impact')) return 'bold';
+        if (fontFamily.includes('Times') || fontFamily.includes('Georgia')) return '400';
+        if (fontFamily.includes('Courier')) return '400';
+        return 'normal';
+      }
+    }
+
+    customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Custom nameplate",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Nameplate board"
+    },
+    {
+      "type": "image_picker",
+      "id": "nameplate_image",
+      "label": "Nameplate board image"
+    },
+    {
+      "type": "range",
+      "id": "preview_height",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Preview height",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 300,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 600
+    },
+    {
+      "type": "header",
+      "content": "Text settings"
+    },
+    {
+      "type": "text",
+      "id": "default_text",
+      "label": "Default text",
+      "default": "YOUR NAME"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "label": "Maximum characters",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "3D effect"
+    },
+    {
+      "type": "color",
+      "id": "text_3d_color",
+      "label": "3D shadow color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Glow shadow (2D mode)"
+    },
+    {
+      "type": "color",
+      "id": "shadow_color",
+      "label": "Shadow color",
+      "default": "#00ffff"
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Shadow opacity",
+      "default": 0.8
+    },
+    {
+      "type": "range",
+      "id": "glow_intensity",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Glow intensity",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "shadow_offset_x",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow horizontal offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "shadow_offset_y",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow vertical offset",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Admin text boxes"
+    },
+    {
+      "type": "color",
+      "id": "admin_textbox_bg",
+      "label": "Text box background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "admin_textbox_color",
+      "label": "Text box text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "admin_textbox_border",
+      "label": "Text box border color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "admin_textbox_hover_border",
+      "label": "Text box hover border",
+      "default": "#0056b3"
+    },
+    {
+      "type": "range",
+      "id": "admin_textbox_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text box font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "admin_textbox_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Text box border radius",
+      "default": 6
+    },
+    {
+      "type": "select",
+      "id": "admin_textbox_weight",
+      "label": "Text box font weight",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "bold",
+          "label": "Bold"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "Text box 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "textbox_1_enabled",
+      "label": "Enable text box 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "textbox_1_text",
+      "label": "Text box 1 content",
+      "default": "Size"
+    },
+    {
+      "type": "range",
+      "id": "textbox_1_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "textbox_1_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Text box 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "textbox_2_enabled",
+      "label": "Enable text box 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "textbox_2_text",
+      "label": "Text box 2 content",
+      "default": "Material"
+    },
+    {
+      "type": "range",
+      "id": "textbox_2_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "textbox_2_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Text box 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "textbox_3_enabled",
+      "label": "Enable text box 3",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "textbox_3_text",
+      "label": "Text box 3 content",
+      "default": "Color"
+    },
+    {
+      "type": "range",
+      "id": "textbox_3_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "textbox_3_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Text box 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "textbox_4_enabled",
+      "label": "Enable text box 4",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "textbox_4_text",
+      "label": "Text box 4 content",
+      "default": "Style"
+    },
+    {
+      "type": "range",
+      "id": "textbox_4_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "textbox_4_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Text box 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "textbox_5_enabled",
+      "label": "Enable text box 5",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "textbox_5_text",
+      "label": "Text box 5 content",
+      "default": "Finish"
+    },
+    {
+      "type": "range",
+      "id": "textbox_5_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "textbox_5_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Input controls"
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Enter your name"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Type your name here..."
+    },
+    {
+      "type": "text",
+      "id": "font_select_label",
+      "label": "Font selector label",
+      "default": "Choose font"
+    },
+    {
+      "type": "text",
+      "id": "toggle_label",
+      "label": "Toggle label",
+      "default": "Text style"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "toggle_bg_color",
+      "label": "Toggle background color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "toggle_active_color",
+      "label": "Toggle active color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "admin_panel_bg",
+      "label": "Admin panel background",
+      "default": "#f0f8ff"
+    },
+    {
+      "type": "color",
+      "id": "admin_panel_border",
+      "label": "Admin panel border",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "admin_panel_text",
+      "label": "Admin panel text",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom nameplate"
+    }
+  ]
+}
 {% endschema %}
