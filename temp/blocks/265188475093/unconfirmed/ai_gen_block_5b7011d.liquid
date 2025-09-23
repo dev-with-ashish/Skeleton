@@ -1,6 +1,1319 @@
+{% doc %}
+  @prompt
+    a name plate design section having 2 layer 1st will be the nameplate layer (use product 1st image in this layer ) 2nd layer over this imaage layer in the 2nd layer there will be ready to toggle 5 text box which can be moved on position over the name plate 1st layer through dragging these text box should have option to have bg or not shold be resizable text color selection boldness selection gradiant selection of the text glittering selection of the text and other effects which can be one set by the admin for the use on the website only option to type for that toggled on box should be there on the right beside the nameplate image, for the user on the website ui there should only the option to edit the text contet not any otehr option like the text designing and postion that will be done by the admin from the shopify admin panel , fix any issue if found nameplaye image layer notwhowing
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-nameplate-designer-{{ ai_gen_id }} {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    font-family: {{ settings.type_primary_font.family }}, sans-serif;
+  }
+
+  .ai-nameplate-canvas-{{ ai_gen_id }} {
+    position: relative;
+    flex: 1;
+    max-width: 600px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 400px;
+  }
+
+  .ai-nameplate-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 1;
+    min-height: 400px;
+    object-fit: cover;
+  }
+
+  .ai-nameplate-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 400px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .ai-nameplate-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    opacity: 0.3;
+  }
+
+  .ai-nameplate-empty-message-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-nameplate-text-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-box-{{ ai_gen_id }} {
+    position: absolute;
+    pointer-events: auto;
+    min-width: 50px;
+    min-height: 30px;
+    cursor: pointer;
+    user-select: none;
+    border: 2px dashed transparent;
+    transition: border-color 0.2s;
+    border-radius: 4px;
+  }
+
+  .ai-nameplate-text-box-{{ ai_gen_id }}:hover {
+    border-color: rgba(0, 124, 186, 0.5);
+  }
+
+  .ai-nameplate-text-box-{{ ai_gen_id }}.active {
+    border-color: #007cba;
+    background-color: rgba(0, 124, 186, 0.1);
+  }
+
+  .ai-nameplate-text-content-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    word-wrap: break-word;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .ai-nameplate-controls-{{ ai_gen_id }} {
+    width: 300px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    height: fit-content;
+  }
+
+  .ai-nameplate-controls-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-nameplate-text-editor-{{ ai_gen_id }} {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .ai-nameplate-text-editor-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  .ai-nameplate-control-group-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-nameplate-control-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-nameplate-textarea-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+
+  .ai-nameplate-textarea-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+  }
+
+  .ai-nameplate-instruction-{{ ai_gen_id }} {
+    background-color: #f0f8ff;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #007cba;
+    margin-bottom: 20px;
+  }
+
+  .ai-nameplate-instruction-text-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: #333;
+    margin: 0;
+  }
+
+  .ai-nameplate-empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+
+  .ai-nameplate-empty-state-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .ai-nameplate-empty-state-text-{{ ai_gen_id }} {
+    font-size: 14px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-nameplate-designer-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-nameplate-controls-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    .ai-nameplate-canvas-{{ ai_gen_id }} {
+      max-width: 100%;
+    }
+  }
+{% endstyle %}
+
+<nameplate-designer-{{ ai_gen_id }}
+  class="ai-nameplate-designer-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-canvas-{{ ai_gen_id }}">
+    {% if block.settings.nameplate_product and block.settings.nameplate_product.featured_image %}
+      <img
+        src="{{ block.settings.nameplate_product.featured_image | image_url: width: 600 }}"
+        alt="{{ block.settings.nameplate_product.featured_image.alt | escape }}"
+        class="ai-nameplate-image-{{ ai_gen_id }}"
+        loading="lazy"
+        width="{{ block.settings.nameplate_product.featured_image.width }}"
+        height="{{ block.settings.nameplate_product.featured_image.height }}"
+      >
+    {% else %}
+      <div class="ai-nameplate-placeholder-{{ ai_gen_id }}">
+        {{ 'product-apparel-1' | placeholder_svg_tag }}
+        <div class="ai-nameplate-empty-message-{{ ai_gen_id }}">
+          Select a nameplate product to get started
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ai-nameplate-text-layer-{{ ai_gen_id }}">
+      {% assign has_visible_text = false %}
+      
+      {% if block.settings.text_1_enabled %}
+        {% assign has_visible_text = true %}
+        <div
+          class="ai-nameplate-text-box-{{ ai_gen_id }}"
+          data-text-id="1"
+          style="
+            top: {{ block.settings.text_1_y }}%;
+            left: {{ block.settings.text_1_x }}%;
+            font-size: {{ block.settings.text_1_size }}px;
+            color: {% if block.settings.text_1_gradient %}transparent{% else %}{{ block.settings.text_1_color }}{% endif %};
+            font-weight: {% if block.settings.text_1_bold %}bold{% else %}normal{% endif %};
+            background-color: {% if block.settings.text_1_background %}{{ block.settings.text_1_bg_color }}{% else %}transparent{% endif %};
+            {% if block.settings.text_1_gradient %}
+              background: linear-gradient(45deg, {{ block.settings.text_1_gradient_start }}, {{ block.settings.text_1_gradient_end }});
+              background-clip: text;
+              -webkit-background-clip: text;
+            {% endif %}
+            {% case block.settings.text_1_effect %}
+              {% when 'shadow' %}
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+              {% when 'glow' %}
+                text-shadow: 0 0 10px {{ block.settings.text_1_color }};
+              {% when 'outline' %}
+                -webkit-text-stroke: 1px {{ block.settings.text_1_color }};
+                color: transparent;
+              {% when 'glitter' %}
+                background: linear-gradient(45deg, {{ block.settings.text_1_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_1_color }} 75%), linear-gradient(45deg, {{ block.settings.text_1_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_1_color }} 75%);
+                background-size: 4px 4px;
+                background-position: 0 0, 2px 2px;
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'metallic' %}
+                background: linear-gradient(45deg, #c0c0c0, #ffffff, #c0c0c0);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'neon' %}
+                text-shadow: 0 0 5px {{ block.settings.text_1_color }}, 0 0 10px {{ block.settings.text_1_color }}, 0 0 15px {{ block.settings.text_1_color }};
+            {% endcase %}
+          "
+        >
+          <div class="ai-nameplate-text-content-{{ ai_gen_id }}">
+            {% if block.settings.text_1_content != blank %}
+              {{ block.settings.text_1_content }}
+            {% else %}
+              Text 1
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.text_2_enabled %}
+        {% assign has_visible_text = true %}
+        <div
+          class="ai-nameplate-text-box-{{ ai_gen_id }}"
+          data-text-id="2"
+          style="
+            top: {{ block.settings.text_2_y }}%;
+            left: {{ block.settings.text_2_x }}%;
+            font-size: {{ block.settings.text_2_size }}px;
+            color: {% if block.settings.text_2_gradient %}transparent{% else %}{{ block.settings.text_2_color }}{% endif %};
+            font-weight: {% if block.settings.text_2_bold %}bold{% else %}normal{% endif %};
+            background-color: {% if block.settings.text_2_background %}{{ block.settings.text_2_bg_color }}{% else %}transparent{% endif %};
+            {% if block.settings.text_2_gradient %}
+              background: linear-gradient(45deg, {{ block.settings.text_2_gradient_start }}, {{ block.settings.text_2_gradient_end }});
+              background-clip: text;
+              -webkit-background-clip: text;
+            {% endif %}
+            {% case block.settings.text_2_effect %}
+              {% when 'shadow' %}
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+              {% when 'glow' %}
+                text-shadow: 0 0 10px {{ block.settings.text_2_color }};
+              {% when 'outline' %}
+                -webkit-text-stroke: 1px {{ block.settings.text_2_color }};
+                color: transparent;
+              {% when 'glitter' %}
+                background: linear-gradient(45deg, {{ block.settings.text_2_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_2_color }} 75%), linear-gradient(45deg, {{ block.settings.text_2_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_2_color }} 75%);
+                background-size: 4px 4px;
+                background-position: 0 0, 2px 2px;
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'metallic' %}
+                background: linear-gradient(45deg, #c0c0c0, #ffffff, #c0c0c0);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'neon' %}
+                text-shadow: 0 0 5px {{ block.settings.text_2_color }}, 0 0 10px {{ block.settings.text_2_color }}, 0 0 15px {{ block.settings.text_2_color }};
+            {% endcase %}
+          "
+        >
+          <div class="ai-nameplate-text-content-{{ ai_gen_id }}">
+            {% if block.settings.text_2_content != blank %}
+              {{ block.settings.text_2_content }}
+            {% else %}
+              Text 2
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.text_3_enabled %}
+        {% assign has_visible_text = true %}
+        <div
+          class="ai-nameplate-text-box-{{ ai_gen_id }}"
+          data-text-id="3"
+          style="
+            top: {{ block.settings.text_3_y }}%;
+            left: {{ block.settings.text_3_x }}%;
+            font-size: {{ block.settings.text_3_size }}px;
+            color: {% if block.settings.text_3_gradient %}transparent{% else %}{{ block.settings.text_3_color }}{% endif %};
+            font-weight: {% if block.settings.text_3_bold %}bold{% else %}normal{% endif %};
+            background-color: {% if block.settings.text_3_background %}{{ block.settings.text_3_bg_color }}{% else %}transparent{% endif %};
+            {% if block.settings.text_3_gradient %}
+              background: linear-gradient(45deg, {{ block.settings.text_3_gradient_start }}, {{ block.settings.text_3_gradient_end }});
+              background-clip: text;
+              -webkit-background-clip: text;
+            {% endif %}
+            {% case block.settings.text_3_effect %}
+              {% when 'shadow' %}
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+              {% when 'glow' %}
+                text-shadow: 0 0 10px {{ block.settings.text_3_color }};
+              {% when 'outline' %}
+                -webkit-text-stroke: 1px {{ block.settings.text_3_color }};
+                color: transparent;
+              {% when 'glitter' %}
+                background: linear-gradient(45deg, {{ block.settings.text_3_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_3_color }} 75%), linear-gradient(45deg, {{ block.settings.text_3_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_3_color }} 75%);
+                background-size: 4px 4px;
+                background-position: 0 0, 2px 2px;
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'metallic' %}
+                background: linear-gradient(45deg, #c0c0c0, #ffffff, #c0c0c0);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'neon' %}
+                text-shadow: 0 0 5px {{ block.settings.text_3_color }}, 0 0 10px {{ block.settings.text_3_color }}, 0 0 15px {{ block.settings.text_3_color }};
+            {% endcase %}
+          "
+        >
+          <div class="ai-nameplate-text-content-{{ ai_gen_id }}">
+            {% if block.settings.text_3_content != blank %}
+              {{ block.settings.text_3_content }}
+            {% else %}
+              Text 3
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.text_4_enabled %}
+        {% assign has_visible_text = true %}
+        <div
+          class="ai-nameplate-text-box-{{ ai_gen_id }}"
+          data-text-id="4"
+          style="
+            top: {{ block.settings.text_4_y }}%;
+            left: {{ block.settings.text_4_x }}%;
+            font-size: {{ block.settings.text_4_size }}px;
+            color: {% if block.settings.text_4_gradient %}transparent{% else %}{{ block.settings.text_4_color }}{% endif %};
+            font-weight: {% if block.settings.text_4_bold %}bold{% else %}normal{% endif %};
+            background-color: {% if block.settings.text_4_background %}{{ block.settings.text_4_bg_color }}{% else %}transparent{% endif %};
+            {% if block.settings.text_4_gradient %}
+              background: linear-gradient(45deg, {{ block.settings.text_4_gradient_start }}, {{ block.settings.text_4_gradient_end }});
+              background-clip: text;
+              -webkit-background-clip: text;
+            {% endif %}
+            {% case block.settings.text_4_effect %}
+              {% when 'shadow' %}
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+              {% when 'glow' %}
+                text-shadow: 0 0 10px {{ block.settings.text_4_color }};
+              {% when 'outline' %}
+                -webkit-text-stroke: 1px {{ block.settings.text_4_color }};
+                color: transparent;
+              {% when 'glitter' %}
+                background: linear-gradient(45deg, {{ block.settings.text_4_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_4_color }} 75%), linear-gradient(45deg, {{ block.settings.text_4_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_4_color }} 75%);
+                background-size: 4px 4px;
+                background-position: 0 0, 2px 2px;
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'metallic' %}
+                background: linear-gradient(45deg, #c0c0c0, #ffffff, #c0c0c0);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'neon' %}
+                text-shadow: 0 0 5px {{ block.settings.text_4_color }}, 0 0 10px {{ block.settings.text_4_color }}, 0 0 15px {{ block.settings.text_4_color }};
+            {% endcase %}
+          "
+        >
+          <div class="ai-nameplate-text-content-{{ ai_gen_id }}">
+            {% if block.settings.text_4_content != blank %}
+              {{ block.settings.text_4_content }}
+            {% else %}
+              Text 4
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.text_5_enabled %}
+        {% assign has_visible_text = true %}
+        <div
+          class="ai-nameplate-text-box-{{ ai_gen_id }}"
+          data-text-id="5"
+          style="
+            top: {{ block.settings.text_5_y }}%;
+            left: {{ block.settings.text_5_x }}%;
+            font-size: {{ block.settings.text_5_size }}px;
+            color: {% if block.settings.text_5_gradient %}transparent{% else %}{{ block.settings.text_5_color }}{% endif %};
+            font-weight: {% if block.settings.text_5_bold %}bold{% else %}normal{% endif %};
+            background-color: {% if block.settings.text_5_background %}{{ block.settings.text_5_bg_color }}{% else %}transparent{% endif %};
+            {% if block.settings.text_5_gradient %}
+              background: linear-gradient(45deg, {{ block.settings.text_5_gradient_start }}, {{ block.settings.text_5_gradient_end }});
+              background-clip: text;
+              -webkit-background-clip: text;
+            {% endif %}
+            {% case block.settings.text_5_effect %}
+              {% when 'shadow' %}
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+              {% when 'glow' %}
+                text-shadow: 0 0 10px {{ block.settings.text_5_color }};
+              {% when 'outline' %}
+                -webkit-text-stroke: 1px {{ block.settings.text_5_color }};
+                color: transparent;
+              {% when 'glitter' %}
+                background: linear-gradient(45deg, {{ block.settings.text_5_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_5_color }} 75%), linear-gradient(45deg, {{ block.settings.text_5_color }} 25%, transparent 25%, transparent 75%, {{ block.settings.text_5_color }} 75%);
+                background-size: 4px 4px;
+                background-position: 0 0, 2px 2px;
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'metallic' %}
+                background: linear-gradient(45deg, #c0c0c0, #ffffff, #c0c0c0);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+              {% when 'neon' %}
+                text-shadow: 0 0 5px {{ block.settings.text_5_color }}, 0 0 10px {{ block.settings.text_5_color }}, 0 0 15px {{ block.settings.text_5_color }};
+            {% endcase %}
+          "
+        >
+          <div class="ai-nameplate-text-content-{{ ai_gen_id }}">
+            {% if block.settings.text_5_content != blank %}
+              {{ block.settings.text_5_content }}
+            {% else %}
+              Text 5
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ai-nameplate-controls-{{ ai_gen_id }}">
+    <h3 class="ai-nameplate-controls-title-{{ ai_gen_id }}">Customize Text</h3>
+
+    <div class="ai-nameplate-instruction-{{ ai_gen_id }}">
+      <p class="ai-nameplate-instruction-text-{{ ai_gen_id }}">
+        Click on any text on the nameplate to edit its content.
+      </p>
+    </div>
+
+    {% if has_visible_text %}
+      <div class="ai-nameplate-text-editor-{{ ai_gen_id }}" id="text-editor-{{ ai_gen_id }}">
+        <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+          <label class="ai-nameplate-control-label-{{ ai_gen_id }}" id="current-text-label-{{ ai_gen_id }}">
+            Select a text to edit
+          </label>
+          <textarea
+            class="ai-nameplate-textarea-{{ ai_gen_id }}"
+            id="text-content-{{ ai_gen_id }}"
+            placeholder="Enter your text here..."
+            disabled
+          ></textarea>
+        </div>
+      </div>
+    {% else %}
+      <div class="ai-nameplate-empty-state-{{ ai_gen_id }}">
+        <div class="ai-nameplate-empty-state-title-{{ ai_gen_id }}">No text boxes enabled</div>
+        <div class="ai-nameplate-empty-state-text-{{ ai_gen_id }}">
+          Configure text boxes in the theme editor to allow customers to add custom text.
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</nameplate-designer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateDesigner{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.activeTextBox = null;
+        this.textBoxes = {};
+      }
+
+      connectedCallback() {
+        this.initializeElements();
+        this.setupEventListeners();
+        this.initializeTextBoxes();
+      }
+
+      initializeElements() {
+        this.textBoxElements = this.querySelectorAll('.ai-nameplate-text-box-{{ ai_gen_id }}');
+        this.textEditor = this.querySelector('#text-editor-{{ ai_gen_id }}');
+        this.textContent = this.querySelector('#text-content-{{ ai_gen_id }}');
+        this.currentTextLabel = this.querySelector('#current-text-label-{{ ai_gen_id }}');
+      }
+
+      initializeTextBoxes() {
+        this.textBoxElements.forEach((box) => {
+          const id = parseInt(box.dataset.textId);
+          const contentElement = box.querySelector('.ai-nameplate-text-content-{{ ai_gen_id }}');
+          this.textBoxes[id] = {
+            element: box,
+            contentElement: contentElement,
+            originalText: contentElement.textContent.trim()
+          };
+        });
+      }
+
+      setupEventListeners() {
+        this.textBoxElements.forEach((box) => {
+          box.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.selectTextBox(box);
+          });
+        });
+
+        if (this.textContent) {
+          this.textContent.addEventListener('input', () => {
+            if (this.activeTextBox) {
+              this.updateTextContent();
+            }
+          });
+
+          this.textContent.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              this.deselectTextBox();
+            }
+          });
+        }
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.ai-nameplate-controls-{{ ai_gen_id }}') && 
+              !e.target.closest('.ai-nameplate-text-box-{{ ai_gen_id }}')) {
+            this.deselectTextBox();
+          }
+        });
+      }
+
+      selectTextBox(element) {
+        this.textBoxElements.forEach(box => box.classList.remove('active'));
+        element.classList.add('active');
+        this.activeTextBox = element;
+
+        if (this.textEditor) {
+          this.textEditor.classList.add('active');
+        }
+
+        const id = parseInt(element.dataset.textId);
+        const textBox = this.textBoxes[id];
+
+        if (this.currentTextLabel) {
+          this.currentTextLabel.textContent = `Editing Text ${id}`;
+        }
+
+        if (this.textContent) {
+          this.textContent.disabled = false;
+          this.textContent.value = textBox.contentElement.textContent.trim();
+          this.textContent.focus();
+        }
+      }
+
+      deselectTextBox() {
+        this.textBoxElements.forEach(box => box.classList.remove('active'));
+        this.activeTextBox = null;
+
+        if (this.textEditor) {
+          this.textEditor.classList.remove('active');
+        }
+
+        if (this.currentTextLabel) {
+          this.currentTextLabel.textContent = 'Select a text to edit';
+        }
+
+        if (this.textContent) {
+          this.textContent.disabled = true;
+          this.textContent.value = '';
+        }
+      }
+
+      updateTextContent() {
+        if (!this.activeTextBox || !this.textContent) return;
+
+        const id = parseInt(this.activeTextBox.dataset.textId);
+        const textBox = this.textBoxes[id];
+        const newText = this.textContent.value || textBox.originalText;
+
+        textBox.contentElement.textContent = newText;
+      }
+    }
+
+    customElements.define('nameplate-designer-{{ ai_gen_id }}', NameplateDesigner{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Nameplate designer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Nameplate product"
+    },
+    {
+      "type": "product",
+      "id": "nameplate_product",
+      "label": "Nameplate product"
+    },
+    {
+      "type": "header",
+      "content": "Design"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Text box 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_1_enabled",
+      "label": "Enable text box 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "text_1_content",
+      "label": "Default text content"
+    },
+    {
+      "type": "range",
+      "id": "text_1_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "text_1_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "text_1_size",
+      "min": 12,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_1_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_1_bold",
+      "label": "Bold text",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_1_background",
+      "label": "Background color",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_1_bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_1_gradient",
+      "label": "Gradient text",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_1_gradient_start",
+      "label": "Gradient start color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "text_1_gradient_end",
+      "label": "Gradient end color",
+      "default": "#0000ff"
+    },
+    {
+      "type": "select",
+      "id": "text_1_effect",
+      "label": "Text effect",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "shadow",
+          "label": "Shadow"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "glitter",
+          "label": "Glitter"
+        },
+        {
+          "value": "metallic",
+          "label": "Metallic"
+        },
+        {
+          "value": "neon",
+          "label": "Neon"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Text box 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_2_enabled",
+      "label": "Enable text box 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "text_2_content",
+      "label": "Default text content"
+    },
+    {
+      "type": "range",
+      "id": "text_2_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "text_2_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "text_2_size",
+      "min": 12,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_2_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_2_bold",
+      "label": "Bold text",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_2_background",
+      "label": "Background color",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_2_bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_2_gradient",
+      "label": "Gradient text",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_2_gradient_start",
+      "label": "Gradient start color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "text_2_gradient_end",
+      "label": "Gradient end color",
+      "default": "#0000ff"
+    },
+    {
+      "type": "select",
+      "id": "text_2_effect",
+      "label": "Text effect",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "shadow",
+          "label": "Shadow"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "glitter",
+          "label": "Glitter"
+        },
+        {
+          "value": "metallic",
+          "label": "Metallic"
+        },
+        {
+          "value": "neon",
+          "label": "Neon"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Text box 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_3_enabled",
+      "label": "Enable text box 3",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "text_3_content",
+      "label": "Default text content"
+    },
+    {
+      "type": "range",
+      "id": "text_3_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "text_3_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "text_3_size",
+      "min": 12,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_3_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_3_bold",
+      "label": "Bold text",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_3_background",
+      "label": "Background color",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_3_bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_3_gradient",
+      "label": "Gradient text",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_3_gradient_start",
+      "label": "Gradient start color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "text_3_gradient_end",
+      "label": "Gradient end color",
+      "default": "#0000ff"
+    },
+    {
+      "type": "select",
+      "id": "text_3_effect",
+      "label": "Text effect",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "shadow",
+          "label": "Shadow"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "glitter",
+          "label": "Glitter"
+        },
+        {
+          "value": "metallic",
+          "label": "Metallic"
+        },
+        {
+          "value": "neon",
+          "label": "Neon"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Text box 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_4_enabled",
+      "label": "Enable text box 4",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "text_4_content",
+      "label": "Default text content"
+    },
+    {
+      "type": "range",
+      "id": "text_4_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "text_4_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "text_4_size",
+      "min": 12,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_4_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_4_bold",
+      "label": "Bold text",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_4_background",
+      "label": "Background color",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_4_bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_4_gradient",
+      "label": "Gradient text",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_4_gradient_start",
+      "label": "Gradient start color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "text_4_gradient_end",
+      "label": "Gradient end color",
+      "default": "#0000ff"
+    },
+    {
+      "type": "select",
+      "id": "text_4_effect",
+      "label": "Text effect",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "shadow",
+          "label": "Shadow"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "glitter",
+          "label": "Glitter"
+        },
+        {
+          "value": "metallic",
+          "label": "Metallic"
+        },
+        {
+          "value": "neon",
+          "label": "Neon"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Text box 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_5_enabled",
+      "label": "Enable text box 5",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "text_5_content",
+      "label": "Default text content"
+    },
+    {
+      "type": "range",
+      "id": "text_5_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "text_5_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "text_5_size",
+      "min": 12,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_5_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_5_bold",
+      "label": "Bold text",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_5_background",
+      "label": "Background color",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_5_bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_5_gradient",
+      "label": "Gradient text",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "text_5_gradient_start",
+      "label": "Gradient start color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "text_5_gradient_end",
+      "label": "Gradient end color",
+      "default": "#0000ff"
+    },
+    {
+      "type": "select",
+      "id": "text_5_effect",
+      "label": "Text effect",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "shadow",
+          "label": "Shadow"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "glitter",
+          "label": "Glitter"
+        },
+        {
+          "value": "metallic",
+          "label": "Metallic"
+        },
+        {
+          "value": "neon",
+          "label": "Neon"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nameplate designer"
+    }
+  ]
+}
 {% endschema %}
