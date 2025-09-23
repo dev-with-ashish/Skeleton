@@ -1,6 +1,676 @@
+{% doc %}
+  @prompt
+    a shopify section with 3 layers for displaying a custom nameplate first layer will the nameplate board layer (product first image) 2nd layer (with 2d or 3d toogle option) will be the name layer which will be typed by the user 3rd layer (if 3d is off ) will be glowing shadow (lighted shadow of the same name typed by the user) , option to select font
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-nameplate-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-nameplate-preview-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.preview_height }}px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .ai-nameplate-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-nameplate-board-{{ ai_gen_id }} {
+    z-index: 1;
+  }
+
+  .ai-nameplate-board-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-nameplate-board-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .ai-nameplate-board-placeholder-{{ ai_gen_id }} svg {
+    width: 100px;
+    height: 100px;
+    opacity: 0.5;
+  }
+
+  .ai-nameplate-shadow-{{ ai_gen_id }} {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: {{ block.settings.shadow_opacity }};
+  }
+
+  .ai-nameplate-shadow-text-{{ ai_gen_id }} {
+    font-family: {{ block.settings.text_font.family }}, {{ block.settings.text_font.fallback_families }};
+    font-weight: {{ block.settings.text_font.weight }};
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.shadow_color }};
+    text-shadow: 
+      0 0 {{ block.settings.glow_intensity }}px {{ block.settings.shadow_color }},
+      0 0 {{ block.settings.glow_intensity | times: 2 }}px {{ block.settings.shadow_color }},
+      0 0 {{ block.settings.glow_intensity | times: 3 }}px {{ block.settings.shadow_color }};
+    transform: translate({{ block.settings.shadow_offset_x }}px, {{ block.settings.shadow_offset_y }}px);
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-{{ ai_gen_id }} {
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-nameplate-text-content-{{ ai_gen_id }} {
+    font-family: {{ block.settings.text_font.family }}, {{ block.settings.text_font.fallback_families }};
+    font-weight: {{ block.settings.text_font.weight }};
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-3d-{{ ai_gen_id }} {
+    text-shadow: 
+      1px 1px 0 {{ block.settings.text_3d_color }},
+      2px 2px 0 {{ block.settings.text_3d_color }},
+      3px 3px 0 {{ block.settings.text_3d_color }},
+      4px 4px 0 {{ block.settings.text_3d_color }},
+      5px 5px 0 {{ block.settings.text_3d_color }},
+      6px 6px 10px rgba(0,0,0,0.3);
+  }
+
+  .ai-nameplate-controls-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-nameplate-input-group-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-nameplate-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    color: {{ block.settings.label_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-select-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+    cursor: pointer;
+  }
+
+  .ai-nameplate-select-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-toggle-group-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }} {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    background-color: {{ block.settings.toggle_bg_color }};
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.toggle_active_color }};
+  }
+
+  .ai-nameplate-toggle-slider-{{ ai_gen_id }} {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}.active .ai-nameplate-toggle-slider-{{ ai_gen_id }} {
+    transform: translateX(24px);
+  }
+
+  .ai-nameplate-toggle-labels-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+    color: {{ block.settings.label_color }};
+  }
+
+  .ai-nameplate-toggle-label-{{ ai_gen_id }} {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-nameplate-toggle-label-{{ ai_gen_id }}.active {
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-nameplate-container-{{ ai_gen_id }} {
+      padding: 16px;
+    }
+
+    .ai-nameplate-preview-{{ ai_gen_id }} {
+      height: {{ block.settings.preview_height | times: 0.7 }}px;
+    }
+
+    .ai-nameplate-text-content-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+    }
+
+    .ai-nameplate-shadow-text-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<nameplate-customizer-{{ ai_gen_id }}
+  class="ai-nameplate-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-preview-{{ ai_gen_id }}">
+    <div class="ai-nameplate-layer-{{ ai_gen_id }} ai-nameplate-board-{{ ai_gen_id }}">
+      {% if block.settings.nameplate_image %}
+        <img
+          src="{{ block.settings.nameplate_image | image_url: width: 800 }}"
+          alt="{{ block.settings.nameplate_image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.nameplate_image.width }}"
+          height="{{ block.settings.nameplate_image.height }}"
+        >
+      {% else %}
+        <div class="ai-nameplate-board-placeholder-{{ ai_gen_id }}">
+          {{ 'product-apparel-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-nameplate-layer-{{ ai_gen_id }} ai-nameplate-shadow-{{ ai_gen_id }}" data-shadow-layer>
+      <div class="ai-nameplate-shadow-text-{{ ai_gen_id }}" data-shadow-text>
+        {{ block.settings.default_text }}
+      </div>
+    </div>
+
+    <div class="ai-nameplate-layer-{{ ai_gen_id }} ai-nameplate-text-{{ ai_gen_id }}">
+      <div class="ai-nameplate-text-content-{{ ai_gen_id }}" data-nameplate-text>
+        {{ block.settings.default_text }}
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-nameplate-controls-{{ ai_gen_id }}">
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <label class="ai-nameplate-label-{{ ai_gen_id }}" for="nameplate-input-{{ ai_gen_id }}">
+        {{ block.settings.input_label }}
+      </label>
+      <input
+        type="text"
+        id="nameplate-input-{{ ai_gen_id }}"
+        class="ai-nameplate-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        value="{{ block.settings.default_text }}"
+        maxlength="{{ block.settings.max_characters }}"
+        data-nameplate-input
+      >
+    </div>
+
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <label class="ai-nameplate-label-{{ ai_gen_id }}" for="font-select-{{ ai_gen_id }}">
+        {{ block.settings.font_select_label }}
+      </label>
+      <select
+        id="font-select-{{ ai_gen_id }}"
+        class="ai-nameplate-select-{{ ai_gen_id }}"
+        data-font-select
+      >
+        <option value="Arial, sans-serif" {% if block.settings.font_family == 'Arial, sans-serif' %}selected{% endif %}>Arial</option>
+        <option value="Helvetica, sans-serif" {% if block.settings.font_family == 'Helvetica, sans-serif' %}selected{% endif %}>Helvetica</option>
+        <option value="'Times New Roman', serif" {% if block.settings.font_family == "'Times New Roman', serif" %}selected{% endif %}>Times New Roman</option>
+        <option value="Georgia, serif" {% if block.settings.font_family == 'Georgia, serif' %}selected{% endif %}>Georgia</option>
+        <option value="'Courier New', monospace" {% if block.settings.font_family == "'Courier New', monospace" %}selected{% endif %}>Courier New</option>
+        <option value="Verdana, sans-serif" {% if block.settings.font_family == 'Verdana, sans-serif' %}selected{% endif %}>Verdana</option>
+        <option value="Impact, sans-serif" {% if block.settings.font_family == 'Impact, sans-serif' %}selected{% endif %}>Impact</option>
+        <option value="'Comic Sans MS', cursive" {% if block.settings.font_family == "'Comic Sans MS', cursive" %}selected{% endif %}>Comic Sans MS</option>
+        <option value="'Trebuchet MS', sans-serif" {% if block.settings.font_family == "'Trebuchet MS', sans-serif" %}selected{% endif %}>Trebuchet MS</option>
+        <option value="'Lucida Console', monospace" {% if block.settings.font_family == "'Lucida Console', monospace" %}selected{% endif %}>Lucida Console</option>
+      </select>
+    </div>
+
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <div class="ai-nameplate-toggle-group-{{ ai_gen_id }}">
+        <span class="ai-nameplate-label-{{ ai_gen_id }}">{{ block.settings.toggle_label }}</span>
+        <div class="ai-nameplate-toggle-{{ ai_gen_id }}" data-3d-toggle>
+          <div class="ai-nameplate-toggle-slider-{{ ai_gen_id }}"></div>
+        </div>
+        <div class="ai-nameplate-toggle-labels-{{ ai_gen_id }}">
+          <span class="ai-nameplate-toggle-label-{{ ai_gen_id }} active" data-2d-label>2D</span>
+          <span class="ai-nameplate-toggle-label-{{ ai_gen_id }}" data-3d-label>3D</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</nameplate-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.is3D = false;
+        this.currentFont = '{{ block.settings.font_family }}';
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('[data-nameplate-input]');
+        this.nameplateText = this.querySelector('[data-nameplate-text]');
+        this.shadowText = this.querySelector('[data-shadow-text]');
+        this.shadowLayer = this.querySelector('[data-shadow-layer]');
+        this.toggle = this.querySelector('[data-3d-toggle]');
+        this.label2D = this.querySelector('[data-2d-label]');
+        this.label3D = this.querySelector('[data-3d-label]');
+        this.fontSelect = this.querySelector('[data-font-select]');
+
+        this.setupEventListeners();
+        this.updateShadowVisibility();
+        this.updateFontFamily();
+      }
+
+      setupEventListeners() {
+        this.input.addEventListener('input', (e) => {
+          const text = e.target.value || '{{ block.settings.default_text }}';
+          this.nameplateText.textContent = text;
+          this.shadowText.textContent = text;
+        });
+
+        this.toggle.addEventListener('click', () => {
+          this.is3D = !this.is3D;
+          this.updateToggleState();
+          this.updateTextEffect();
+          this.updateShadowVisibility();
+        });
+
+        this.fontSelect.addEventListener('change', (e) => {
+          this.currentFont = e.target.value;
+          this.updateFontFamily();
+        });
+      }
+
+      updateToggleState() {
+        this.toggle.classList.toggle('active', this.is3D);
+        this.label2D.classList.toggle('active', !this.is3D);
+        this.label3D.classList.toggle('active', this.is3D);
+      }
+
+      updateTextEffect() {
+        this.nameplateText.classList.toggle('ai-nameplate-text-3d-{{ ai_gen_id }}', this.is3D);
+      }
+
+      updateShadowVisibility() {
+        this.shadowLayer.style.display = this.is3D ? 'none' : 'flex';
+      }
+
+      updateFontFamily() {
+        this.nameplateText.style.fontFamily = this.currentFont;
+        this.shadowText.style.fontFamily = this.currentFont;
+      }
+    }
+
+    customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Custom nameplate",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Nameplate board"
+    },
+    {
+      "type": "image_picker",
+      "id": "nameplate_image",
+      "label": "Nameplate board image"
+    },
+    {
+      "type": "range",
+      "id": "preview_height",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Preview height",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 300,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 600
+    },
+    {
+      "type": "header",
+      "content": "Text settings"
+    },
+    {
+      "type": "text",
+      "id": "default_text",
+      "label": "Default text",
+      "default": "YOUR NAME"
+    },
+    {
+      "type": "select",
+      "id": "font_family",
+      "label": "Font family",
+      "options": [
+        {
+          "value": "Arial, sans-serif",
+          "label": "Arial"
+        },
+        {
+          "value": "Helvetica, sans-serif",
+          "label": "Helvetica"
+        },
+        {
+          "value": "'Times New Roman', serif",
+          "label": "Times New Roman"
+        },
+        {
+          "value": "Georgia, serif",
+          "label": "Georgia"
+        },
+        {
+          "value": "'Courier New', monospace",
+          "label": "Courier New"
+        },
+        {
+          "value": "Verdana, sans-serif",
+          "label": "Verdana"
+        },
+        {
+          "value": "Impact, sans-serif",
+          "label": "Impact"
+        },
+        {
+          "value": "'Comic Sans MS', cursive",
+          "label": "Comic Sans MS"
+        },
+        {
+          "value": "'Trebuchet MS', sans-serif",
+          "label": "Trebuchet MS"
+        },
+        {
+          "value": "'Lucida Console', monospace",
+          "label": "Lucida Console"
+        }
+      ],
+      "default": "Arial, sans-serif"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Custom font (overrides font family)",
+      "default": "helvetica_n7"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "label": "Maximum characters",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "3D effect"
+    },
+    {
+      "type": "color",
+      "id": "text_3d_color",
+      "label": "3D shadow color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Glow shadow (2D mode)"
+    },
+    {
+      "type": "color",
+      "id": "shadow_color",
+      "label": "Shadow color",
+      "default": "#00ffff"
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Shadow opacity",
+      "default": 0.8
+    },
+    {
+      "type": "range",
+      "id": "glow_intensity",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Glow intensity",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "shadow_offset_x",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow horizontal offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "shadow_offset_y",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow vertical offset",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Input controls"
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Enter your name"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Type your name here..."
+    },
+    {
+      "type": "text",
+      "id": "font_select_label",
+      "label": "Font selector label",
+      "default": "Choose font"
+    },
+    {
+      "type": "text",
+      "id": "toggle_label",
+      "label": "Toggle label",
+      "default": "Text style"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "toggle_bg_color",
+      "label": "Toggle background color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "toggle_active_color",
+      "label": "Toggle active color",
+      "default": "#007acc"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom nameplate"
+    }
+  ]
+}
 {% endschema %}
