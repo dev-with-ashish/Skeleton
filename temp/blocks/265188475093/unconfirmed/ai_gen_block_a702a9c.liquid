@@ -1,6 +1,785 @@
+{% doc %}
+  @prompt
+    a name plate design section having 2 layer 1st will be the nameplate layer (use product 1st image in this layer ) 2nd layer over this imaage layer in the 2nd layer there will be ready to toggle 5 text box which can be moved on position over the name plate 1st layer through dragging these text box should have option to have bg or not shold be resizable text color selection boldness selection gradiant selection of the text glittering selection of the text and other effects which can be one set by the admin for the use on the website only option to type for that toggled on box should be there on the right beside the nameplate image
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-nameplate-designer-{{ ai_gen_id }} {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    font-family: {{ settings.type_primary_font.family }}, sans-serif;
+  }
+
+  .ai-nameplate-canvas-{{ ai_gen_id }} {
+    position: relative;
+    flex: 1;
+    max-width: 600px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .ai-nameplate-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ai-nameplate-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 400px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-nameplate-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .ai-nameplate-text-layer-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-box-{{ ai_gen_id }} {
+    position: absolute;
+    cursor: move;
+    pointer-events: auto;
+    min-width: 50px;
+    min-height: 30px;
+    border: 2px dashed transparent;
+    user-select: none;
+  }
+
+  .ai-nameplate-text-box-{{ ai_gen_id }}.active {
+    border-color: #007cba;
+  }
+
+  .ai-nameplate-text-box-{{ ai_gen_id }}.dragging {
+    z-index: 10;
+  }
+
+  .ai-nameplate-text-content-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    word-wrap: break-word;
+    text-align: center;
+  }
+
+  .ai-nameplate-controls-{{ ai_gen_id }} {
+    width: 300px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    height: fit-content;
+  }
+
+  .ai-nameplate-controls-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-nameplate-text-toggles-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}:hover {
+    background-color: #e8e8e8;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}.active {
+    background-color: #007cba;
+    color: white;
+  }
+
+  .ai-nameplate-toggle-checkbox-{{ ai_gen_id }} {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-nameplate-toggle-{{ ai_gen_id }}.active .ai-nameplate-toggle-checkbox-{{ ai_gen_id }} {
+    border-color: white;
+    background-color: white;
+    color: #007cba;
+  }
+
+  .ai-nameplate-text-controls-{{ ai_gen_id }} {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .ai-nameplate-text-controls-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  .ai-nameplate-control-group-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-nameplate-control-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .ai-nameplate-range-{{ ai_gen_id }} {
+    width: 100%;
+  }
+
+  .ai-nameplate-color-input-{{ ai_gen_id }} {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .ai-nameplate-select-{{ ai_gen_id }} {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+  }
+
+  .ai-nameplate-checkbox-group-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-nameplate-checkbox-{{ ai_gen_id }} {
+    width: 16px;
+    height: 16px;
+  }
+
+  .ai-nameplate-gradient-controls-{{ ai_gen_id }} {
+    display: none;
+    gap: 10px;
+  }
+
+  .ai-nameplate-gradient-controls-{{ ai_gen_id }}.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-nameplate-designer-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-nameplate-controls-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<nameplate-designer-{{ ai_gen_id }}
+  class="ai-nameplate-designer-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-canvas-{{ ai_gen_id }}">
+    {% if block.settings.nameplate_product and block.settings.nameplate_product.featured_image %}
+      <img
+        src="{{ block.settings.nameplate_product.featured_image | image_url: width: 600 }}"
+        alt="{{ block.settings.nameplate_product.featured_image.alt | escape }}"
+        class="ai-nameplate-image-{{ ai_gen_id }}"
+        loading="lazy"
+      >
+    {% else %}
+      <div class="ai-nameplate-placeholder-{{ ai_gen_id }}">
+        {{ 'product-apparel-1' | placeholder_svg_tag }}
+      </div>
+    {% endif %}
+
+    <div class="ai-nameplate-text-layer-{{ ai_gen_id }}">
+      {% for i in (1..5) %}
+        <div
+          class="ai-nameplate-text-box-{{ ai_gen_id }}"
+          data-text-id="{{ i }}"
+          style="
+            top: {{ 20 | times: i }}%;
+            left: {{ 10 | times: i }}%;
+            display: none;
+          "
+        >
+          <div class="ai-nameplate-text-content-{{ ai_gen_id }}">
+            Text {{ i }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="ai-nameplate-controls-{{ ai_gen_id }}">
+    <h3 class="ai-nameplate-controls-title-{{ ai_gen_id }}">Text Controls</h3>
+
+    <div class="ai-nameplate-text-toggles-{{ ai_gen_id }}">
+      {% for i in (1..5) %}
+        <div class="ai-nameplate-toggle-{{ ai_gen_id }}" data-toggle-id="{{ i }}">
+          <div class="ai-nameplate-toggle-checkbox-{{ ai_gen_id }}">
+            <span style="display: none;">✓</span>
+          </div>
+          <span>Text Box {{ i }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="ai-nameplate-text-controls-{{ ai_gen_id }}" id="text-controls-{{ ai_gen_id }}">
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Text Content</label>
+        <input
+          type="text"
+          class="ai-nameplate-input-{{ ai_gen_id }}"
+          id="text-content-{{ ai_gen_id }}"
+          placeholder="Enter text..."
+        >
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Font Size</label>
+        <input
+          type="range"
+          class="ai-nameplate-range-{{ ai_gen_id }}"
+          id="font-size-{{ ai_gen_id }}"
+          min="12"
+          max="72"
+          value="16"
+        >
+        <span id="font-size-value-{{ ai_gen_id }}">16px</span>
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Text Color</label>
+        <input
+          type="color"
+          class="ai-nameplate-color-input-{{ ai_gen_id }}"
+          id="text-color-{{ ai_gen_id }}"
+          value="#000000"
+        >
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <div class="ai-nameplate-checkbox-group-{{ ai_gen_id }}">
+          <input
+            type="checkbox"
+            class="ai-nameplate-checkbox-{{ ai_gen_id }}"
+            id="text-bold-{{ ai_gen_id }}"
+          >
+          <label for="text-bold-{{ ai_gen_id }}" class="ai-nameplate-control-label-{{ ai_gen_id }}">Bold</label>
+        </div>
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <div class="ai-nameplate-checkbox-group-{{ ai_gen_id }}">
+          <input
+            type="checkbox"
+            class="ai-nameplate-checkbox-{{ ai_gen_id }}"
+            id="text-background-{{ ai_gen_id }}"
+          >
+          <label for="text-background-{{ ai_gen_id }}" class="ai-nameplate-control-label-{{ ai_gen_id }}">Background</label>
+        </div>
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}" id="bg-color-group-{{ ai_gen_id }}" style="display: none;">
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Background Color</label>
+        <input
+          type="color"
+          class="ai-nameplate-color-input-{{ ai_gen_id }}"
+          id="bg-color-{{ ai_gen_id }}"
+          value="#ffffff"
+        >
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <div class="ai-nameplate-checkbox-group-{{ ai_gen_id }}">
+          <input
+            type="checkbox"
+            class="ai-nameplate-checkbox-{{ ai_gen_id }}"
+            id="text-gradient-{{ ai_gen_id }}"
+          >
+          <label for="text-gradient-{{ ai_gen_id }}" class="ai-nameplate-control-label-{{ ai_gen_id }}">Gradient</label>
+        </div>
+      </div>
+
+      <div class="ai-nameplate-gradient-controls-{{ ai_gen_id }}" id="gradient-controls-{{ ai_gen_id }}">
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Gradient Start</label>
+        <input
+          type="color"
+          class="ai-nameplate-color-input-{{ ai_gen_id }}"
+          id="gradient-start-{{ ai_gen_id }}"
+          value="#ff0000"
+        >
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Gradient End</label>
+        <input
+          type="color"
+          class="ai-nameplate-color-input-{{ ai_gen_id }}"
+          id="gradient-end-{{ ai_gen_id }}"
+          value="#0000ff"
+        >
+      </div>
+
+      <div class="ai-nameplate-control-group-{{ ai_gen_id }}">
+        <label class="ai-nameplate-control-label-{{ ai_gen_id }}">Text Effect</label>
+        <select class="ai-nameplate-select-{{ ai_gen_id }}" id="text-effect-{{ ai_gen_id }}">
+          <option value="none">None</option>
+          <option value="shadow">Shadow</option>
+          <option value="glow">Glow</option>
+          <option value="outline">Outline</option>
+          {% if block.settings.enable_glitter %}
+            <option value="glitter">Glitter</option>
+          {% endif %}
+          {% if block.settings.enable_metallic %}
+            <option value="metallic">Metallic</option>
+          {% endif %}
+          {% if block.settings.enable_neon %}
+            <option value="neon">Neon</option>
+          {% endif %}
+        </select>
+      </div>
+    </div>
+  </div>
+</nameplate-designer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateDesigner{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.activeTextBox = null;
+        this.isDragging = false;
+        this.dragOffset = { x: 0, y: 0 };
+        this.textBoxes = {};
+      }
+
+      connectedCallback() {
+        this.initializeElements();
+        this.setupEventListeners();
+        this.initializeTextBoxes();
+      }
+
+      initializeElements() {
+        this.canvas = this.querySelector('.ai-nameplate-canvas-{{ ai_gen_id }}');
+        this.textLayer = this.querySelector('.ai-nameplate-text-layer-{{ ai_gen_id }}');
+        this.toggles = this.querySelectorAll('.ai-nameplate-toggle-{{ ai_gen_id }}');
+        this.textControls = this.querySelector('#text-controls-{{ ai_gen_id }}');
+        this.textBoxElements = this.querySelectorAll('.ai-nameplate-text-box-{{ ai_gen_id }}');
+      }
+
+      initializeTextBoxes() {
+        this.textBoxElements.forEach((box, index) => {
+          const id = index + 1;
+          this.textBoxes[id] = {
+            element: box,
+            visible: false,
+            text: `Text ${id}`,
+            fontSize: 16,
+            color: '#000000',
+            bold: false,
+            hasBackground: false,
+            backgroundColor: '#ffffff',
+            hasGradient: false,
+            gradientStart: '#ff0000',
+            gradientEnd: '#0000ff',
+            effect: 'none'
+          };
+        });
+      }
+
+      setupEventListeners() {
+        this.toggles.forEach((toggle) => {
+          toggle.addEventListener('click', (e) => {
+            const id = parseInt(toggle.dataset.toggleId);
+            this.toggleTextBox(id);
+          });
+        });
+
+        this.textBoxElements.forEach((box) => {
+          box.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            this.startDrag(box, e);
+          });
+
+          box.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.selectTextBox(box);
+          });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (this.isDragging) {
+            this.drag(e);
+          }
+        });
+
+        document.addEventListener('mouseup', () => {
+          this.stopDrag();
+        });
+
+        this.canvas.addEventListener('click', (e) => {
+          if (e.target === this.canvas || e.target === this.textLayer) {
+            this.deselectTextBox();
+          }
+        });
+
+        this.setupControlListeners();
+      }
+
+      setupControlListeners() {
+        const textContent = this.querySelector('#text-content-{{ ai_gen_id }}');
+        const fontSize = this.querySelector('#font-size-{{ ai_gen_id }}');
+        const fontSizeValue = this.querySelector('#font-size-value-{{ ai_gen_id }}');
+        const textColor = this.querySelector('#text-color-{{ ai_gen_id }}');
+        const textBold = this.querySelector('#text-bold-{{ ai_gen_id }}');
+        const textBackground = this.querySelector('#text-background-{{ ai_gen_id }}');
+        const bgColor = this.querySelector('#bg-color-{{ ai_gen_id }}');
+        const bgColorGroup = this.querySelector('#bg-color-group-{{ ai_gen_id }}');
+        const textGradient = this.querySelector('#text-gradient-{{ ai_gen_id }}');
+        const gradientControls = this.querySelector('#gradient-controls-{{ ai_gen_id }}');
+        const gradientStart = this.querySelector('#gradient-start-{{ ai_gen_id }}');
+        const gradientEnd = this.querySelector('#gradient-end-{{ ai_gen_id }}');
+        const textEffect = this.querySelector('#text-effect-{{ ai_gen_id }}');
+
+        textContent.addEventListener('input', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'text', textContent.value);
+          }
+        });
+
+        fontSize.addEventListener('input', () => {
+          fontSizeValue.textContent = fontSize.value + 'px';
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'fontSize', parseInt(fontSize.value));
+          }
+        });
+
+        textColor.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'color', textColor.value);
+          }
+        });
+
+        textBold.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'bold', textBold.checked);
+          }
+        });
+
+        textBackground.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'hasBackground', textBackground.checked);
+            bgColorGroup.style.display = textBackground.checked ? 'flex' : 'none';
+          }
+        });
+
+        bgColor.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'backgroundColor', bgColor.value);
+          }
+        });
+
+        textGradient.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'hasGradient', textGradient.checked);
+            gradientControls.classList.toggle('active', textGradient.checked);
+          }
+        });
+
+        gradientStart.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'gradientStart', gradientStart.value);
+          }
+        });
+
+        gradientEnd.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'gradientEnd', gradientEnd.value);
+          }
+        });
+
+        textEffect.addEventListener('change', () => {
+          if (this.activeTextBox) {
+            this.updateTextBoxProperty(this.activeTextBox, 'effect', textEffect.value);
+          }
+        });
+      }
+
+      toggleTextBox(id) {
+        const toggle = this.querySelector(`[data-toggle-id="${id}"]`);
+        const checkbox = toggle.querySelector('.ai-nameplate-toggle-checkbox-{{ ai_gen_id }} span');
+        const textBox = this.textBoxes[id];
+
+        textBox.visible = !textBox.visible;
+        toggle.classList.toggle('active', textBox.visible);
+        checkbox.style.display = textBox.visible ? 'inline' : 'none';
+        textBox.element.style.display = textBox.visible ? 'block' : 'none';
+
+        if (textBox.visible) {
+          this.selectTextBox(textBox.element);
+        } else if (this.activeTextBox === textBox.element) {
+          this.deselectTextBox();
+        }
+      }
+
+      selectTextBox(element) {
+        this.textBoxElements.forEach(box => box.classList.remove('active'));
+        element.classList.add('active');
+        this.activeTextBox = element;
+        this.textControls.classList.add('active');
+        this.loadTextBoxSettings(element);
+      }
+
+      deselectTextBox() {
+        this.textBoxElements.forEach(box => box.classList.remove('active'));
+        this.activeTextBox = null;
+        this.textControls.classList.remove('active');
+      }
+
+      loadTextBoxSettings(element) {
+        const id = parseInt(element.dataset.textId);
+        const textBox = this.textBoxes[id];
+
+        this.querySelector('#text-content-{{ ai_gen_id }}').value = textBox.text;
+        this.querySelector('#font-size-{{ ai_gen_id }}').value = textBox.fontSize;
+        this.querySelector('#font-size-value-{{ ai_gen_id }}').textContent = textBox.fontSize + 'px';
+        this.querySelector('#text-color-{{ ai_gen_id }}').value = textBox.color;
+        this.querySelector('#text-bold-{{ ai_gen_id }}').checked = textBox.bold;
+        this.querySelector('#text-background-{{ ai_gen_id }}').checked = textBox.hasBackground;
+        this.querySelector('#bg-color-{{ ai_gen_id }}').value = textBox.backgroundColor;
+        this.querySelector('#bg-color-group-{{ ai_gen_id }}').style.display = textBox.hasBackground ? 'flex' : 'none';
+        this.querySelector('#text-gradient-{{ ai_gen_id }}').checked = textBox.hasGradient;
+        this.querySelector('#gradient-controls-{{ ai_gen_id }}').classList.toggle('active', textBox.hasGradient);
+        this.querySelector('#gradient-start-{{ ai_gen_id }}').value = textBox.gradientStart;
+        this.querySelector('#gradient-end-{{ ai_gen_id }}').value = textBox.gradientEnd;
+        this.querySelector('#text-effect-{{ ai_gen_id }}').value = textBox.effect;
+      }
+
+      updateTextBoxProperty(element, property, value) {
+        const id = parseInt(element.dataset.textId);
+        const textBox = this.textBoxes[id];
+        textBox[property] = value;
+        this.applyTextBoxStyles(element, textBox);
+      }
+
+      applyTextBoxStyles(element, textBox) {
+        const content = element.querySelector('.ai-nameplate-text-content-{{ ai_gen_id }}');
+        content.textContent = textBox.text;
+
+        let styles = {
+          fontSize: textBox.fontSize + 'px',
+          fontWeight: textBox.bold ? 'bold' : 'normal',
+          color: textBox.hasGradient ? 'transparent' : textBox.color,
+          backgroundColor: textBox.hasBackground ? textBox.backgroundColor : 'transparent'
+        };
+
+        if (textBox.hasGradient) {
+          styles.background = `linear-gradient(45deg, ${textBox.gradientStart}, ${textBox.gradientEnd})`;
+          styles.backgroundClip = 'text';
+          styles.webkitBackgroundClip = 'text';
+        }
+
+        switch (textBox.effect) {
+          case 'shadow':
+            styles.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+            break;
+          case 'glow':
+            styles.textShadow = `0 0 10px ${textBox.color}`;
+            break;
+          case 'outline':
+            styles.webkitTextStroke = `1px ${textBox.color}`;
+            styles.color = 'transparent';
+            break;
+          case 'glitter':
+            styles.background = `linear-gradient(45deg, ${textBox.color} 25%, transparent 25%, transparent 75%, ${textBox.color} 75%), linear-gradient(45deg, ${textBox.color} 25%, transparent 25%, transparent 75%, ${textBox.color} 75%)`;
+            styles.backgroundSize = '4px 4px';
+            styles.backgroundPosition = '0 0, 2px 2px';
+            styles.backgroundClip = 'text';
+            styles.webkitBackgroundClip = 'text';
+            styles.color = 'transparent';
+            break;
+          case 'metallic':
+            styles.background = `linear-gradient(45deg, #c0c0c0, #ffffff, #c0c0c0)`;
+            styles.backgroundClip = 'text';
+            styles.webkitBackgroundClip = 'text';
+            styles.color = 'transparent';
+            break;
+          case 'neon':
+            styles.color = textBox.color;
+            styles.textShadow = `0 0 5px ${textBox.color}, 0 0 10px ${textBox.color}, 0 0 15px ${textBox.color}`;
+            break;
+          default:
+            styles.textShadow = 'none';
+            styles.webkitTextStroke = 'none';
+        }
+
+        Object.assign(content.style, styles);
+      }
+
+      startDrag(element, e) {
+        this.isDragging = true;
+        this.activeTextBox = element;
+        element.classList.add('dragging');
+
+        const rect = element.getBoundingClientRect();
+        const canvasRect = this.canvas.getBoundingClientRect();
+
+        this.dragOffset = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+      }
+
+      drag(e) {
+        if (!this.isDragging || !this.activeTextBox) return;
+
+        const canvasRect = this.canvas.getBoundingClientRect();
+        const elementRect = this.activeTextBox.getBoundingClientRect();
+
+        let x = e.clientX - canvasRect.left - this.dragOffset.x;
+        let y = e.clientY - canvasRect.top - this.dragOffset.y;
+
+        x = Math.max(0, Math.min(x, canvasRect.width - elementRect.width));
+        y = Math.max(0, Math.min(y, canvasRect.height - elementRect.height));
+
+        const xPercent = (x / canvasRect.width) * 100;
+        const yPercent = (y / canvasRect.height) * 100;
+
+        this.activeTextBox.style.left = xPercent + '%';
+        this.activeTextBox.style.top = yPercent + '%';
+      }
+
+      stopDrag() {
+        if (this.isDragging && this.activeTextBox) {
+          this.activeTextBox.classList.remove('dragging');
+        }
+        this.isDragging = false;
+      }
+    }
+
+    customElements.define('nameplate-designer-{{ ai_gen_id }}', NameplateDesigner{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Nameplate designer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Nameplate product"
+    },
+    {
+      "type": "product",
+      "id": "nameplate_product",
+      "label": "Nameplate product"
+    },
+    {
+      "type": "header",
+      "content": "Design"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Text effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_glitter",
+      "label": "Enable glitter effect",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_metallic",
+      "label": "Enable metallic effect",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_neon",
+      "label": "Enable neon effect",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nameplate designer"
+    }
+  ]
+}
 {% endschema %}
