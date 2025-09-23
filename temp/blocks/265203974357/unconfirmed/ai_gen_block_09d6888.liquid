@@ -1,6 +1,654 @@
+{% doc %}
+  @prompt
+    a customisable name plate section which will show name plate from the product first image user will have option to type their name on it  through a text box, name font style not changing according to selected font, make fonts more accurate and workable
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{{ block.settings.text_font | font_face }}
+
+{% style %}
+  .ai-nameplate-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-nameplate-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.image_height }}px;
+    overflow: hidden;
+  }
+
+  .ai-nameplate-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-nameplate-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-nameplate-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    opacity: 0.3;
+  }
+
+  .ai-nameplate-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+  }
+
+  .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: {{ block.settings.text_position_y }}%;
+    left: {{ block.settings.text_position_x }}%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .ai-nameplate-text-display-{{ ai_gen_id }} {
+    font-family: {{ block.settings.text_font.family }}, {{ block.settings.text_font.fallback_families }};
+    font-weight: {{ block.settings.text_font.weight | default: 400 }};
+    font-style: {{ block.settings.text_font.style | default: 'normal' }};
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    text-align: center;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    text-transform: {{ block.settings.text_transform }};
+    font-display: swap;
+  }
+
+  .ai-nameplate-controls-{{ ai_gen_id }} {
+    padding: {{ block.settings.controls_padding }}px;
+    background-color: {{ block.settings.controls_background }};
+  }
+
+  .ai-nameplate-input-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ai-nameplate-label-{{ ai_gen_id }} {
+    font-size: {{ block.settings.label_size }}px;
+    color: {{ block.settings.label_color }};
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: {{ block.settings.input_text_size }}px;
+    color: {{ block.settings.input_text_color }};
+    background-color: {{ block.settings.input_background }};
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}::placeholder {
+    color: {{ block.settings.placeholder_color }};
+  }
+
+  .ai-nameplate-character-count-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: {{ block.settings.label_color }};
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .ai-nameplate-font-preview-{{ ai_gen_id }} {
+    font-family: {{ block.settings.text_font.family }}, {{ block.settings.text_font.fallback_families }};
+    font-weight: {{ block.settings.text_font.weight | default: 400 }};
+    font-style: {{ block.settings.text_font.style | default: 'normal' }};
+    font-size: 14px;
+    color: {{ block.settings.label_color }};
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-nameplate-container-{{ ai_gen_id }} {
+      max-width: 100%;
+      margin: 0 10px;
+    }
+
+    .ai-nameplate-image-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.image_height | times: 0.7 }}px;
+    }
+
+    .ai-nameplate-text-display-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.8 }}px;
+      max-width: 85vw;
+    }
+
+    .ai-nameplate-controls-{{ ai_gen_id }} {
+      padding: {{ block.settings.controls_padding | times: 0.8 }}px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-nameplate-text-display-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.7 }}px;
+      max-width: 80vw;
+    }
+  }
+{% endstyle %}
+
+<nameplate-customizer-{{ ai_gen_id }}
+  class="ai-nameplate-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-image-wrapper-{{ ai_gen_id }}">
+    {% if block.settings.product and block.settings.product.featured_image %}
+      <img
+        src="{{ block.settings.product.featured_image | image_url: width: 1000 }}"
+        alt="{{ block.settings.product.featured_image.alt | escape }}"
+        class="ai-nameplate-image-{{ ai_gen_id }}"
+        loading="lazy"
+        width="{{ block.settings.product.featured_image.width }}"
+        height="{{ block.settings.product.featured_image.height }}"
+      >
+    {% else %}
+      <div class="ai-nameplate-placeholder-{{ ai_gen_id }}">
+        {{ 'product-apparel-1' | placeholder_svg_tag }}
+        <div class="ai-nameplate-empty-state-{{ ai_gen_id }}">
+          Select a product to display nameplate
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ai-nameplate-text-overlay-{{ ai_gen_id }}">
+      <div class="ai-nameplate-text-display-{{ ai_gen_id }}" data-text-display>
+        {{ block.settings.default_text }}
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-nameplate-controls-{{ ai_gen_id }}">
+    <div class="ai-nameplate-input-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.show_label %}
+        <label class="ai-nameplate-label-{{ ai_gen_id }}" for="nameplate-input-{{ ai_gen_id }}">
+          {{ block.settings.input_label }}
+        </label>
+      {% endif %}
+      
+      <input
+        type="text"
+        id="nameplate-input-{{ ai_gen_id }}"
+        class="ai-nameplate-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.placeholder_text }}"
+        maxlength="{{ block.settings.max_characters }}"
+        data-text-input
+        autocomplete="off"
+      >
+      
+      {% if block.settings.show_character_count %}
+        <div class="ai-nameplate-character-count-{{ ai_gen_id }}" data-character-count>
+          0 / {{ block.settings.max_characters }}
+        </div>
+      {% endif %}
+
+      {% if block.settings.show_font_preview %}
+        <div class="ai-nameplate-font-preview-{{ ai_gen_id }}">
+          Font preview: {{ block.settings.text_font.family | replace: '_', ' ' | capitalize }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</nameplate-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.textInput = null;
+        this.textDisplay = null;
+        this.characterCount = null;
+      }
+
+      connectedCallback() {
+        this.textInput = this.querySelector('[data-text-input]');
+        this.textDisplay = this.querySelector('[data-text-display]');
+        this.characterCount = this.querySelector('[data-character-count]');
+
+        if (this.textInput && this.textDisplay) {
+          this.setupEventListeners();
+          this.updateDisplay();
+          this.ensureFontLoaded();
+        }
+      }
+
+      setupEventListeners() {
+        this.textInput.addEventListener('input', () => {
+          this.updateDisplay();
+          this.updateCharacterCount();
+        });
+
+        this.textInput.addEventListener('keyup', () => {
+          this.updateDisplay();
+        });
+
+        this.textInput.addEventListener('paste', () => {
+          setTimeout(() => {
+            this.updateDisplay();
+            this.updateCharacterCount();
+          }, 10);
+        });
+
+        this.textInput.addEventListener('focus', () => {
+          if (!this.textInput.value.trim()) {
+            this.textDisplay.textContent = '';
+          }
+        });
+
+        this.textInput.addEventListener('blur', () => {
+          if (!this.textInput.value.trim()) {
+            this.textDisplay.textContent = '{{ block.settings.default_text | escape }}';
+          }
+        });
+      }
+
+      updateDisplay() {
+        const inputValue = this.textInput.value.trim();
+        const defaultText = '{{ block.settings.default_text | escape }}';
+        
+        if (inputValue) {
+          this.textDisplay.textContent = inputValue;
+        } else if (document.activeElement !== this.textInput) {
+          this.textDisplay.textContent = defaultText;
+        }
+      }
+
+      updateCharacterCount() {
+        if (this.characterCount) {
+          const currentLength = this.textInput.value.length;
+          const maxLength = {{ block.settings.max_characters }};
+          this.characterCount.textContent = `${currentLength} / ${maxLength}`;
+          
+          if (currentLength >= maxLength * 0.9) {
+            this.characterCount.style.color = '#d82c0d';
+          } else {
+            this.characterCount.style.color = '{{ block.settings.label_color }}';
+          }
+        }
+      }
+
+      ensureFontLoaded() {
+        if ('fonts' in document) {
+          const fontFamily = '{{ block.settings.text_font.family }}';
+          const fontWeight = '{{ block.settings.text_font.weight | default: 400 }}';
+          const fontStyle = '{{ block.settings.text_font.style | default: "normal" }}';
+          
+          document.fonts.load(`${fontWeight} 16px ${fontFamily}`).then(() => {
+            this.textDisplay.style.fontFamily = `${fontFamily}, {{ block.settings.text_font.fallback_families }}`;
+          }).catch(() => {
+            console.log('Font loading failed, using fallback');
+          });
+        }
+      }
+    }
+
+    customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Customizable nameplate",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 300,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "min": 200,
+      "max": 500,
+      "step": 20,
+      "unit": "px",
+      "label": "Image height",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Text overlay"
+    },
+    {
+      "type": "text",
+      "id": "default_text",
+      "label": "Default text",
+      "default": "Your Name"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -2,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "text_position_x",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "text_position_y",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Text shadow"
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_x",
+      "min": -5,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow horizontal offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_y",
+      "min": -5,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow vertical offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_blur",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_shadow_color",
+      "label": "Shadow color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Input controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_label",
+      "label": "Show input label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Enter your name"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_text",
+      "label": "Placeholder text",
+      "default": "Type your name here..."
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "label": "Maximum characters",
+      "default": 25
+    },
+    {
+      "type": "checkbox",
+      "id": "show_character_count",
+      "label": "Show character count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_font_preview",
+      "label": "Show font preview",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "controls_padding",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Controls padding",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "controls_background",
+      "label": "Controls background",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "header",
+      "content": "Input styling"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Label size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "input_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Input text size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background",
+      "label": "Input background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "placeholder_color",
+      "label": "Placeholder color",
+      "default": "#999999"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customizable nameplate"
+    }
+  ]
+}
 {% endschema %}
