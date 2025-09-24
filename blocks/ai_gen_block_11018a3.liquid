@@ -268,56 +268,31 @@
           {{ block.settings.selected_product.title }}
         </h2>
         
-        <!-- Same, stable DOM for instant price updates -->
         <div class="ai-nameplate-product-price-{{ ai_gen_id }}" id="product-price-{{ ai_gen_id }}">
-          {% assign _v = block.settings.selected_product.selected_or_first_available_variant %}
-          {% if _v.compare_at_price > _v.price %}
-            <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="{{ _v.compare_at_price }}">
-              {{ _v.compare_at_price | money }}
-            </span>
-          {% else %}
-            <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="" style="display:none;"></span>
-          {% endif %}
-          <span class="ai-current-price-{{ ai_gen_id }}" data-price="{{ _v.price }}">{{ _v.price | money }}</span>
+          {{ block.settings.selected_product.price | money }}
         </div>
 
-        {% if block.settings.selected_product.variants.size > 1 %}
-  <!-- Button-style radios exactly like your working code -->
-  <variant-radios
-    class="ai-nameplate-variant-group-{{ ai_gen_id }}"
-    data-url="{{ block.settings.selected_product.url }}"
-    data-update-url="true"
-  >
-    {% for option in block.settings.selected_product.options_with_values %}
-      <label class="ai-nameplate-variant-label-{{ ai_gen_id }}">{{ option.name }}</label>
-      <fieldset class="ai-nameplate-variant-options-{{ ai_gen_id }}" name="{{ option.name }}">
-        {% for value in option.values %}
-          <input
-            class="ai-variant-input-{{ ai_gen_id }}"
-            type="radio"
-            id="np-{{ ai_gen_id }}-{{ option.position }}-{{ forloop.index0 }}"
-            name="{{ option.name }}"
-            value="{{ value | escape }}"
-            {% if option.selected_value == value %}checked{% endif %}
-          >
-          <label class="ai-nameplate-variant-button-{{ ai_gen_id }}" for="np-{{ ai_gen_id }}-{{ option.position }}-{{ forloop.index0 }}">
-            {{ value }}
-          </label>
-        {% endfor %}
-      </fieldset>
-    {% endfor %}
-    <script type="application/json">
-      {{ block.settings.selected_product.variants | json }}
-    </script>
-  </variant-radios>
-
-  <button type="button"
-    class="ai-nameplate-variant-button-{{ ai_gen_id }}"
-    id="np-reset-variants-{{ ai_gen_id }}"
-    style="margin-top:8px;">
-    Reset variants
-  </button>
-{% endif %}
+        {% unless block.settings.selected_product.has_only_default_variant %}
+          {% for option in block.settings.selected_product.options_with_values %}
+            <div class="ai-nameplate-variant-group-{{ ai_gen_id }}">
+              <label class="ai-nameplate-variant-label-{{ ai_gen_id }}">
+                {{ option.name }}
+              </label>
+              <div class="ai-nameplate-variant-options-{{ ai_gen_id }}" data-option-name="{{ option.name }}">
+                {% for value in option.values %}
+                  <button
+                    type="button"
+                    class="ai-nameplate-variant-button-{{ ai_gen_id }} {% if forloop.first %}selected{% endif %}"
+                    data-option-value="{{ value }}"
+                    data-option-name="{{ option.name }}"
+                  >
+                    {{ value }}
+                  </button>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endunless %}
       </div>
     {% endif %}
 
@@ -528,8 +503,6 @@
     customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
   })();
 </script>
-
-
 
 {% schema %}
 {
