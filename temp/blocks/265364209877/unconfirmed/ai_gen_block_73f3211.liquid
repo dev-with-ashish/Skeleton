@@ -1,6 +1,825 @@
+{% doc %}
+  @prompt
+    custom product section with its all variants option showing in each row updating product price with variant change, variant in its radio style, uable to click variants, show variant options separately in button style , all variant option should show its child in its own line, it should be like variant1 : option1, option2, option3 then in another line variant2: option1, option2, option3 in this manner and the price should get refelected even the variant is out of stock, map product price to variant change so it can refelect the updated variant price, add 2 text layers over the selected product image layer in the customizer provide option to select text font and x and y position option to position text anywhere over the product image, keep everything same no change in variants just add 2 text layers over the selected product image layer in the customizer provide option to select text font and x and y position option to position text anywhere over the product image, make the text box available for users to type and preview their name all its steeing will remain in the customiser, for text add option in the customiser to curve it or bend it rotate it 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-variants-{{ ai_gen_id }} {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-product-image-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-product-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-text-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+    white-space: nowrap;
+    transform-origin: center center;
+  }
+
+  .ai-text-overlay-1-{{ ai_gen_id }} {
+    top: {{ block.settings.text_1_y }}%;
+    left: {{ block.settings.text_1_x }}%;
+    transform: translate(-50%, -50%) rotate({{ block.settings.text_1_rotation }}deg);
+    font-family: {{ block.settings.text_1_font.family }}, {{ block.settings.text_1_font.fallback_families }};
+    font-weight: {{ block.settings.text_1_font.weight }};
+    font-size: {{ block.settings.text_1_size }}px;
+    color: {{ block.settings.text_1_color }};
+    {% if block.settings.text_1_curve != 0 %}
+      transform: translate(-50%, -50%) rotate({{ block.settings.text_1_rotation }}deg);
+      display: inline-block;
+    {% endif %}
+  }
+
+  .ai-text-overlay-2-{{ ai_gen_id }} {
+    top: {{ block.settings.text_2_y }}%;
+    left: {{ block.settings.text_2_x }}%;
+    transform: translate(-50%, -50%) rotate({{ block.settings.text_2_rotation }}deg);
+    font-family: {{ block.settings.text_2_font.family }}, {{ block.settings.text_2_font.fallback_families }};
+    font-weight: {{ block.settings.text_2_font.weight }};
+    font-size: {{ block.settings.text_2_size }}px;
+    color: {{ block.settings.text_2_color }};
+    {% if block.settings.text_2_curve != 0 %}
+      transform: translate(-50%, -50%) rotate({{ block.settings.text_2_rotation }}deg);
+      display: inline-block;
+    {% endif %}
+  }
+
+  .ai-curved-text-{{ ai_gen_id }} {
+    display: inline-block;
+  }
+
+  .ai-curved-text-{{ ai_gen_id }} .ai-char-{{ ai_gen_id }} {
+    display: inline-block;
+    transform-origin: center bottom;
+  }
+
+  .ai-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .ai-product-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_size }}px;
+    color: {{ block.settings.price_color }};
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .ai-variant-group-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-variant-label-{{ ai_gen_id }} {
+    display: block;
+    font-size: {{ block.settings.variant_label_size }}px;
+    color: {{ block.settings.variant_label_color }};
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .ai-variant-options-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ai-variant-option-{{ ai_gen_id }} {
+    padding: 8px 16px;
+    border: 2px solid {{ block.settings.variant_border_color }};
+    background-color: {{ block.settings.variant_bg_color }};
+    color: {{ block.settings.variant_text_color }};
+    border-radius: {{ block.settings.variant_border_radius }}px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: {{ block.settings.variant_text_size }}px;
+  }
+
+  .ai-variant-option-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.variant_hover_bg_color }};
+    border-color: {{ block.settings.variant_hover_border_color }};
+  }
+
+  .ai-variant-option-{{ ai_gen_id }}.selected {
+    background-color: {{ block.settings.variant_selected_bg_color }};
+    border-color: {{ block.settings.variant_selected_border_color }};
+    color: {{ block.settings.variant_selected_text_color }};
+  }
+
+  .ai-variant-option-{{ ai_gen_id }}.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  .ai-text-input-container-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-text-input-label-{{ ai_gen_id }} {
+    display: block;
+    font-size: 14px;
+    color: {{ block.settings.title_color }};
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  .ai-text-input-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid {{ block.settings.variant_border_color }};
+    border-radius: {{ block.settings.variant_border_radius }}px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .ai-text-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.variant_selected_border_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-variant-options-{{ ai_gen_id }} {
+      gap: 8px;
+    }
+    
+    .ai-variant-option-{{ ai_gen_id }} {
+      padding: 6px 12px;
+      font-size: {{ block.settings.variant_text_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<product-variants-{{ ai_gen_id }}
+  class="ai-product-variants-{{ ai_gen_id }}"
+  data-product-id="{{ product.id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if product %}
+    <div class="ai-product-image-container-{{ ai_gen_id }}">
+      {% if product.featured_image %}
+        <img
+          src="{{ product.featured_image | image_url: width: 800 }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          class="ai-product-image-{{ ai_gen_id }}"
+          id="ai-product-image-{{ ai_gen_id }}"
+          loading="lazy"
+          width="{{ product.featured_image.width }}"
+          height="{{ product.featured_image.height }}"
+        >
+      {% else %}
+        <div class="ai-product-image-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+
+      <div class="ai-text-overlay-{{ ai_gen_id }} ai-text-overlay-1-{{ ai_gen_id }}" id="ai-text-overlay-1-{{ ai_gen_id }}">
+        {% if block.settings.text_1_curve != 0 %}
+          <div class="ai-curved-text-{{ ai_gen_id }}" id="ai-curved-text-1-{{ ai_gen_id }}"></div>
+        {% else %}
+          <span id="ai-text-content-1-{{ ai_gen_id }}">{{ block.settings.text_1_default }}</span>
+        {% endif %}
+      </div>
+
+      <div class="ai-text-overlay-{{ ai_gen_id }} ai-text-overlay-2-{{ ai_gen_id }}" id="ai-text-overlay-2-{{ ai_gen_id }}">
+        {% if block.settings.text_2_curve != 0 %}
+          <div class="ai-curved-text-{{ ai_gen_id }}" id="ai-curved-text-2-{{ ai_gen_id }}"></div>
+        {% else %}
+          <span id="ai-text-content-2-{{ ai_gen_id }}">{{ block.settings.text_2_default }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-text-input-container-{{ ai_gen_id }}">
+      <label class="ai-text-input-label-{{ ai_gen_id }}" for="ai-text-input-1-{{ ai_gen_id }}">{{ block.settings.text_1_label }}</label>
+      <input
+        type="text"
+        id="ai-text-input-1-{{ ai_gen_id }}"
+        class="ai-text-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.text_1_placeholder }}"
+        value="{{ block.settings.text_1_default }}"
+        maxlength="50"
+      >
+    </div>
+
+    <div class="ai-text-input-container-{{ ai_gen_id }}">
+      <label class="ai-text-input-label-{{ ai_gen_id }}" for="ai-text-input-2-{{ ai_gen_id }}">{{ block.settings.text_2_label }}</label>
+      <input
+        type="text"
+        id="ai-text-input-2-{{ ai_gen_id }}"
+        class="ai-text-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.text_2_placeholder }}"
+        value="{{ block.settings.text_2_default }}"
+        maxlength="50"
+      >
+    </div>
+
+    <h1 class="ai-product-title-{{ ai_gen_id }}">{{ product.title }}</h1>
+    
+    <div class="ai-product-price-{{ ai_gen_id }}" id="ai-product-price-{{ ai_gen_id }}">
+      <span class="price">{{ product.selected_or_first_available_variant.price | money }}</span>
+      {% if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price %}
+        <span class="compare-price" style="text-decoration: line-through; opacity: 0.7; margin-left: 10px;">
+          {{ product.selected_or_first_available_variant.compare_at_price | money }}
+        </span>
+      {% endif %}
+    </div>
+
+    {% unless product.has_only_default_variant %}
+      {% for option in product.options_with_values %}
+        <div class="ai-variant-group-{{ ai_gen_id }}">
+          <label class="ai-variant-label-{{ ai_gen_id }}">{{ option.name }}:</label>
+          <div class="ai-variant-options-{{ ai_gen_id }}">
+            {% for value in option.values %}
+              <button
+                type="button"
+                class="ai-variant-option-{{ ai_gen_id }}"
+                data-option-position="{{ option.position }}"
+                data-option-value="{{ value | escape }}"
+                {% if forloop.first %}data-selected="true"{% endif %}
+              >
+                {{ value }}
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    {% endunless %}
+
+    <script type="application/json" id="ai-product-variants-{{ ai_gen_id }}">
+      {{ product.variants | json }}
+    </script>
+  {% else %}
+    <div class="ai-product-image-placeholder-{{ ai_gen_id }}">
+      {{ 'product-1' | placeholder_svg_tag }}
+      <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #666; font-size: 14px;">
+        Select a product in the block settings
+      </div>
+    </div>
+  {% endif %}
+</product-variants-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductVariants{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.variants = [];
+        this.currentVariant = null;
+        this.selectedOptions = {};
+      }
+
+      connectedCallback() {
+        this.init();
+      }
+
+      init() {
+        const variantsScript = this.querySelector('#ai-product-variants-{{ ai_gen_id }}');
+        if (variantsScript) {
+          this.variants = JSON.parse(variantsScript.textContent);
+          this.currentVariant = this.variants.find(variant => variant.available) || this.variants[0];
+        }
+
+        this.setupVariantButtons();
+        this.setupTextInputs();
+        this.initializeSelectedOptions();
+        this.updateCurvedText();
+      }
+
+      setupTextInputs() {
+        const textInput1 = this.querySelector('#ai-text-input-1-{{ ai_gen_id }}');
+        const textInput2 = this.querySelector('#ai-text-input-2-{{ ai_gen_id }}');
+
+        if (textInput1) {
+          textInput1.addEventListener('input', (e) => {
+            this.updateTextOverlay(1, e.target.value);
+          });
+        }
+
+        if (textInput2) {
+          textInput2.addEventListener('input', (e) => {
+            this.updateTextOverlay(2, e.target.value);
+          });
+        }
+      }
+
+      updateTextOverlay(layerNum, text) {
+        const curveValue = layerNum === 1 ? {{ block.settings.text_1_curve }} : {{ block.settings.text_2_curve }};
+        
+        if (curveValue !== 0) {
+          this.updateCurvedText(layerNum, text);
+        } else {
+          const textContent = this.querySelector(`#ai-text-content-${layerNum}-{{ ai_gen_id }}`);
+          if (textContent) {
+            textContent.textContent = text;
+          }
+        }
+      }
+
+      updateCurvedText(layerNum = null, customText = null) {
+        const layers = layerNum ? [layerNum] : [1, 2];
+        
+        layers.forEach(layer => {
+          const curveValue = layer === 1 ? {{ block.settings.text_1_curve }} : {{ block.settings.text_2_curve }};
+          
+          if (curveValue !== 0) {
+            const curvedTextContainer = this.querySelector(`#ai-curved-text-${layer}-{{ ai_gen_id }}`);
+            const textInput = this.querySelector(`#ai-text-input-${layer}-{{ ai_gen_id }}`);
+            
+            if (curvedTextContainer && textInput) {
+              const text = customText || textInput.value || (layer === 1 ? '{{ block.settings.text_1_default }}' : '{{ block.settings.text_2_default }}');
+              this.createCurvedText(curvedTextContainer, text, curveValue);
+            }
+          }
+        });
+      }
+
+      createCurvedText(container, text, curveValue) {
+        container.innerHTML = '';
+        const chars = text.split('');
+        const totalChars = chars.length;
+        
+        chars.forEach((char, index) => {
+          const span = document.createElement('span');
+          span.textContent = char;
+          span.className = 'ai-char-{{ ai_gen_id }}';
+          
+          const angle = (curveValue / totalChars) * (index - (totalChars - 1) / 2);
+          span.style.transform = `rotate(${angle}deg)`;
+          
+          container.appendChild(span);
+        });
+      }
+
+      initializeSelectedOptions() {
+        const optionButtons = this.querySelectorAll('.ai-variant-option-{{ ai_gen_id }}[data-selected="true"]');
+        optionButtons.forEach(button => {
+          button.classList.add('selected');
+          const position = parseInt(button.dataset.optionPosition);
+          this.selectedOptions[position] = button.dataset.optionValue;
+        });
+        this.updateVariantAvailability();
+      }
+
+      setupVariantButtons() {
+        const buttons = this.querySelectorAll('.ai-variant-option-{{ ai_gen_id }}');
+        buttons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            const position = parseInt(e.target.dataset.optionPosition);
+            const value = e.target.dataset.optionValue;
+            
+            this.querySelectorAll(`[data-option-position="${position}"]`).forEach(btn => {
+              btn.classList.remove('selected');
+            });
+            
+            e.target.classList.add('selected');
+            this.selectedOptions[position] = value;
+            
+            this.updateVariantAvailability();
+            this.updateCurrentVariant();
+            this.updatePrice();
+            this.updateProductImage();
+          });
+        });
+      }
+
+      updateVariantAvailability() {
+        const buttons = this.querySelectorAll('.ai-variant-option-{{ ai_gen_id }}');
+        buttons.forEach(button => {
+          const position = parseInt(button.dataset.optionPosition);
+          const value = button.dataset.optionValue;
+          
+          const testOptions = { ...this.selectedOptions };
+          testOptions[position] = value;
+          
+          const matchingVariant = this.variants.find(variant => {
+            return Object.keys(testOptions).every(pos => {
+              const optionIndex = parseInt(pos) - 1;
+              return variant.options[optionIndex] === testOptions[pos];
+            });
+          });
+          
+          button.classList.toggle('unavailable', !matchingVariant || !matchingVariant.available);
+        });
+      }
+
+      updateCurrentVariant() {
+        const matchingVariant = this.variants.find(variant => {
+          return Object.keys(this.selectedOptions).every(position => {
+            const optionIndex = parseInt(position) - 1;
+            return variant.options[optionIndex] === this.selectedOptions[position];
+          });
+        });
+        
+        if (matchingVariant) {
+          this.currentVariant = matchingVariant;
+        }
+      }
+
+      updatePrice() {
+        if (!this.currentVariant) return;
+        
+        const priceElement = this.querySelector('#ai-product-price-{{ ai_gen_id }} .price');
+        const comparePriceElement = this.querySelector('#ai-product-price-{{ ai_gen_id }} .compare-price');
+        
+        if (priceElement) {
+          priceElement.textContent = this.formatMoney(this.currentVariant.price);
+        }
+        
+        if (comparePriceElement) {
+          if (this.currentVariant.compare_at_price && this.currentVariant.compare_at_price > this.currentVariant.price) {
+            comparePriceElement.textContent = this.formatMoney(this.currentVariant.compare_at_price);
+            comparePriceElement.style.display = 'inline';
+          } else {
+            comparePriceElement.style.display = 'none';
+          }
+        }
+      }
+
+      updateProductImage() {
+        if (!this.currentVariant || !this.currentVariant.featured_image) return;
+        
+        const imageElement = this.querySelector('#ai-product-image-{{ ai_gen_id }}');
+        if (imageElement) {
+          const imageUrl = this.currentVariant.featured_image.src.replace(/\.(jpg|jpeg|png|gif|webp)/, '_800x.$1');
+          imageElement.src = imageUrl;
+          imageElement.alt = this.currentVariant.featured_image.alt || '';
+        }
+      }
+
+      formatMoney(cents) {
+        const amount = cents / 100;
+        return new Intl.NumberFormat('{{ shop.locale }}', {
+          style: 'currency',
+          currency: '{{ shop.currency }}'
+        }).format(amount);
+      }
+    }
+
+    customElements.define('product-variants-{{ ai_gen_id }}', ProductVariants{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product variants",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Text overlay 1"
+    },
+    {
+      "type": "text",
+      "id": "text_1_label",
+      "label": "Input label",
+      "default": "Custom text 1"
+    },
+    {
+      "type": "text",
+      "id": "text_1_placeholder",
+      "label": "Input placeholder",
+      "default": "Enter your text"
+    },
+    {
+      "type": "text",
+      "id": "text_1_default",
+      "label": "Default text",
+      "default": "Your Text"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_1_font",
+      "label": "Font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "text_1_size",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "text_1_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "text_1_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "text_1_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "text_1_rotation",
+      "min": -180,
+      "max": 180,
+      "step": 5,
+      "unit": "deg",
+      "label": "Rotation",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "text_1_curve",
+      "min": -90,
+      "max": 90,
+      "step": 5,
+      "unit": "deg",
+      "label": "Curve/bend",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Text overlay 2"
+    },
+    {
+      "type": "text",
+      "id": "text_2_label",
+      "label": "Input label",
+      "default": "Custom text 2"
+    },
+    {
+      "type": "text",
+      "id": "text_2_placeholder",
+      "label": "Input placeholder",
+      "default": "Enter your text"
+    },
+    {
+      "type": "text",
+      "id": "text_2_default",
+      "label": "Default text",
+      "default": "Your Name"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_2_font",
+      "label": "Font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "text_2_size",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "text_2_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "text_2_x",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "text_2_y",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "text_2_rotation",
+      "min": -180,
+      "max": 180,
+      "step": 5,
+      "unit": "deg",
+      "label": "Rotation",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "text_2_curve",
+      "min": -90,
+      "max": 90,
+      "step": 5,
+      "unit": "deg",
+      "label": "Curve/bend",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Product title"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Product price"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "min": 14,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Price size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Variant options"
+    },
+    {
+      "type": "range",
+      "id": "variant_label_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Label size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "variant_label_color",
+      "label": "Label color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "variant_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Option text size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "variant_bg_color",
+      "label": "Option background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_text_color",
+      "label": "Option text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "variant_border_color",
+      "label": "Option border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "variant_hover_bg_color",
+      "label": "Option hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "variant_hover_border_color",
+      "label": "Option hover border",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_bg_color",
+      "label": "Selected background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_text_color",
+      "label": "Selected text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_selected_border_color",
+      "label": "Selected border color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "variant_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Option border radius",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product variants"
+    }
+  ]
+}
 {% endschema %}
