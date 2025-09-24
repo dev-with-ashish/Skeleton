@@ -1,1155 +1,997 @@
 {% doc %}
   @prompt
-    custom product section with its all variants option showing in each row updating product price with variant change, variant in its radio style, uable to click variants, show variant options separately in button style , all variant option should show its child in its own line, it should be like variant1 : option1, option2, option3 then in another line variant2: option1, option2, option3 in this manner and the price should get refelected even the variant is out of stock, map product price to variant change so it can refelect the updated variant price, add 2 text layers over the selected product image layer in the customizer provide option to select text font and x and y position option to position text anywhere over the product image, keep everything same no change in variants just add 2 text layers over the selected product image layer in the customizer provide option to select text font and x and y position option to position text anywhere over the product image, make the text box available for users to type and preview their name all its steeing will remain in the customiser
+    cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, apply shape image layer mask to the user uploaded image, apply shape image masking to the user image layer , everything fine just display selected product title description and prices (whcih updated with product variant price), variant should be in button style and make sure shape image opecity becomes 0 after user selected the image, unable to change variants fix that , unable to select a variant, keep everything as it is just change variant style make sure the user can select variant as it was when in list style, change variant style to button just change style of the variant, add an png overlay for the admin above the user image layer with the same masking feature, do not display selected shape template and overlay image in the website in the right panel, keep everything as it is now just make sure the the user uploaded Image gets stored and the URL is saved as a line item property.
+    
+    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask , all property as it is now but by default the file should be covering the mask 
 {% enddoc %}
+
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
+{%- comment -%}
+Context product:
+- On product page, use `product`.
+- Elsewhere (home/collection/custom), fall back to block setting.
+{%- endcomment -%}
+{% assign context_product = product | default: block.settings.product %}
+
+{%- comment -%}
+Auto-source product images from context_product:
+- shape_media: first image
+- overlay_media: second image
+{%- endcomment -%}
+{% if context_product %}
+  {% assign _images = context_product.media | where: 'media_type', 'image' %}
+  {% assign shape_media = _images[0] %}
+  {% assign overlay_media = _images[1] %}
+
+  {% if shape_media %}
+    {% assign shape_image_url_500 = shape_media | image_url: width: 500 %}
+  {% endif %}
+  {% if overlay_media %}
+    {% assign overlay_image_url_500 = overlay_media | image_url: width: 500 %}
+  {% endif %}
+{% endif %}
+
 {% style %}
-  .ai-product-variants-{{ ai_gen_id }} {
-    max-width: 100%;
+  .ai-custom-product-{{ ai_gen_id }} {
     padding: {{ block.settings.section_padding }}px;
     background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-custom-product-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .ai-custom-product-preview-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .ai-custom-product-canvas-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: {{ block.settings.canvas_background }};
     border-radius: {{ block.settings.border_radius }}px;
-  }
-
-  .ai-product-variants__container-{{ ai_gen_id }} {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .ai-product-variants__header-{{ ai_gen_id }} {
-    text-align: center;
-  }
-
-  .ai-product-variants__title-{{ ai_gen_id }} {
-    font-size: {{ block.settings.title_size }}px;
-    color: {{ block.settings.text_color }};
-    margin: 0 0 8px;
-    font-weight: 600;
-  }
-
-  .ai-product-variants__description-{{ ai_gen_id }} {
-    font-size: {{ block.settings.description_size }}px;
-    color: {{ block.settings.text_color }};
-    opacity: 0.8;
-    margin: 0;
-  }
-
-  .ai-product-variants__product-info-{{ ai_gen_id }} {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-  }
-
-  .ai-product-variants__image-container-{{ ai_gen_id }} {
-    flex: 0 0 300px;
-    width: 300px;
-    height: 300px;
-    border-radius: {{ block.settings.image_border_radius }}px;
     overflow: hidden;
-    position: relative;
+    border: 2px solid {{ block.settings.border_color }};
   }
 
-  .ai-product-variants__image-{{ ai_gen_id }} {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .ai-product-variants__image-placeholder-{{ ai_gen_id }} {
-    width: 100%;
-    height: 100%;
-    background-color: #f4f4f4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  .ai-product-variants__image-placeholder-{{ ai_gen_id }} svg {
-    width: 100%;
-    height: 100%;
-    max-width: 200px;
-    max-height: 200px;
-  }
-
-  .ai-product-variants__empty-state-{{ ai_gen_id }} {
+  .ai-custom-product-shape-layer-{{ ai_gen_id }} {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-  }
-
-  .ai-product-variants__text-overlay-{{ ai_gen_id }} {
-    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
     pointer-events: none;
-    z-index: 2;
-    white-space: nowrap;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.3s ease;
+  }
+  .ai-custom-product-shape-layer-{{ ai_gen_id }} img { width:100%; height:100%; object-fit:contain; }
+
+  .ai-custom-product-overlay-layer-{{ ai_gen_id }} {
+    position: absolute; top:0; left:0; width:100%; height:100%; z-index:2; pointer-events:none;
+  }
+  .ai-custom-product-overlay-layer-{{ ai_gen_id }} img {
+    width:100%; height:100%; object-fit:contain;
+    /* --- MASK: prefer product first image; fallback to settings.shape_image --- */
+    {% if shape_image_url_500 or block.settings.shape_image %}
+      {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}');
+      mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-size:contain; mask-size:contain;
+      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+      -webkit-mask-position:center; mask-position:center;
+    {% endif %}
   }
 
-  .ai-product-variants__text-overlay-1-{{ ai_gen_id }} {
-    top: {{ block.settings.text_1_y }}%;
-    left: {{ block.settings.text_1_x }}%;
-    transform: translate(-50%, -50%);
-    font-family: {{ block.settings.text_1_font.family }}, {{ block.settings.text_1_font.fallback_families }};
-    font-weight: {{ block.settings.text_1_font.weight }};
-    font-size: {{ block.settings.text_1_size }}px;
-    color: {{ block.settings.text_1_color }};
+  .ai-custom-product-user-layer-{{ ai_gen_id }} {
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; overflow:hidden;
+    /* --- MASK: prefer product first image; fallback to settings.shape_image --- */
+    {% if shape_image_url_500 or block.settings.shape_image %}
+      {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}');
+      mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-size:contain; mask-size:contain;
+      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+      -webkit-mask-position:center; mask-position:center;
+    {% endif %}
   }
+  .ai-custom-product-user-image-container-{{ ai_gen_id }} { position:relative; width:100%; height:100%; }
+  .ai-custom-product-user-image-wrapper-{{ ai_gen_id }} { position:absolute; cursor:move; user-select:none; transition:outline .2s ease; transform-origin:center; }
+  .ai-custom-product-user-image-wrapper-{{ ai_gen_id }}:hover,
+  .ai-custom-product-user-image-wrapper-{{ ai_gen_id }}.dragging { outline:2px solid {{ block.settings.button_color }}; outline-offset:2px; }
+  .ai-custom-product-user-image-{{ ai_gen_id }} { width:100%; height:100%; object-fit:cover; display:block; }
 
-  .ai-product-variants__text-overlay-2-{{ ai_gen_id }} {
-    top: {{ block.settings.text_2_y }}%;
-    left: {{ block.settings.text_2_x }}%;
-    transform: translate(-50%, -50%);
-    font-family: {{ block.settings.text_2_font.family }}, {{ block.settings.text_2_font.fallback_families }};
-    font-weight: {{ block.settings.text_2_font.weight }};
-    font-size: {{ block.settings.text_2_size }}px;
-    color: {{ block.settings.text_2_color }};
-  }
+  .ai-custom-product-resize-handles-{{ ai_gen_id }} { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity .3s ease; }
+  .ai-custom-product-user-image-wrapper-{{ ai_gen_id }}:hover .ai-custom-product-resize-handles-{{ ai_gen_id }} { opacity:1; }
+  .ai-custom-product-resize-handle-{{ ai_gen_id }} { position:absolute; width:16px; height:16px; background:{{ block.settings.button_color }}; border:3px solid #fff; border-radius:50%; pointer-events:auto; cursor:pointer; z-index:10; box-shadow:0 2px 4px rgba(0,0,0,.2); }
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.nw{ top:-8px; left:-8px; cursor:nw-resize;}
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.ne{ top:-8px; right:-8px; cursor:ne-resize;}
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.sw{ bottom:-8px; left:-8px; cursor:sw-resize;}
+  .ai-custom-product-resize-handle-{{ ai_gen_id }}.se{ bottom:-8px; right:-8px; cursor:se-resize;}
 
-  .ai-product-variants__details-{{ ai_gen_id }} {
-    flex: 1;
-    min-width: 0;
+  .ai-custom-product-placeholder-{{ ai_gen_id }} {
+    width:100%; height:100%; background:#f8f8f8; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; color:#666; text-align:center; padding:20px;
+    /* --- MASK: prefer product first image; fallback to settings.shape_image --- */
+    {% if shape_image_url_500 or block.settings.shape_image %}
+      {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}');
+      mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-size:contain; mask-size:contain;
+      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+      -webkit-mask-position:center; mask-position:center;
+    {% endif %}
   }
+  .ai-custom-product-placeholder-{{ ai_gen_id }} svg { width:80px; height:80px; opacity:.5; }
 
-  .ai-product-variants__product-title-{{ ai_gen_id }} {
-    font-size: {{ block.settings.product_title_size }}px;
-    color: {{ block.settings.text_color }};
-    margin: 0 0 12px;
-    font-weight: 600;
-  }
+  .ai-custom-product-controls-{{ ai_gen_id }} { display:flex; flex-direction:column; gap:24px; }
+  .ai-custom-product-info-{{ ai_gen_id }} { margin-bottom:24px; }
+  .ai-custom-product-title-{{ ai_gen_id }} { font-size:{{ block.settings.title_size }}px; color:{{ block.settings.text_color }}; margin:0 0 16px; font-family:{{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }}; font-weight:{{ settings.type_primary_font.weight }}; }
 
-  .ai-product-variants__price-{{ ai_gen_id }} {
-    font-size: {{ block.settings.price_size }}px;
-    color: {{ block.settings.price_color }};
-    font-weight: 700;
-    margin-bottom: 24px;
-  }
+  /* price pieces to let anotherlogic-style updater target them */
+  .ai-custom-product-price-{{ ai_gen_id }} { font-size:{{ block.settings.price_size }}px; font-weight:600; color:{{ block.settings.price_color }}; margin-bottom:16px; }
+  .ai-compare-price-{{ ai_gen_id }} { text-decoration:line-through; color:{{ block.settings.compare_price_color }}; margin-right:8px; font-weight:normal; }
+  .ai-current-price-{{ ai_gen_id }} {}
 
-  .ai-product-variants__text-inputs-{{ ai_gen_id }} {
-    margin-bottom: 24px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+  /* Button-style radios */
+  .ai-custom-product-variant-selector-{{ ai_gen_id }} { margin-bottom:20px; }
+  .ai-custom-product-variant-label-{{ ai_gen_id }} { display:block; margin-bottom:12px; font-weight:600; color:{{ block.settings.text_color }}; font-size:16px; }
+  .ai-custom-product-variant-buttons-{{ ai_gen_id }} { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
+  .ai-custom-product-variant-buttons-{{ ai_gen_id }}:last-of-type { margin-bottom: 0; }
+  .ai-variant-input-{{ ai_gen_id }} { position:absolute; opacity:0; pointer-events:none; }
+  .ai-custom-product-variant-button-{{ ai_gen_id }} {
+    padding:10px 16px; border:2px solid {{ block.settings.variant_border_color }}; background:{{ block.settings.variant_background }}; color:{{ block.settings.variant_text_color }};
+    border-radius:{{ block.settings.button_border_radius }}px; font-size:14px; cursor:pointer; transition:all .3s ease; text-align:center; min-width:80px; display:inline-flex; align-items:center; justify-content:center;
   }
+  .ai-variant-input-{{ ai_gen_id }}:checked + .ai-custom-product-variant-button-{{ ai_gen_id }} {
+    border-color:{{ block.settings.variant_selected_border }}; background:{{ block.settings.variant_selected_background }}; color:{{ block.settings.variant_selected_text }};
+  }
+  .ai-variant-input-{{ ai_gen_id }}:disabled + .ai-custom-product-variant-button-{{ ai_gen_id }} { opacity:.5; cursor:not-allowed; background:#f5f5f5; color:#999; }
 
-  .ai-product-variants__text-inputs-title-{{ ai_gen_id }} {
-    font-size: 18px;
-    font-weight: 600;
-    color: {{ block.settings.text_color }};
-    margin: 0 0 16px;
-  }
+  .ai-custom-product-upload-section-{{ ai_gen_id }} { border:2px dashed {{ block.settings.upload_border_color }}; border-radius:{{ block.settings.border_radius }}px; padding:24px; text-align:center; background:{{ block.settings.upload_background }}; transition:all .3s ease; }
+  .ai-custom-product-upload-section-{{ ai_gen_id }}:hover { border-color:{{ block.settings.button_color }}; background:{{ block.settings.upload_hover_background }}; }
+  .ai-custom-product-upload-input-{{ ai_gen_id }} { display:none; }
+  .ai-custom-product-upload-button-{{ ai_gen_id }} { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:{{ block.settings.button_color }}; color:{{ block.settings.button_text_color }}; border:none; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:14px; transition:background-color .3s ease; }
+  .ai-custom-product-upload-button-{{ ai_gen_id }}:hover{ background:{{ block.settings.button_hover_color }}; }
+  .ai-custom-product-upload-text-{{ ai_gen_id }}{ margin-top:12px; color:{{ block.settings.text_color }}; font-size:14px; opacity:.8; }
+  .ai-custom-product-file-info-{{ ai_gen_id }}{ margin-top:12px; padding:8px 12px; background:{{ block.settings.success_background }}; color:{{ block.settings.success_color }}; border-radius:4px; font-size:14px; }
 
-  .ai-product-variants__text-input-group-{{ ai_gen_id }} {
-    margin-bottom: 16px;
-  }
+  .ai-custom-product-image-controls-{{ ai_gen_id }}{ margin-top:16px; padding:16px; background:{{ block.settings.upload_background }}; border-radius:{{ block.settings.border_radius }}px; border:1px solid {{ block.settings.border_color }}; display:none; }
+  .ai-custom-product-control-group-{{ ai_gen_id }}{ margin-bottom:12px; }
+  .ai-custom-product-control-label-{{ ai_gen_id }}{ display:block; margin-bottom:6px; font-size:14px; font-weight:600; color:{{ block.settings.text_color }}; }
+  .ai-custom-product-control-button-{{ ai_gen_id }}{ padding:8px 16px; margin:0 4px 4px 0; background:{{ block.settings.button_color }}; color:{{ block.settings.button_text_color }}; border:none; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:12px; transition:background-color .3s ease; }
+  .ai-custom-product-control-button-{{ ai_gen_id }}:hover{ background:{{ block.settings.button_hover_color }}; }
 
-  .ai-product-variants__text-input-group-{{ ai_gen_id }}:last-child {
-    margin-bottom: 0;
-  }
+  .ai-custom-product-actions-{{ ai_gen_id }}{ display:flex; flex-direction:column; gap:12px; }
+  .ai-custom-product-clear-button-{{ ai_gen_id }}{ padding:8px 16px; background:transparent; color:{{ block.settings.text_color }}; border:1px solid {{ block.settings.border_color }}; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:14px; transition:all .3s ease; }
+  .ai-custom-product-clear-button-{{ ai_gen_id }}:hover{ background:{{ block.settings.border_color }}; }
+  .ai-custom-product-add-to-cart-{{ ai_gen_id }}{ padding:16px 32px; background:{{ block.settings.cart_button_color }}; color:{{ block.settings.cart_button_text_color }}; border:none; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:16px; font-weight:600; transition:background-color .3s ease; }
+  .ai-custom-product-add-to-cart-{{ ai_gen_id }}:hover{ background:{{ block.settings.cart_button_hover_color }}; }
+  .ai-custom-product-add-to-cart-{{ ai_gen_id }}:disabled{ background:#ccc; cursor:not-allowed; }
 
-  .ai-product-variants__text-input-label-{{ ai_gen_id }} {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    color: {{ block.settings.text_color }};
-    margin-bottom: 6px;
-  }
+  .ai-custom-product-form-{{ ai_gen_id }}{ display:none; }
 
-  .ai-product-variants__text-input-{{ ai_gen_id }} {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 14px;
-    color: {{ block.settings.text_color }};
-    background-color: #ffffff;
-    transition: border-color 0.3s ease;
+  /* === [ADDED] User Text Layer (above admin overlay) === */
+  .ai-custom-product-text-layer-{{ ai_gen_id }}{
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:3; pointer-events:none;
   }
-
-  .ai-product-variants__text-input-{{ ai_gen_id }}:focus {
-    outline: none;
-    border-color: {{ block.settings.button_color }};
-  }
-
-  .ai-product-variants__variants-section-{{ ai_gen_id }} {
-    margin-bottom: 24px;
-  }
-
-  .ai-product-variants__option-row-{{ ai_gen_id }} {
-    margin-bottom: {{ block.settings.row_gap }}px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .ai-product-variants__option-label-{{ ai_gen_id }} {
-    font-size: {{ block.settings.option_label_size }}px;
-    color: {{ block.settings.text_color }};
-    font-weight: 600;
-    margin: 0;
-    display: block;
-  }
-
-  .ai-product-variants__option-buttons-{{ ai_gen_id }} {
-    display: flex;
-    flex-wrap: wrap;
-    gap: {{ block.settings.option_gap }}px;
-  }
-
-  .ai-product-variants__option-button-{{ ai_gen_id }} {
-    padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
-    border: 2px solid {{ block.settings.variant_border_color }};
-    background-color: {{ block.settings.variant_background_color }};
-    color: {{ block.settings.variant_text_color }};
-    border-radius: {{ block.settings.variant_border_radius }}px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: {{ block.settings.variant_text_size }}px;
-    font-weight: 500;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: {{ block.settings.button_min_height }}px;
-    min-width: 80px;
-    position: relative;
-  }
-
-  .ai-product-variants__option-button-{{ ai_gen_id }}:hover {
-    border-color: {{ block.settings.variant_hover_border_color }};
-    background-color: {{ block.settings.variant_hover_background_color }};
-    color: {{ block.settings.variant_hover_text_color }};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .ai-product-variants__option-button-{{ ai_gen_id }}.selected {
-    border-color: {{ block.settings.variant_selected_border_color }};
-    background-color: {{ block.settings.variant_selected_background_color }};
-    color: {{ block.settings.variant_selected_text_color }};
-    box-shadow: 0 2px 8px rgba(0, 123, 204, 0.3);
-  }
-
-  .ai-product-variants__option-button-{{ ai_gen_id }}.out-of-stock {
-    opacity: 0.6;
-    position: relative;
-  }
-
-  .ai-product-variants__option-button-{{ ai_gen_id }}.out-of-stock::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background-color: #d32f2f;
-    transform: translateY(-50%);
-  }
-
-  .ai-product-variants__option-value-{{ ai_gen_id }} {
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 4px;
-  }
-
-  .ai-product-variants__add-to-cart-{{ ai_gen_id }} {
-    margin-top: 24px;
-  }
-
-  .ai-product-variants__add-button-{{ ai_gen_id }} {
-    width: 100%;
-    padding: 16px 24px;
-    background-color: {{ block.settings.button_color }};
-    color: {{ block.settings.button_text_color }};
-    border: none;
-    border-radius: {{ block.settings.button_border_radius }}px;
-    font-size: {{ block.settings.button_text_size }}px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .ai-product-variants__add-button-{{ ai_gen_id }}:hover {
-    background-color: {{ block.settings.button_hover_color }};
-  }
-
-  .ai-product-variants__add-button-{{ ai_gen_id }}:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-
-  .ai-product-variants__empty-product-{{ ai_gen_id }} {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
-    font-style: italic;
-  }
+  .ai-text-svg-{{ ai_gen_id }}{ width:100%; height:100%; }
 
   @media screen and (max-width: 768px) {
-    .ai-product-variants__product-info-{{ ai_gen_id }} {
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .ai-product-variants__image-container-{{ ai_gen_id }} {
-      flex: none;
-      width: 100%;
-      max-width: 300px;
-      margin: 0 auto;
-    }
-
-    .ai-product-variants__option-buttons-{{ ai_gen_id }} {
-      gap: {{ block.settings.option_gap | divided_by: 2 }}px;
-    }
-
-    .ai-product-variants__option-button-{{ ai_gen_id }} {
-      min-width: 70px;
-      font-size: {{ block.settings.variant_text_size | minus: 1 }}px;
-    }
+    .ai-custom-product-container-{{ ai_gen_id }} { grid-template-columns:1fr; gap:24px; }
+    .ai-custom-product-preview-{{ ai_gen_id }} { order:-1; }
+    .ai-custom-product-variant-buttons-{{ ai_gen_id }} { flex-direction:column; }
+    .ai-custom-product-variant-button-{{ ai_gen_id }} { width:100%; }
+    .ai-custom-product-resize-handle-{{ ai_gen_id }} { width:20px; height:20px; }
+    .ai-custom-product-resize-handle-{{ ai_gen_id }}.nw{ top:-10px; left:-10px;}
+    .ai-custom-product-resize-handle-{{ ai_gen_id }}.ne{ top:-10px; right:-10px;}
+    .ai-custom-product-resize-handle-{{ ai_gen_id }}.sw{ bottom:-10px; left:-10px;}
+    .ai-custom-product-resize-handle-{{ ai_gen_id }}.se{ bottom:-10px; right:-10px;}
   }
 {% endstyle %}
 
-<product-variants-{{ ai_gen_id }}
-  class="ai-product-variants-{{ ai_gen_id }}"
+<product-customizer-{{ ai_gen_id }}
+  class="ai-custom-product-{{ ai_gen_id }}"
   {{ block.shopify_attributes }}
-  data-product-variants='{{ product.variants | json | escape }}'
 >
-  <div class="ai-product-variants__container-{{ ai_gen_id }}">
-    {% if block.settings.title != blank or block.settings.description != blank %}
-      <div class="ai-product-variants__header-{{ ai_gen_id }}">
-        {% if block.settings.title != blank %}
-          <h2 class="ai-product-variants__title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
-        {% endif %}
-        {% if block.settings.description != blank %}
-          <p class="ai-product-variants__description-{{ ai_gen_id }}">{{ block.settings.description }}</p>
-        {% endif %}
-      </div>
-    {% endif %}
+  <div class="ai-custom-product-container-{{ ai_gen_id }}">
+    <div class="ai-custom-product-preview-{{ ai_gen_id }}">
+      <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }}">
+        <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="ai-user-layer-{{ ai_gen_id }}">
+          <div class="ai-custom-product-placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+            <span>{{ block.settings.placeholder_text }}</span>
+          </div>
+        </div>
 
-    {% if block.settings.product != blank %}
-      {% assign product = block.settings.product %}
-      
-      <div class="ai-product-variants__product-info-{{ ai_gen_id }}">
-        <div class="ai-product-variants__image-container-{{ ai_gen_id }}">
-          {% if product.featured_image %}
+        {% if overlay_image_url_500 or block.settings.overlay_image %}
+          <div class="ai-custom-product-overlay-layer-{{ ai_gen_id }}" id="ai-overlay-layer-{{ ai_gen_id }}">
             <img
-              src="{{ product.featured_image | image_url: width: 600 }}"
-              alt="{{ product.featured_image.alt | escape }}"
-              loading="lazy"
-              width="600"
-              height="600"
-              id="ai-product-image-{{ ai_gen_id }}"
-              class="ai-product-variants__image-{{ ai_gen_id }}"
+              src="{% if overlay_image_url_500 %}{{ overlay_image_url_500 }}{% else %}{{ block.settings.overlay_image | image_url: width: 500 }}{% endif %}"
+              alt="Overlay image"
+              style="opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};"
             >
-          {% else %}
-            <div class="ai-product-variants__image-placeholder-{{ ai_gen_id }}">
-              {{ 'product-1' | placeholder_svg_tag }}
-            </div>
-          {% endif %}
-
-          <div 
-            class="ai-product-variants__text-overlay-{{ ai_gen_id }} ai-product-variants__text-overlay-1-{{ ai_gen_id }}"
-            id="ai-text-overlay-1-{{ ai_gen_id }}"
-          >
-            {{ block.settings.text_1_placeholder }}
           </div>
+        {% endif %}
 
-          <div 
-            class="ai-product-variants__text-overlay-{{ ai_gen_id }} ai-product-variants__text-overlay-2-{{ ai_gen_id }}"
-            id="ai-text-overlay-2-{{ ai_gen_id }}"
-          >
-            {{ block.settings.text_2_placeholder }}
-          </div>
+        <!-- === [ADDED] User Text Layer (above admin overlay, below shape) === -->
+        <div class="ai-custom-product-text-layer-{{ ai_gen_id }}" id="ai-text-layer-{{ ai_gen_id }}">
+          <svg class="ai-text-svg-{{ ai_gen_id }}" id="ai-text-svg-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
 
-        <div class="ai-product-variants__details-{{ ai_gen_id }}">
-          <h3 class="ai-product-variants__product-title-{{ ai_gen_id }}">{{ product.title }}</h3>
-          
-          <div class="ai-product-variants__price-{{ ai_gen_id }}" id="ai-current-price-{{ ai_gen_id }}">
-            {{ product.price | money }}
+        {% if shape_image_url_500 or block.settings.shape_image %}
+          <div class="ai-custom-product-shape-layer-{{ ai_gen_id }}" id="ai-shape-layer-{{ ai_gen_id }}">
+            <img
+              src="{% if shape_image_url_500 %}{{ shape_image_url_500 }}{% else %}{{ block.settings.shape_image | image_url: width: 500 }}{% endif %}"
+              alt="Shape overlay"
+              style="opacity: {{ block.settings.shape_overlay_opacity | divided_by: 100.0 }};"
+            >
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-custom-product-controls-{{ ai_gen_id }}">
+      {% if context_product %}
+        {% assign current_variant = context_product.selected_or_first_available_variant %}
+        <div class="ai-custom-product-info-{{ ai_gen_id }}">
+          <h2 class="ai-custom-product-title-{{ ai_gen_id }}">{{ context_product.title }}</h2>
+
+          <!-- Price DOM uses static nodes so the radios component can update instantly -->
+          <div class="ai-custom-product-price-{{ ai_gen_id }}" id="ai-product-price-{{ ai_gen_id }}">
+            {% if current_variant.compare_at_price > current_variant.price %}
+              <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="{{ current_variant.compare_at_price }}">
+                {{ current_variant.compare_at_price | money }}
+              </span>
+            {% else %}
+              <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="" style="display:none;"></span>
+            {% endif %}
+            <span class="ai-current-price-{{ ai_gen_id }}" data-price="{{ current_variant.price }}">
+              {{ current_variant.price | money }}
+            </span>
           </div>
 
-          {% if block.settings.show_text_inputs %}
-            <div class="ai-product-variants__text-inputs-{{ ai_gen_id }}">
-              <h4 class="ai-product-variants__text-inputs-title-{{ ai_gen_id }}">{{ block.settings.text_inputs_title }}</h4>
-              
-              {% if block.settings.text_1_label != blank %}
-                <div class="ai-product-variants__text-input-group-{{ ai_gen_id }}">
-                  <label class="ai-product-variants__text-input-label-{{ ai_gen_id }}" for="ai-text-input-1-{{ ai_gen_id }}">
-                    {{ block.settings.text_1_label }}
-                  </label>
-                  <input
-                    type="text"
-                    id="ai-text-input-1-{{ ai_gen_id }}"
-                    class="ai-product-variants__text-input-{{ ai_gen_id }}"
-                    placeholder="{{ block.settings.text_1_placeholder }}"
-                    maxlength="{{ block.settings.text_1_max_length }}"
-                  >
-                </div>
-              {% endif %}
-
-              {% if block.settings.text_2_label != blank %}
-                <div class="ai-product-variants__text-input-group-{{ ai_gen_id }}">
-                  <label class="ai-product-variants__text-input-label-{{ ai_gen_id }}" for="ai-text-input-2-{{ ai_gen_id }}">
-                    {{ block.settings.text_2_label }}
-                  </label>
-                  <input
-                    type="text"
-                    id="ai-text-input-2-{{ ai_gen_id }}"
-                    class="ai-product-variants__text-input-{{ ai_gen_id }}"
-                    placeholder="{{ block.settings.text_2_placeholder }}"
-                    maxlength="{{ block.settings.text_2_max_length }}"
-                  >
-                </div>
-              {% endif %}
-            </div>
-          {% endif %}
-
-          {% if product.variants.size > 1 %}
-            <form action="/cart/add" method="post" enctype="multipart/form-data" id="ai-variant-form-{{ ai_gen_id }}">
-              <input type="hidden" name="id" id="ai-selected-variant-{{ ai_gen_id }}" value="{{ product.variants.first.id }}">
-              <input type="hidden" name="properties[Custom Text 1]" id="ai-custom-text-1-{{ ai_gen_id }}">
-              <input type="hidden" name="properties[Custom Text 2]" id="ai-custom-text-2-{{ ai_gen_id }}">
-              
-              <div class="ai-product-variants__variants-section-{{ ai_gen_id }}">
-                {% assign option_names = product.options_with_values %}
-                
-                {% for option in option_names %}
-                  <div class="ai-product-variants__option-row-{{ ai_gen_id }}">
-                    <label class="ai-product-variants__option-label-{{ ai_gen_id }}">
-                      {{ option.name }}:
+          {% if context_product.variants.size > 1 %}
+            <!-- button-style radios -->
+            <variant-radios
+              class="ai-custom-product-variant-selector-{{ ai_gen_id }}"
+              data-section="{{ section.id }}"
+              data-url="{{ context_product.url }}"
+            >
+              {% for option in context_product.options_with_values %}
+                <label class="ai-custom-product-variant-label-{{ ai_gen_id }}">{{ option.name }}</label>
+                <fieldset class="ai-custom-product-variant-buttons-{{ ai_gen_id }}" name="{{ option.name }}">
+                  {% for value in option.values %}
+                    <input
+                      class="ai-variant-input-{{ ai_gen_id }}"
+                      type="radio"
+                      id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}-{{ ai_gen_id }}"
+                      name="{{ option.name }}"
+                      value="{{ value | escape }}"
+                      {% if option.selected_value == value %}checked{% endif %}
+                    >
+                    <label
+                      class="ai-custom-product-variant-button-{{ ai_gen_id }}"
+                      for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}-{{ ai_gen_id }}"
+                    >
+                      {{ value }}
                     </label>
-                    
-                    <div class="ai-product-variants__option-buttons-{{ ai_gen_id }}">
-                      {% for value in option.values %}
-                        <button
-                          type="button"
-                          class="ai-product-variants__option-button-{{ ai_gen_id }} {% if forloop.first and forloop.parentloop.first %}selected{% endif %}"
-                          data-option-name="{{ option.name }}"
-                          data-option-value="{{ value }}"
-                          data-option-position="{{ option.position }}"
-                        >
-                          <div class="ai-product-variants__option-value-{{ ai_gen_id }}">
-                            {{ value }}
-                          </div>
-                        </button>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-
-              <div class="ai-product-variants__add-to-cart-{{ ai_gen_id }}">
-                <button
-                  type="submit"
-                  class="ai-product-variants__add-button-{{ ai_gen_id }}"
-                  id="ai-add-to-cart-{{ ai_gen_id }}"
-                  {% unless product.variants.first.available %}disabled{% endunless %}
-                >
-                  {% if product.variants.first.available %}
-                    {{ block.settings.add_to_cart_text }}
-                  {% else %}
-                    Sold Out
-                  {% endif %}
-                </button>
-              </div>
-            </form>
-          {% else %}
-            <div class="ai-product-variants__add-to-cart-{{ ai_gen_id }}">
-              <form action="/cart/add" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-                <input type="hidden" name="properties[Custom Text 1]" id="ai-custom-text-1-single-{{ ai_gen_id }}">
-                <input type="hidden" name="properties[Custom Text 2]" id="ai-custom-text-2-single-{{ ai_gen_id }}">
-                <button
-                  type="submit"
-                  class="ai-product-variants__add-button-{{ ai_gen_id }}"
-                  {% unless product.available %}disabled{% endunless %}
-                >
-                  {% if product.available %}
-                    {{ block.settings.add_to_cart_text }}
-                  {% else %}
-                    Sold Out
-                  {% endif %}
-                </button>
-              </form>
+                  {% endfor %}
+                </fieldset>
+              {% endfor %}
+              <script type="application/json">
+                {{ context_product.variants | json }}
+              </script>
+            </variant-radios>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="ai-custom-product-info-{{ ai_gen_id }}">
+          <h2 class="ai-custom-product-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+          {% if block.settings.description != blank %}
+            <div class="ai-custom-product-description-{{ ai_gen_id }}">
+              {{ block.settings.description }}
             </div>
           {% endif %}
         </div>
+      {% endif %}
+
+      <div class="ai-custom-product-upload-section-{{ ai_gen_id }}">
+        <input
+          type="file"
+          id="ai-user-upload-{{ ai_gen_id }}"
+          class="ai-custom-product-upload-input-{{ ai_gen_id }}"
+          accept="image/*"
+        >
+        <label for="ai-user-upload-{{ ai_gen_id }}" class="ai-custom-product-upload-button-{{ ai_gen_id }}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7,10 12,15 17,10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          {{ block.settings.upload_button_text }}
+        </label>
+        <div class="ai-custom-product-upload-text-{{ ai_gen_id }}">
+          {{ block.settings.upload_help_text }}
+        </div>
+        <div id="ai-file-info-{{ ai_gen_id }}" class="ai-custom-product-file-info-{{ ai_gen_id }}" style="display:none;"></div>
       </div>
-    {% else %}
-      <div class="ai-product-variants__empty-product-{{ ai_gen_id }}">
-        Next, select a product to display its variants
+
+      <div class="ai-custom-product-actions-{{ ai_gen_id }}">
+        <button type="button" id="ai-clear-button-{{ ai_gen_id }}" class="ai-custom-product-clear-button-{{ ai_gen_id }}" style="display:none;">
+          {{ block.settings.clear_button_text }}
+        </button>
+
+        {% if context_product %}
+          <button type="button" id="ai-add-to-cart-{{ ai_gen_id }}" class="ai-custom-product-add-to-cart-{{ ai_gen_id }}" disabled>
+            {{ block.settings.cart_button_text }}
+          </button>
+        {% endif %}
       </div>
-    {% endif %}
+
+      <!-- === [ADDED] Shopper-visible text inputs only (content only) === -->
+      <div class="ai-customer-text-inputs-{{ ai_gen_id }}" style="margin-top:16px;">
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 1</label>
+          <input type="text" id="ai-text1-input-{{ ai_gen_id }}" placeholder="Enter Text 1"
+            style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 2</label>
+          <input type="text" id="ai-text2-input-{{ ai_gen_id }}" placeholder="Enter Text 2"
+            style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
+        </div>
+      </div>
+
+    </div>
   </div>
-</product-variants-{{ ai_gen_id }}>
+
+  {% if context_product %}
+    <form id="ai-cart-form-{{ ai_gen_id }}" class="ai-custom-product-form-{{ ai_gen_id }}" action="/cart/add" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="id" id="ai-variant-id-{{ ai_gen_id }}" value="{{ context_product.selected_or_first_available_variant.id }}">
+      <input type="hidden" name="quantity" value="1">
+      <!-- Store the actual uploaded file so it shows in cart/order/admin -->
+      <input type="file" name="properties[Custom Image]" id="ai-hidden-file-{{ ai_gen_id }}" style="display:none;">
+      <!-- Extra props to help production: -->
+      <input type="hidden" name="properties[Image Position]" id="ai-image-position-{{ ai_gen_id }}">
+      <input type="hidden" name="properties[Image Scale]" id="ai-image-scale-{{ ai_gen_id }}">
+
+      <!-- === [ADDED] Save shopper text content to the order === -->
+      <input type="hidden" name="properties[Text1]" id="ai-li-text1-content-{{ ai_gen_id }}">
+      <input type="hidden" name="properties[Text2]" id="ai-li-text2-content-{{ ai_gen_id }}">
+    </form>
+  {% endif %}
+</product-customizer-{{ ai_gen_id }}>
 
 <script>
   (function() {
-    class ProductVariants{{ ai_gen_id }} extends HTMLElement {
+    /* ===== Your customizer (image upload/masking/drag/resize + Add to Cart) ===== */
+    class ProductCustomizer{{ ai_gen_id }} extends HTMLElement {
       constructor() {
         super();
-        this.selectedOptions = {};
-        this.productVariants = [];
-        this.currentVariant = null;
+        this.userImage = null;
+        this.userImageFile = null;
+        this.userImageWrapper = null;
+        this.userImageElement = null;
+        this.userLayer = null;
+        this.shapeLayer = null;
+
+        this.currentVariantId = {% if context_product %}'{{ context_product.selected_or_first_available_variant.id }}'{% else %}null{% endif %};
+
+        this.isDragging = false;
+        this.isResizing = false;
+        this.resizeDirection = '';
+        this.dragStartX = 0; this.dragStartY = 0;
+        this.imageStartX = 0; this.imageStartY = 0;
+        this.imageStartWidth = 0; this.imageStartHeight = 0;
+        this.imageWidth = 200; this.imageHeight = 200;
+        this.imageX = 0; this.imageY = 0;
+        this.minSize = 50; this.maxSize = 2000;
+        this.isPinching = false;
+        this.pinchStartDistance = 0;
+        this.pinchCenter = { x: 0, y: 0 };
       }
 
       connectedCallback() {
-        this.optionButtons = this.querySelectorAll('.ai-product-variants__option-button-{{ ai_gen_id }}');
-        this.priceElement = this.querySelector('#ai-current-price-{{ ai_gen_id }}');
+        this.uploadInput = this.querySelector('#ai-user-upload-{{ ai_gen_id }}');
+        this.userLayer = this.querySelector('#ai-user-layer-{{ ai_gen_id }}');
+        this.shapeLayer = this.querySelector('#ai-shape-layer-{{ ai_gen_id }}');
+        this.fileInfo = this.querySelector('#ai-file-info-{{ ai_gen_id }}');
+        this.clearButton = this.querySelector('#ai-clear-button-{{ ai_gen_id }}');
         this.addToCartButton = this.querySelector('#ai-add-to-cart-{{ ai_gen_id }}');
-        this.productImage = this.querySelector('#ai-product-image-{{ ai_gen_id }}');
-        this.selectedVariantInput = this.querySelector('#ai-selected-variant-{{ ai_gen_id }}');
-        
-        this.textInput1 = this.querySelector('#ai-text-input-1-{{ ai_gen_id }}');
-        this.textInput2 = this.querySelector('#ai-text-input-2-{{ ai_gen_id }}');
-        this.textOverlay1 = this.querySelector('#ai-text-overlay-1-{{ ai_gen_id }}');
-        this.textOverlay2 = this.querySelector('#ai-text-overlay-2-{{ ai_gen_id }}');
-        this.customText1Hidden = this.querySelector('#ai-custom-text-1-{{ ai_gen_id }}') || this.querySelector('#ai-custom-text-1-single-{{ ai_gen_id }}');
-        this.customText2Hidden = this.querySelector('#ai-custom-text-2-{{ ai_gen_id }}') || this.querySelector('#ai-custom-text-2-single-{{ ai_gen_id }}');
+        this.priceElement = this.querySelector('#ai-product-price-{{ ai_gen_id }}');
+        this.cartForm = this.querySelector('#ai-cart-form-{{ ai_gen_id }}');
+        this.variantIdInput = this.querySelector('#ai-variant-id-{{ ai_gen_id }}');
+        this.hiddenFileInput = this.querySelector('#ai-hidden-file-{{ ai_gen_id }}');
+        this.imagePositionInput = this.querySelector('#ai-image-position-{{ ai_gen_id }}');
+        this.imageScaleInput = this.querySelector('#ai-image-scale-{{ ai_gen_id }}');
+        this.imageControls = this.querySelector('#ai-image-controls-{{ ai_gen_id }}');
+        this.controlButtons = this.querySelectorAll('.ai-custom-product-control-button-{{ ai_gen_id }}');
 
-        this.loadProductVariants();
-        this.initializeSelectedOptions();
+        // [ADDED] Shopper text inputs + hidden LIs
+        this.text1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
+        this.text2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
+        this.liText1 = document.getElementById('ai-li-text1-content-{{ ai_gen_id }}');
+        this.liText2 = document.getElementById('ai-li-text2-content-{{ ai_gen_id }}');
+
         this.setupEventListeners();
-        this.setupTextInputs();
-        this.updateCurrentVariant();
-      }
-
-      loadProductVariants() {
-        const variantsData = this.dataset.productVariants;
-        if (variantsData) {
-          try {
-            this.productVariants = JSON.parse(variantsData);
-          } catch (e) {
-            console.error('Error parsing product variants:', e);
-            this.productVariants = [];
-          }
-        }
-      }
-
-      initializeSelectedOptions() {
-        this.optionButtons.forEach((button) => {
-          if (button.classList.contains('selected')) {
-            const optionName = button.dataset.optionName;
-            const optionValue = button.dataset.optionValue;
-            this.selectedOptions[optionName] = optionValue;
-          }
-        });
       }
 
       setupEventListeners() {
-        this.optionButtons.forEach((button) => {
+        if (this.uploadInput) {
+          this.uploadInput.addEventListener('change', (e) => this.handleFileUpload(e));
+        }
+        if (this.clearButton) {
+          this.clearButton.addEventListener('click', (e) => { e.preventDefault(); this.clearUserImage(); });
+        }
+        if (this.addToCartButton) {
+          this.addToCartButton.addEventListener('click', (e) => { e.preventDefault(); this.addToCart(); });
+        }
+        this.controlButtons.forEach(button => {
           button.addEventListener('click', (e) => {
             e.preventDefault();
-            this.selectOption(button);
+            this.handleControlAction(button.getAttribute('data-action'));
           });
         });
+
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', () => this.endInteraction());
+        document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive:false });
+        document.addEventListener('touchend', () => this.endInteraction());
+
+        // [ADDED] keep hidden inputs synced for text content
+        if (this.text1Input) this.text1Input.addEventListener('input', ()=>{ if (this.liText1) this.liText1.value = this.text1Input.value || ''; });
+        if (this.text2Input) this.text2Input.addEventListener('input', ()=>{ if (this.liText2) this.liText2.value = this.text2Input.value || ''; });
       }
 
-      setupTextInputs() {
-        if (this.textInput1) {
-          this.textInput1.addEventListener('input', (e) => {
-            const value = e.target.value;
-            if (this.textOverlay1) {
-              this.textOverlay1.textContent = value || this.textInput1.placeholder;
-            }
-            if (this.customText1Hidden) {
-              this.customText1Hidden.value = value;
-            }
-          });
-        }
+      handleFileUpload(event) {
+        const file = event.target.files[0]; if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
 
-        if (this.textInput2) {
-          this.textInput2.addEventListener('input', (e) => {
-            const value = e.target.value;
-            if (this.textOverlay2) {
-              this.textOverlay2.textContent = value || this.textInput2.placeholder;
-            }
-            if (this.customText2Hidden) {
-              this.customText2Hidden.value = value;
-            }
-          });
-        }
+        this.userImageFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.userImage = e.target.result;
+          this.updatePreview();
+          this.showFileInfo(file.name);
+          this.updateFormInputs();
+
+          if (this.clearButton) this.clearButton.style.display = 'block';
+          if (this.addToCartButton) this.addToCartButton.disabled = false;
+          if (this.imageControls) this.imageControls.style.display = 'block';
+
+          if (this.shapeLayer) this.shapeLayer.style.opacity = '0'; // hide template after selection
+        };
+        reader.readAsDataURL(file);
       }
 
-      selectOption(selectedButton) {
-        const optionName = selectedButton.dataset.optionName;
-        const optionValue = selectedButton.dataset.optionValue;
+      updateFormInputs() {
+        if (this.hiddenFileInput && this.userImageFile) {
+          const dt = new DataTransfer(); dt.items.add(this.userImageFile); this.hiddenFileInput.files = dt.files;
+        }
+        if (this.imagePositionInput) this.imagePositionInput.value = `${this.imageX},${this.imageY}`;
+        if (this.imageScaleInput) this.imageScaleInput.value = `${this.imageWidth}x${this.imageHeight}`;
 
-        this.optionButtons.forEach((button) => {
-          if (button.dataset.optionName === optionName) {
-            button.classList.remove('selected');
+        // sync text content to line-item properties
+        if (this.liText1 && this.text1Input) this.liText1.value = this.text1Input.value || '';
+        if (this.liText2 && this.text2Input) this.liText2.value = this.text2Input.value || '';
+      }
+
+      updatePreview() {
+        if (!this.userImage || !this.userLayer) return;
+
+        const container = document.createElement('div');
+        container.className = 'ai-custom-product-user-image-container-{{ ai_gen_id }}';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ai-custom-product-user-image-wrapper-{{ ai_gen_id }}';
+
+        const img = document.createElement('img');
+        img.src = this.userImage; img.className = 'ai-custom-product-user-image-{{ ai_gen_id }}';
+
+        const handles = document.createElement('div'); handles.className = 'ai-custom-product-resize-handles-{{ ai_gen_id }}';
+        ['nw','ne','sw','se'].forEach(pos => {
+          const h = document.createElement('div'); h.className = `ai-custom-product-resize-handle-{{ ai_gen_id }} ${pos}`;
+          h.addEventListener('mousedown', (e)=>this.startResize(e,pos));
+          h.addEventListener('touchstart', (e)=>this.startResize(e,pos), { passive:false });
+          handles.appendChild(h);
+        });
+
+        wrapper.addEventListener('mousedown', (e)=>{ if(!e.target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) this.startDrag(e); });
+        wrapper.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length === 2) {
+            this.startPinch(e);
+          } else if (!e.target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) {
+            this.startDrag(e);
           }
-        });
+        }, { passive: false });
 
-        selectedButton.classList.add('selected');
-        this.selectedOptions[optionName] = optionValue;
+        img.onload = () => this.setDefaultImageSize();
 
-        this.updateCurrentVariant();
+        wrapper.appendChild(img); wrapper.appendChild(handles); container.appendChild(wrapper);
+        this.userLayer.innerHTML = ''; this.userLayer.appendChild(container);
+
+        this.userImageWrapper = wrapper; this.userImageElement = img;
       }
 
-      updateCurrentVariant() {
-        if (this.productVariants.length === 0) return;
+      setDefaultImageSize() {
+        if (!this.userImageWrapper || !this.userLayer) return;
+        const w = this.userLayer.offsetWidth, h = this.userLayer.offsetHeight;
+        this.imageWidth = w; this.imageHeight = h; this.imageX = 0; this.imageY = 0;
+        this.updateImageTransform(); this.updateFormInputs();
+      }
 
-        const matchingVariant = this.findMatchingVariant();
-        
-        if (matchingVariant) {
-          this.currentVariant = matchingVariant;
-          this.updatePrice(matchingVariant.price);
-          this.updateAvailability(matchingVariant.available);
-          this.updateVariantId(matchingVariant.id);
-          this.updateImage(matchingVariant.featured_image);
-          this.updateStockStatus();
+      fitImageToContainer() {
+        if (!this.userImageWrapper || !this.userLayer) return;
+        const w = this.userLayer.offsetWidth, h = this.userLayer.offsetHeight;
+        this.imageWidth = Math.min(w*0.6, 300); this.imageHeight = Math.min(h*0.6, 300);
+        this.imageX = (w - this.imageWidth)/2; this.imageY = (h - this.imageHeight)/2;
+        this.updateImageTransform(); this.updateFormInputs();
+      }
+
+      fillContainer() {
+        if (!this.userImageWrapper || !this.userLayer) return;
+        const w = this.userLayer.offsetWidth, h = this.userLayer.offsetHeight;
+        this.imageWidth = w; this.imageHeight = h; this.imageX = 0; this.imageY = 0;
+        this.updateImageTransform(); this.updateFormInputs();
+      }
+
+      updateImageTransform() {
+        if (!this.userImageWrapper) return;
+        this.userImageWrapper.style.left = `${this.imageX}px`;
+        this.userImageWrapper.style.top = `${this.imageY}px`;
+        this.userImageWrapper.style.width = `${this.imageWidth}px`;
+        this.userImageWrapper.style.height = `${this.imageHeight}px`;
+      }
+
+      startDrag(e) {
+        e.preventDefault(); e.stopPropagation(); this.isDragging = true;
+        this.userImageWrapper.classList.add('dragging');
+        const cx = e.type==='touchstart'? e.touches[0].clientX : e.clientX;
+        const cy = e.type==='touchstart'? e.touches[0].clientY : e.clientY;
+        this.dragStartX = cx; this.dragStartY = cy; this.imageStartX = this.imageX; this.imageStartY = this.imageY;
+      }
+
+      startPinch(e) {
+        e.preventDefault();
+        this.isPinching = true;
+        this.imageStartWidth  = this.imageWidth;
+        this.imageStartHeight = this.imageHeight;
+        this.imageStartX = this.imageX;
+        this.imageStartY = this.imageY;
+
+        const t1 = e.touches[0], t2 = e.touches[1];
+        this.pinchStartDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+
+        const rect = this.userLayer.getBoundingClientRect();
+        this.pinchCenter = {
+          x: ((t1.clientX + t2.clientX) / 2) - rect.left,
+          y: ((t1.clientY + t2.clientY) / 2) - rect.top
+        };
+      }
+
+      pinchMove(t1, t2) {
+        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        let scale = dist / this.pinchStartDistance;
+
+        const newW = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartWidth  * scale));
+        const newH = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartHeight * scale));
+
+        const sx = newW / this.imageStartWidth;
+        const sy = newH / this.imageStartHeight;
+        const newX = this.pinchCenter.x - (this.pinchCenter.x - this.imageStartX) * sx;
+        const newY = this.pinchCenter.y - (this.pinchCenter.y - this.imageStartY) * sy;
+
+        this.imageWidth = newW; this.imageHeight = newH;
+        this.imageX = newX; this.imageY = newY;
+
+        this.updateImageTransform();
+      }
+
+      startResize(e, dir) {
+        e.preventDefault(); e.stopPropagation(); this.isResizing = true; this.resizeDirection = dir;
+        const cx = e.type==='touchstart'? e.touches[0].clientX : e.clientX;
+        const cy = e.type==='touchstart'? e.touches[0].clientY : e.clientY;
+        this.dragStartX = cx; this.dragStartY = cy;
+        this.imageStartX = this.imageX; this.imageStartY = this.imageY;
+        this.imageStartWidth = this.imageWidth; this.imageStartHeight = this.imageHeight;
+      }
+
+      handleMouseMove(e){ this.handleMove(e.clientX, e.clientY); }
+      handleTouchMove(e) {
+        if (!(this.isDragging || this.isResizing || this.isPinching)) return;
+        e.preventDefault();
+        if (this.isPinching && e.touches.length >= 2) {
+          this.pinchMove(e.touches[0], e.touches[1]);
+          return;
         }
+        this.handleMove(e.touches[0].clientX, e.touches[0].clientY);
       }
 
-      findMatchingVariant() {
-        return this.productVariants.find(variant => {
-          const selectedOptionValues = Object.values(this.selectedOptions);
-          
-          if (variant.option1 && this.selectedOptions['option1'] && variant.option1 !== this.selectedOptions['option1']) return false;
-          if (variant.option2 && this.selectedOptions['option2'] && variant.option2 !== this.selectedOptions['option2']) return false;
-          if (variant.option3 && this.selectedOptions['option3'] && variant.option3 !== this.selectedOptions['option3']) return false;
-
-          const variantOptions = [variant.option1, variant.option2, variant.option3].filter(Boolean);
-          
-          return variantOptions.every(option => selectedOptionValues.includes(option)) &&
-                 selectedOptionValues.every(selected => variantOptions.includes(selected));
-        });
-      }
-
-      updatePrice(price) {
-        if (this.priceElement && price !== undefined) {
-          const formattedPrice = new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR'
-          }).format(price / 100);
-          this.priceElement.textContent = formattedPrice;
-        }
-      }
-
-      updateAvailability(available) {
-        if (this.addToCartButton) {
-          if (available) {
-            this.addToCartButton.disabled = false;
-            this.addToCartButton.textContent = '{{ block.settings.add_to_cart_text }}';
-          } else {
-            this.addToCartButton.disabled = true;
-            this.addToCartButton.textContent = 'Sold Out';
+      handleMove(clientX, clientY){
+        if (this.isDragging){
+          const dx = clientX - this.dragStartX, dy = clientY - this.dragStartY;
+          this.imageX = this.imageStartX + dx; this.imageY = this.imageStartY + dy; this.updateImageTransform();
+        } else if (this.isResizing){
+          const dx = clientX - this.dragStartX, dy = clientY - this.dragStartY;
+          let w = this.imageStartWidth, h = this.imageStartHeight, x = this.imageStartX, y = this.imageStartY;
+          switch(this.resizeDirection){
+            case'nw': w = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartWidth - dx)); h = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartHeight - dy)); x = this.imageStartX + (this.imageStartWidth - w); y = this.imageStartY + (this.imageStartHeight - h); break;
+            case'ne': w = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartWidth + dx)); h = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartHeight - dy)); y = this.imageStartY + (this.imageStartHeight - h); break;
+            case'sw': w = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartWidth - dx)); h = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartHeight + dy)); x = this.imageStartX + (this.imageStartWidth - w); break;
+            case'se': w = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartWidth + dx)); h = Math.max(this.minSize, Math.min(this.maxSize, this.imageStartHeight + dy)); break;
           }
+          this.imageWidth = w; this.imageHeight = h; this.imageX = x; this.imageY = y; this.updateImageTransform();
         }
       }
 
-      updateVariantId(variantId) {
-        if (this.selectedVariantInput && variantId) {
-          this.selectedVariantInput.value = variantId;
-        }
+      endInteraction() {
+        if (this.isDragging || this.isResizing || this.isPinching) this.updateFormInputs();
+        this.isDragging = false;
+        this.isResizing = false;
+        this.isPinching = false;
+        this.resizeDirection = '';
+        if (this.userImageWrapper) this.userImageWrapper.classList.remove('dragging');
       }
 
-      updateImage(featuredImage) {
-        if (this.productImage && featuredImage && featuredImage.src) {
-          this.productImage.src = featuredImage.src;
-          this.productImage.alt = featuredImage.alt || '';
-        }
+      handleControlAction(action){
+        if (!this.userImageWrapper) return;
+        if (action==='center'){ const w=this.userLayer.offsetWidth, h=this.userLayer.offsetHeight; this.imageX=(w-this.imageWidth)/2; this.imageY=(h-this.imageHeight)/2; this.updateImageTransform(); this.updateFormInputs(); }
+        if (action==='fit') this.fitImageToContainer();
+        if (action==='fill') this.fillContainer();
+        if (action==='reset') this.setDefaultImageSize();
       }
 
-      updateStockStatus() {
-        this.optionButtons.forEach((button) => {
-          const optionName = button.dataset.optionName;
-          const optionValue = button.dataset.optionValue;
-          
-          const testOptions = { ...this.selectedOptions };
-          testOptions[optionName] = optionValue;
-          
-          const testVariant = this.productVariants.find(variant => {
-            const variantOptions = [variant.option1, variant.option2, variant.option3].filter(Boolean);
-            const testValues = Object.values(testOptions);
-            
-            return variantOptions.every(option => testValues.includes(option)) &&
-                   testValues.every(selected => variantOptions.includes(selected));
-          });
+      showFileInfo(name){ if (this.fileInfo){ this.fileInfo.textContent = `Selected: ${name}`; this.fileInfo.style.display='block'; } }
 
-          if (testVariant) {
-            if (testVariant.available) {
-              button.classList.remove('out-of-stock');
-            } else {
-              button.classList.add('out-of-stock');
-            }
-          }
-        });
+      clearUserImage(){
+        this.userImage = null; this.userImageFile = null; this.userImageWrapper = null; this.userImageElement = null;
+        this.imageX=0; this.imageY=0; this.imageWidth=200; this.imageHeight=200;
+        if (this.uploadInput) this.uploadInput.value='';
+        if (this.hiddenFileInput) this.hiddenFileInput.value='';
+        if (this.imagePositionInput) this.imagePositionInput.value='';
+        if (this.imageScaleInput) this.imageScaleInput.value='';
+        if (this.userLayer){
+          this.userLayer.innerHTML = `<div class="ai-custom-product-placeholder-{{ ai_gen_id }}">{{ 'image' | placeholder_svg_tag }}<span>{{ block.settings.placeholder_text }}</span></div>`;
+        }
+        if (this.fileInfo) this.fileInfo.style.display='none';
+        if (this.clearButton) this.clearButton.style.display='none';
+        if (this.addToCartButton) this.addToCartButton.disabled = true;
+        if (this.imageControls) this.imageControls.style.display='none';
+        if (this.shapeLayer) this.shapeLayer.style.opacity = '{{ block.settings.shape_overlay_opacity | divided_by: 100.0 }}';
+      }
+
+      addToCart(){
+        if (!this.userImage){ alert('Please upload an image first.'); return; }
+        if (!this.currentVariantId){ alert('Please select a variant.'); return; }
+        if (!this.cartForm){ alert('Form not found.'); return; }
+        // sync text content just before submit
+        if (this.liText1 && this.text1Input) this.liText1.value = this.text1Input.value || '';
+        if (this.liText2 && this.text2Input) this.liText2.value = this.text2Input.value || '';
+        this.addToCartButton.disabled = true; this.addToCartButton.textContent = 'Adding...';
+        this.cartForm.submit();
       }
     }
+    customElements.define('product-customizer-{{ ai_gen_id }}', ProductCustomizer{{ ai_gen_id }});
 
-    customElements.define('product-variants-{{ ai_gen_id }}', ProductVariants{{ ai_gen_id }});
+    /* ===== anotherlogic-style VariantSelects/VariantRadios ===== */
+    (function(){
+      class VariantSelects{{ ai_gen_id }} extends HTMLElement {
+        constructor(){
+          super();
+          this.addEventListener('change', this.onVariantChange.bind(this));
+          this.currencyFormatter = new Intl.NumberFormat('en-IN', { style:'currency', currency:'INR' });
+        }
+        onVariantChange(){
+          this.updateOptions(); this.updateMasterId(); this.updateVariantStatuses(); this.updatePriceInstantly(); this.updateAvailabilityStatus();
+          if (!this.currentVariant){ this.setUnavailable(); } else { this.updateURL(); this.updateVariantInput(); }
+          // also update our hidden variant input for custom form
+          const customInput = document.querySelector('#ai-variant-id-{{ ai_gen_id }}');
+          if (customInput && this.currentVariant){ customInput.value = this.currentVariant.id; customInput.dispatchEvent(new Event('change', { bubbles:true })); }
+          // wire through to custom element state
+          const host = document.querySelector('product-customizer-{{ ai_gen_id }}');
+          if (host) host.currentVariantId = this.currentVariant ? this.currentVariant.id : null;
+        }
+        updateOptions(){
+          const fsets = Array.from(this.querySelectorAll('fieldset'));
+          this.options = fsets.map(fs => Array.from(fs.querySelectorAll('input')).find(r=>r.checked)?.value);
+        }
+        updateMasterId(){
+          this.currentVariant = this.getVariantData().find(variant => !variant.options.map((opt,i)=> this.options[i]===opt).includes(false));
+        }
+        updatePriceInstantly(){
+          const priceEl = document.querySelector('.ai-current-price-{{ ai_gen_id }}');
+          const compareEl = document.querySelector('.ai-compare-price-{{ ai_gen_id }}');
+          if (!this.currentVariant || !priceEl) return;
+          priceEl.textContent = this.currencyFormatter.format(this.currentVariant.price/100);
+          priceEl.setAttribute('data-price', this.currentVariant.price);
+          if (compareEl){
+            if (this.currentVariant.compare_at_price && this.currentVariant.compare_at_price > this.currentVariant.price){
+              compareEl.textContent = this.currencyFormatter.format(this.currentVariant.compare_at_price/100);
+              compareEl.setAttribute('data-compare-price', this.currentVariant.compare_at_price);
+              compareEl.style.display = 'inline';
+            } else {
+              compareEl.setAttribute('data-compare-price', '');
+              compareEl.style.display = 'none';
+            }
+          }
+        }
+        updateAvailabilityStatus(){ /* optional: add badge handling if needed */ }
+        updateURL(){ if (!this.currentVariant || this.dataset.updateUrl==='false') return; window.history.replaceState({}, '', `${this.dataset.url}?variant=${this.currentVariant.id}`); }
+        updateVariantInput(){
+          const forms = document.querySelectorAll(`#product-form-{{ section.id }}, #product-form-installment-{{ section.id }}`);
+          forms.forEach(form => { const input = form.querySelector('input[name="id"]'); if (input){ input.value = this.currentVariant.id; input.dispatchEvent(new Event('change', { bubbles:true })); } });
+        }
+updateVariantStatuses(){
+  const groups   = Array.from(this.querySelectorAll('fieldset'));
+  const variants = this.getVariantData();
+  if (!variants || !variants.length) return;
+
+  const selected = groups.map(fs => {
+    const sel = fs.querySelector('input[type="radio"]:checked');
+    return sel ? sel.value : null;
+  });
+
+  groups.forEach((group, gi) => {
+    const inputs = Array.from(group.querySelectorAll('input[type="radio"]'));
+    const feasibleSet = new Set(
+      variants.filter(v => v.available).filter(v => {
+        for (let j = 0; j < groups.length; j++) {
+          const need = selected[j];
+          if (need && v.options[j] !== need) return false;
+        }
+        return true;
+      }).map(v => v.options[gi])
+    );
+    const hasFeasible = feasibleSet.size > 0;
+    inputs.forEach(input => {
+      const here = input.value;
+      const enable = (hasFeasible ? feasibleSet.has(here) : true) || input.checked;
+      input.disabled = !enable;
+    });
+  });
+}
+
+        setInputAvailability(inputs, availableValues){
+          inputs.forEach(input => { if (availableValues.includes(input.value)) input.removeAttribute('disabled'); else input.setAttribute('disabled', true); });
+        }
+        setUnavailable(){
+          const priceEl = document.querySelector('.ai-current-price-{{ ai_gen_id }}');
+          const compareEl = document.querySelector('.ai-compare-price-{{ ai_gen_id }}');
+          if (priceEl) priceEl.textContent = 'Unavailable';
+          if (compareEl) compareEl.style.display = 'none';
+        }
+        getVariantData(){ this.variantData = this.variantData || JSON.parse(this.querySelector('[type="application/json"]').textContent); return this.variantData; }
+      }
+      class VariantRadios extends VariantSelects{{ ai_gen_id }} {}
+      customElements.define('variant-radios', VariantRadios);
+    })();
+
+    /* === [ADDED] Google Fonts (from admin choices) === */
+    {%- assign _t1_font = block.settings.text1_font | default: 'Roboto' -%}
+    {%- assign _t2_font = block.settings.text2_font | default: 'Roboto' -%}
   })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="ai-font-1-{{ ai_gen_id }}" rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ _t1_font | replace: ' ', '+' }}:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+{% unless _t2_font == _t1_font %}
+<link id="ai-font-2-{{ ai_gen_id }}" rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ _t2_font | replace: ' ', '+' }}:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+{% endunless %}
+
+<script>
+/* === [ADDED] Admin-driven two-text renderer (no user styling, content only) === */
+(function(){
+  const svg = document.getElementById('ai-text-svg-{{ ai_gen_id }}');
+  if (!svg) return;
+
+  const t1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
+  const t2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
+
+  const liT1 = document.getElementById('ai-li-text1-content-{{ ai_gen_id }}');
+  const liT2 = document.getElementById('ai-li-text2-content-{{ ai_gen_id }}');
+
+  const ADMIN = {
+    t1: {
+      font: `{{ block.settings.text1_font | default: 'Roboto' }}`,
+      size: {{ block.settings.text1_size | default: 36 }},
+      bold: {{ block.settings.text1_bold | default: false }},
+      italic: {{ block.settings.text1_italic | default: false }},
+      x: {{ block.settings.text1_x | default: 50 }},
+      y: {{ block.settings.text1_y | default: 20 }},
+      rot: {{ block.settings.text1_rotate | default: 0 }},
+      curve: {{ block.settings.text1_curve | default: 0 }},
+      origin: `{{ block.settings.text1_origin | default: 'center' }}`
+    },
+    t2: {
+      font: `{{ block.settings.text2_font | default: 'Roboto' }}`,
+      size: {{ block.settings.text2_size | default: 28 }},
+      bold: {{ block.settings.text2_bold | default: false }},
+      italic: {{ block.settings.text2_italic | default: false }},
+      x: {{ block.settings.text2_x | default: 50 }},
+      y: {{ block.settings.text2_y | default: 80 }},
+      rot: {{ block.settings.text2_rotate | default: 0 }},
+      curve: {{ block.settings.text2_curve | default: 0 }},
+      origin: `{{ block.settings.text2_origin | default: 'center' }}`
+    }
+  };
+
+  function makeUnit(id){
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('id', `ai-${id}-path-{{ ai_gen_id }}`);
+    defs.appendChild(path);
+
+    const textEl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    const textPath = document.createElementNS('http://www.w3.org/2000/svg','textPath');
+    textPath.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href', `#ai-${id}-path-{{ ai_gen_id }}`);
+    textEl.appendChild(textPath);
+
+    svg.appendChild(defs);
+    svg.appendChild(g);
+    g.appendChild(textEl);
+
+    return { g, path, textEl, textPath };
+  }
+
+  const u1 = makeUnit('t1');
+  const u2 = makeUnit('t2');
+
+  function pathFor(admin){
+    const w = svg.clientWidth || 500, h = svg.clientHeight || 500;
+    const cx = admin.x/100 * w, cy = admin.y/100 * h;
+    if (admin.curve === 0) return `M ${cx-200} ${cy} L ${cx+200} ${cy}`;
+    const r = Math.max(50, 1000 - Math.abs(admin.curve)*5);
+    const span = Math.PI/2 * (Math.min(1, Math.abs(admin.curve)/90));
+    const a0 = Math.PI/2 - span, a1 = Math.PI/2 + span;
+    const sign = admin.curve >= 0 ? 1 : -1;
+    const x0 = cx + r*Math.cos(a0), y0 = cy + sign*r*Math.sin(a0);
+    const x1 = cx + r*Math.cos(a1), y1 = cy + sign*r*Math.sin(a1);
+    const largeArc = span > Math.PI/2 ? 1 : 0;
+    const sweep = (sign>0) ? 0 : 1;
+    return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 ${largeArc} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  }
+
+  function applyAdmin(unit, admin, text){
+    unit.path.setAttribute('d', pathFor(admin));
+    const anchor = admin.origin === 'left' ? 'start' : (admin.origin === 'right' ? 'end' : 'middle');
+    unit.textPath.setAttribute('startOffset', anchor==='start' ? '0%' : (anchor==='end' ? '100%' : '50%'));
+    unit.textPath.setAttribute('text-anchor', anchor);
+
+    unit.textPath.textContent = text || '';
+    unit.textEl.setAttribute('font-family', `${admin.font}, sans-serif`);
+    unit.textEl.setAttribute('font-size', admin.size);
+    unit.textEl.setAttribute('font-weight', admin.bold ? 700 : 400);
+    unit.textEl.setAttribute('font-style', admin.italic ? 'italic' : 'normal');
+    unit.g.setAttribute('transform', `rotate(${admin.rot} ${admin.x}% ${admin.y}%)`);
+    unit.g.style.display = (text && text.trim()) ? 'block' : 'none';
+  }
+
+  function syncLI(){
+    if (liT1) liT1.value = t1Input?.value || '';
+    if (liT2) liT2.value = t2Input?.value || '';
+  }
+
+  function render(){
+    applyAdmin(u1, ADMIN.t1, t1Input?.value || '');
+    applyAdmin(u2, ADMIN.t2, t2Input?.value || '');
+    syncLI();
+  }
+
+  t1Input && t1Input.addEventListener('input', render);
+  t2Input && t2Input.addEventListener('input', render);
+
+  render();
+  window.addEventListener('resize', render);
+})();
 </script>
 
 {% schema %}
 {
-  "name": "Product variant options",
+  "name": "Custom product designer",
   "tag": null,
   "settings": [
-    {
-      "type": "header",
-      "content": "Product"
-    },
-    {
-      "type": "product",
-      "id": "product",
-      "label": "Product"
-    },
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Section title",
-      "default": "Choose Your Options"
-    },
-    {
-      "type": "textarea",
-      "id": "description",
-      "label": "Description",
-      "default": "Select from available product options below"
-    },
-    {
-      "type": "text",
-      "id": "add_to_cart_text",
-      "label": "Add to cart button text",
-      "default": "Add to Cart"
-    },
-    {
-      "type": "header",
-      "content": "Text customization"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_text_inputs",
-      "label": "Show text input fields",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "text_inputs_title",
-      "label": "Text inputs section title",
-      "default": "Customize Your Text"
-    },
-    {
-      "type": "text",
-      "id": "text_1_label",
-      "label": "Text 1 input label",
-      "default": "First line text"
-    },
-    {
-      "type": "text",
-      "id": "text_1_placeholder",
-      "label": "Text 1 placeholder",
-      "default": "Enter your name"
-    },
-    {
-      "type": "range",
-      "id": "text_1_max_length",
-      "min": 10,
-      "max": 50,
-      "step": 5,
-      "label": "Text 1 maximum length",
-      "default": 20
-    },
-    {
-      "type": "text",
-      "id": "text_2_label",
-      "label": "Text 2 input label",
-      "default": "Second line text"
-    },
-    {
-      "type": "text",
-      "id": "text_2_placeholder",
-      "label": "Text 2 placeholder",
-      "default": "Enter title"
-    },
-    {
-      "type": "range",
-      "id": "text_2_max_length",
-      "min": 10,
-      "max": 50,
-      "step": 5,
-      "label": "Text 2 maximum length",
-      "default": 20
-    },
-    {
-      "type": "header",
-      "content": "Text overlay 1 style"
-    },
-    {
-      "type": "font_picker",
-      "id": "text_1_font",
-      "label": "Font",
-      "default": "helvetica_n4"
-    },
-    {
-      "type": "range",
-      "id": "text_1_size",
-      "min": 12,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Font size",
-      "default": 18
-    },
-    {
-      "type": "color",
-      "id": "text_1_color",
-      "label": "Text color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "range",
-      "id": "text_1_x",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "%",
-      "label": "Horizontal position",
-      "default": 50
-    },
-    {
-      "type": "range",
-      "id": "text_1_y",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "%",
-      "label": "Vertical position",
-      "default": 25
-    },
-    {
-      "type": "header",
-      "content": "Text overlay 2 style"
-    },
-    {
-      "type": "font_picker",
-      "id": "text_2_font",
-      "label": "Font",
-      "default": "helvetica_n4"
-    },
-    {
-      "type": "range",
-      "id": "text_2_size",
-      "min": 12,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Font size",
-      "default": 16
-    },
-    {
-      "type": "color",
-      "id": "text_2_color",
-      "label": "Text color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "range",
-      "id": "text_2_x",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "%",
-      "label": "Horizontal position",
-      "default": 50
-    },
-    {
-      "type": "range",
-      "id": "text_2_y",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "%",
-      "label": "Vertical position",
-      "default": 75
-    },
-    {
-      "type": "header",
-      "content": "Colors"
-    },
-    {
-      "type": "color",
-      "id": "background_color",
-      "label": "Background color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text color",
-      "default": "#333333"
-    },
-    {
-      "type": "color",
-      "id": "price_color",
-      "label": "Price color",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "variant_background_color",
-      "label": "Option button background",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "variant_text_color",
-      "label": "Option button text",
-      "default": "#333333"
-    },
-    {
-      "type": "color",
-      "id": "variant_border_color",
-      "label": "Option button border",
-      "default": "#e0e0e0"
-    },
-    {
-      "type": "color",
-      "id": "variant_hover_background_color",
-      "label": "Option hover background",
-      "default": "#f8f8f8"
-    },
-    {
-      "type": "color",
-      "id": "variant_hover_text_color",
-      "label": "Option hover text",
-      "default": "#333333"
-    },
-    {
-      "type": "color",
-      "id": "variant_hover_border_color",
-      "label": "Option hover border",
-      "default": "#cccccc"
-    },
-    {
-      "type": "color",
-      "id": "variant_selected_background_color",
-      "label": "Selected option background",
-      "default": "#007acc"
-    },
-    {
-      "type": "color",
-      "id": "variant_selected_text_color",
-      "label": "Selected option text",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "variant_selected_border_color",
-      "label": "Selected option border",
-      "default": "#005a99"
-    },
-    {
-      "type": "color",
-      "id": "button_color",
-      "label": "Add to cart button color",
-      "default": "#007acc"
-    },
-    {
-      "type": "color",
-      "id": "button_text_color",
-      "label": "Add to cart button text",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "button_hover_color",
-      "label": "Add to cart button hover",
-      "default": "#005a99"
-    },
-    {
-      "type": "header",
-      "content": "Typography"
-    },
-    {
-      "type": "range",
-      "id": "title_size",
-      "min": 16,
-      "max": 48,
-      "step": 2,
-      "unit": "px",
-      "label": "Section title size",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "description_size",
-      "min": 12,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "label": "Description size",
-      "default": 16
-    },
-    {
-      "type": "range",
-      "id": "product_title_size",
-      "min": 18,
-      "max": 36,
-      "step": 2,
-      "unit": "px",
-      "label": "Product title size",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "price_size",
-      "min": 16,
-      "max": 32,
-      "step": 2,
-      "unit": "px",
-      "label": "Price size",
-      "default": 20
-    },
-    {
-      "type": "range",
-      "id": "option_label_size",
-      "min": 12,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Option label size",
-      "default": 16
-    },
-    {
-      "type": "range",
-      "id": "variant_text_size",
-      "min": 12,
-      "max": 18,
-      "step": 1,
-      "unit": "px",
-      "label": "Option button text size",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "button_text_size",
-      "min": 12,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "label": "Add to cart button text size",
-      "default": 16
-    },
-    {
-      "type": "header",
-      "content": "Layout"
-    },
-    {
-      "type": "range",
-      "id": "section_padding",
-      "min": 0,
-      "max": 80,
-      "step": 4,
-      "unit": "px",
-      "label": "Section padding",
-      "default": 32
-    },
-    {
-      "type": "range",
-      "id": "border_radius",
-      "min": 0,
-      "max": 24,
-      "step": 2,
-      "unit": "px",
-      "label": "Section border radius",
-      "default": 8
-    },
-    {
-      "type": "range",
-      "id": "image_border_radius",
-      "min": 0,
-      "max": 24,
-      "step": 2,
-      "unit": "px",
-      "label": "Image border radius",
-      "default": 8
-    },
-    {
-      "type": "range",
-      "id": "variant_border_radius",
-      "min": 0,
-      "max": 16,
-      "step": 2,
-      "unit": "px",
-      "label": "Option button border radius",
-      "default": 6
-    },
-    {
-      "type": "range",
-      "id": "button_border_radius",
-      "min": 0,
-      "max": 16,
-      "step": 2,
-      "unit": "px",
-      "label": "Add to cart button border radius",
-      "default": 6
-    },
-    {
-      "type": "range",
-      "id": "button_min_height",
-      "min": 50,
-      "max": 100,
-      "step": 5,
-      "unit": "px",
-      "label": "Option button minimum height",
-      "default": 70
-    },
-    {
-      "type": "range",
-      "id": "row_gap",
-      "min": 16,
-      "max": 40,
-      "step": 4,
-      "unit": "px",
-      "label": "Gap between variant rows",
-      "default": 20
-    },
-    {
-      "type": "range",
-      "id": "option_gap",
-      "min": 6,
-      "max": 20,
-      "step": 2,
-      "unit": "px",
-      "label": "Gap between option buttons",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "button_padding_vertical",
-      "min": 8,
-      "max": 20,
-      "step": 2,
-      "unit": "px",
-      "label": "Option button vertical padding",
-      "default": 12
-    },
-    {
-      "type": "range",
-      "id": "button_padding_horizontal",
-      "min": 12,
-      "max": 24,
-      "step": 2,
-      "unit": "px",
-      "label": "Option button horizontal padding",
-      "default": 16
-    }
+    { "type": "header", "content": "Product" },
+    { "type": "product", "id": "product", "label": "Product" },
+
+    { "type": "header", "content": "Fallback content" },
+    { "type": "text", "id": "title", "label": "Fallback title", "default": "Customize Your Product" },
+    { "type": "richtext", "id": "description", "label": "Fallback description", "default": "<p>Upload your image and see it shaped by our custom design template.</p>" },
+
+    { "type": "header", "content": "Shape mask layer" },
+    { "type": "image_picker", "id": "shape_image", "label": "Shape mask image" },
+    { "type": "range", "id": "shape_overlay_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Shape overlay opacity", "default": 20 },
+
+    { "type": "header", "content": "Admin overlay layer" },
+    { "type": "image_picker", "id": "overlay_image", "label": "Admin overlay image" },
+    { "type": "range", "id": "overlay_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Overlay opacity", "default": 80 },
+
+    { "type": "header", "content": "Upload settings" },
+    { "type": "text", "id": "placeholder_text", "label": "Placeholder text", "default": "Upload your image here" },
+    { "type": "text", "id": "upload_button_text", "label": "Upload button text", "default": "Choose Image" },
+    { "type": "text", "id": "upload_help_text", "label": "Upload help text", "default": "Your image will be shaped by the template above" },
+    { "type": "text", "id": "clear_button_text", "label": "Clear button text", "default": "Remove Image" },
+    { "type": "text", "id": "cart_button_text", "label": "Add to cart button text", "default": "Add to Cart" },
+
+    { "type": "header", "content": "Style" },
+    { "type": "range", "id": "section_padding", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Section padding", "default": 40 },
+    { "type": "range", "id": "border_radius", "min": 0, "max": 40, "step": 2, "unit": "px", "label": "Border radius", "default": 12 },
+    { "type": "range", "id": "button_border_radius", "min": 0, "max": 20, "step": 1, "unit": "px", "label": "Button border radius", "default": 6 },
+
+    { "type": "header", "content": "Typography" },
+    { "type": "range", "id": "title_size", "min": 16, "max": 48, "step": 2, "unit": "px", "label": "Title size", "default": 32 },
+    { "type": "range", "id": "text_size", "min": 12, "max": 24, "step": 1, "unit": "px", "label": "Text size", "default": 16 },
+    { "type": "range", "id": "price_size", "min": 16, "max": 36, "step": 2, "unit": "px", "label": "Price size", "default": 24 },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "price_color", "label": "Price color", "default": "#000000" },
+    { "type": "color", "id": "compare_price_color", "label": "Compare price color", "default": "#999999" },
+    { "type": "color", "id": "canvas_background", "label": "Canvas background", "default": "#f8f8f8" },
+    { "type": "color", "id": "border_color", "label": "Border color", "default": "#e0e0e0" },
+    { "type": "color", "id": "upload_background", "label": "Upload area background", "default": "#fafafa" },
+    { "type": "color", "id": "upload_hover_background", "label": "Upload area hover background", "default": "#f0f0f0" },
+    { "type": "color", "id": "upload_border_color", "label": "Upload border color", "default": "#cccccc" },
+    { "type": "color", "id": "button_color", "label": "Button color", "default": "#007bff" },
+    { "type": "color", "id": "button_hover_color", "label": "Button hover color", "default": "#0056b3" },
+    { "type": "color", "id": "button_text_color", "label": "Button text color", "default": "#ffffff" },
+    { "type": "color", "id": "cart_button_color", "label": "Add to cart button color", "default": "#28a745" },
+    { "type": "color", "id": "cart_button_hover_color", "label": "Add to cart hover color", "default": "#218838" },
+    { "type": "color", "id": "cart_button_text_color", "label": "Add to cart text color", "default": "#ffffff" },
+
+    { "type": "color", "id": "success_background", "label": "Success background", "default": "#d4edda" },
+    { "type": "color", "id": "success_color", "label": "Success text color", "default": "#155724" },
+
+    { "type": "header", "content": "Variant buttons" },
+    { "type": "color", "id": "variant_background", "label": "Variant background", "default": "#ffffff" },
+    { "type": "color", "id": "variant_text_color", "label": "Variant text color", "default": "#333333" },
+    { "type": "color", "id": "variant_border_color", "label": "Variant border color", "default": "#e0e0e0" },
+    { "type": "color", "id": "variant_hover_background", "label": "Variant hover background", "default": "#f8f8f8" },
+    { "type": "color", "id": "variant_hover_border", "label": "Variant hover border", "default": "#007bff" },
+    { "type": "color", "id": "variant_selected_background", "label": "Selected variant background", "default": "#007bff" },
+    { "type": "color", "id": "variant_selected_text", "label": "Selected variant text", "default": "#ffffff" },
+    { "type": "color", "id": "variant_selected_border", "label": "Selected variant border", "default": "#007bff" },
+
+    { "type": "header", "content": "Text 1 (Admin settings)" },
+    { "type": "text", "id": "text1_font", "label": "Font family (Google Fonts name)", "default": "Roboto" },
+    { "type": "range", "id": "text1_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
+    { "type": "checkbox", "id": "text1_bold", "label": "Bold", "default": false },
+    { "type": "checkbox", "id": "text1_italic", "label": "Italic", "default": false },
+    { "type": "range", "id": "text1_x", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
+    { "type": "range", "id": "text1_y", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 20 },
+    { "type": "range", "id": "text1_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
+    { "type": "range", "id": "text1_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
+    { "type": "select", "id": "text1_origin", "label": "Bend origin", "default": "center", "options": [
+      { "value": "left", "label": "Left" },
+      { "value": "center", "label": "Center" },
+      { "value": "right", "label": "Right" }
+    ]},
+
+    { "type": "header", "content": "Text 2 (Admin settings)" },
+    { "type": "text", "id": "text2_font", "label": "Font family (Google Fonts name)", "default": "Roboto" },
+    { "type": "range", "id": "text2_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
+    { "type": "checkbox", "id": "text2_bold", "label": "Bold", "default": false },
+    { "type": "checkbox", "id": "text2_italic", "label": "Italic", "default": false },
+    { "type": "range", "id": "text2_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
+    { "type": "range", "id": "text2_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 80 },
+    { "type": "range", "id": "text2_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
+    { "type": "range", "id": "text2_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
+    { "type": "select", "id": "text2_origin", "label": "Bend origin", "default": "center", "options": [
+      { "value": "left", "label": "Left" },
+      { "value": "center", "label": "Center" },
+      { "value": "right", "label": "Right" }
+    ]}
   ],
-  "presets": [
-    {
-      "name": "Product variant options"
-    }
-  ]
+  "presets": [{ "name": "Custom product designer" }]
 }
 {% endschema %}
