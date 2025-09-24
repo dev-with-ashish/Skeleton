@@ -529,6 +529,135 @@
   })();
 </script>
 
+<script>
+(function(){
+  class VariantSelects{{ ai_gen_id }} extends HTMLElement {
+    constructor(){
+      super();
+      this.onVariantChange = this.onVariantChange.bind(this);
+      this.currencyFormatter = new Intl.NumberFormat('en-IN', { style:'currency', currency:'INR' });
+    }
+    connectedCallback(){
+      this.addEventListener('change', this.onVariantChange);
+      const resetBtn = document.querySelector('#np-reset-variants-{{ ai_gen_id }}');
+      if (resetBtn) resetBtn.addEventListener('click', () => this.resetToFirstAvailable());
+      // Initial run so price/image match selected_or_first_available_variant
+      this.onVariantChange();
+    }
+
+    onVariantChange(){
+      this.updateOptions();
+      this.updateMasterId();
+      this.updateVariantStatuses();
+      this.updatePriceInstantly();
+      this.updateURL();
+      this.updateImage();
+    }
+
+    updateOptions(){
+      const fsets = Array.from(this.querySelectorAll('fieldset'));
+      this.options = fsets.map(fs => (Array.from(fs.querySelectorAll('input')).find(r => r.checked) || {}).value);
+    }
+
+    updateMasterId(){
+      this.currentVariant = this.getVariantData().find(v =>
+        !v.options.map((opt,i) => this.options[i] === opt).includes(false)
+      );
+    }
+
+    updateVariantStatuses(){
+      const groups   = Array.from(this.querySelectorAll('fieldset'));
+      const variants = this.getVariantData();
+      if (!variants || !variants.length) return;
+
+      const selected = groups.map(fs => {
+        const sel = fs.querySelector('input[type="radio"]:checked');
+        return sel ? sel.value : null;
+      });
+
+      groups.forEach((group, gi) => {
+        const inputs = Array.from(group.querySelectorAll('input[type="radio"]'));
+
+        const feasibleSet = new Set(
+          variants.filter(v => v.available).filter(v => {
+            for (let j = 0; j < groups.length; j++) {
+              const need = selected[j];
+              if (need && v.options[j] !== need) return false;
+            }
+            return true;
+          }).map(v => v.options[gi])
+        );
+
+        const hasFeasible = feasibleSet.size > 0;
+        inputs.forEach(input => {
+          const enable = (hasFeasible ? feasibleSet.has(input.value) : true) || input.checked;
+          input.disabled = !enable;
+        });
+      });
+    }
+
+    updatePriceInstantly(){
+      if (!this.currentVariant) return;
+      const priceEl   = document.querySelector('.ai-current-price-{{ ai_gen_id }}');
+      const compareEl = document.querySelector('.ai-compare-price-{{ ai_gen_id }}');
+      if (priceEl){
+        priceEl.textContent = this.currencyFormatter.format(this.currentVariant.price/100);
+        priceEl.setAttribute('data-price', this.currentVariant.price);
+      }
+      if (compareEl){
+        if (this.currentVariant.compare_at_price && this.currentVariant.compare_at_price > this.currentVariant.price){
+          compareEl.textContent = this.currencyFormatter.format(this.currentVariant.compare_at_price/100);
+          compareEl.setAttribute('data-compare-price', this.currentVariant.compare_at_price);
+          compareEl.style.display = 'inline';
+        } else {
+          compareEl.setAttribute('data-compare-price', '');
+          compareEl.style.display = 'none';
+        }
+      }
+    }
+
+    updateURL(){
+      if (!this.currentVariant || this.dataset.updateUrl === 'false') return;
+      window.history.replaceState({}, '', `${this.dataset.url}?variant=${this.currentVariant.id}`);
+    }
+
+    updateImage(){
+      const img = document.querySelector('#nameplate-image-{{ ai_gen_id }}');
+      if (!img || !this.currentVariant) return;
+      if (this.currentVariant.featured_image && this.currentVariant.featured_image.src){
+        const src = this.currentVariant.featured_image.src
+          .replace(/\.(jpg|jpeg|gif|png|bmp|bitmap|tiff|tif)(\?.*)?$/i, '_800x.$1$2');
+        img.src = src;
+        img.alt = this.currentVariant.featured_image.alt || '{{ block.settings.selected_product.title | escape }}';
+      }
+    }
+
+    resetToFirstAvailable(){
+      const variants = this.getVariantData();
+      const firstAvail = variants.find(v => v.available) || variants[0];
+      if (!firstAvail) return;
+      const groups = Array.from(this.querySelectorAll('fieldset'));
+      groups.forEach((group, gi) => {
+        const val = firstAvail.options[gi];
+        const input = Array.from(group.querySelectorAll('input')).find(r => r.value === val);
+        if (input){
+          input.checked = true;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+
+    getVariantData(){
+      this.variantData = this.variantData || JSON.parse(this.querySelector('[type="application/json"]').textContent);
+      return this.variantData;
+    }
+  }
+  class VariantRadios extends VariantSelects{{ ai_gen_id }} {}
+  customElements.define('variant-radios', VariantRadios);
+})();
+</script>
+
+
 {% schema %}
 {
   "name": "Name plate customizer",
