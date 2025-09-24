@@ -1,8 +1,8 @@
 {% doc %}
   @prompt
     cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, apply shape image layer mask to the user uploaded image, apply shape image masking to the user image layer , everything fine just display selected product title description and prices (whcih updated with product variant price), variant should be in button style and make sure shape image opecity becomes 0 after user selected the image, unable to change variants fix that , unable to select a variant, keep everything as it is just change variant style make sure the user can select variant as it was when in list style, change variant style to button just change style of the variant, add an png overlay for the admin above the user image layer with the same masking feature, do not display selected shape template and overlay image in the website in the right panel, keep everything as it is now just make sure the the user uploaded Image gets stored and the URL is saved as a line item property.
-    
-    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask , all property as it is now but by default the file should be covering the mask 
+
+    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask , all property as it is now but by default the file should be covering the mask
 {% enddoc %}
 
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
@@ -81,7 +81,6 @@ Auto-source product images from context_product:
   }
   .ai-custom-product-overlay-layer-{{ ai_gen_id }} img {
     width:100%; height:100%; object-fit:contain;
-    /* --- MASK: prefer product first image; fallback to settings.shape_image --- */
     {% if shape_image_url_500 or block.settings.shape_image %}
       {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
       -webkit-mask-image:url('{{ _shape_url_for_mask }}');
@@ -92,9 +91,9 @@ Auto-source product images from context_product:
     {% endif %}
   }
 
+  /* USER IMAGE LAYER (masked) */
   .ai-custom-product-user-layer-{{ ai_gen_id }} {
     position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; overflow:hidden;
-    /* --- MASK: prefer product first image; fallback to settings.shape_image --- */
     {% if shape_image_url_500 or block.settings.shape_image %}
       {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
       -webkit-mask-image:url('{{ _shape_url_for_mask }}');
@@ -120,7 +119,6 @@ Auto-source product images from context_product:
 
   .ai-custom-product-placeholder-{{ ai_gen_id }} {
     width:100%; height:100%; background:#f8f8f8; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; color:#666; text-align:center; padding:20px;
-    /* --- MASK: prefer product first image; fallback to settings.shape_image --- */
     {% if shape_image_url_500 or block.settings.shape_image %}
       {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
       -webkit-mask-image:url('{{ _shape_url_for_mask }}');
@@ -136,12 +134,12 @@ Auto-source product images from context_product:
   .ai-custom-product-info-{{ ai_gen_id }} { margin-bottom:24px; }
   .ai-custom-product-title-{{ ai_gen_id }} { font-size:{{ block.settings.title_size }}px; color:{{ block.settings.text_color }}; margin:0 0 16px; font-family:{{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }}; font-weight:{{ settings.type_primary_font.weight }}; }
 
-  /* price pieces to let anotherlogic-style updater target them */
+  /* price pieces */
   .ai-custom-product-price-{{ ai_gen_id }} { font-size:{{ block.settings.price_size }}px; font-weight:600; color:{{ block.settings.price_color }}; margin-bottom:16px; }
   .ai-compare-price-{{ ai_gen_id }} { text-decoration:line-through; color:{{ block.settings.compare_price_color }}; margin-right:8px; font-weight:normal; }
   .ai-current-price-{{ ai_gen_id }} {}
 
-  /* Button-style radios */
+  /* Button-style radios (LEAVE VARIANTS AS-IS) */
   .ai-custom-product-variant-selector-{{ ai_gen_id }} { margin-bottom:20px; }
   .ai-custom-product-variant-label-{{ ai_gen_id }} { display:block; margin-bottom:12px; font-weight:600; color:{{ block.settings.text_color }}; font-size:16px; }
   .ai-custom-product-variant-buttons-{{ ai_gen_id }} { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
@@ -179,7 +177,7 @@ Auto-source product images from context_product:
 
   .ai-custom-product-form-{{ ai_gen_id }}{ display:none; }
 
-  /* === [ADDED] User Text Layer (above admin overlay) === */
+  /* TEXT LAYER (above admin overlay, below shape) */
   .ai-custom-product-text-layer-{{ ai_gen_id }}{
     position:absolute; top:0; left:0; width:100%; height:100%; z-index:3; pointer-events:none;
   }
@@ -200,17 +198,20 @@ Auto-source product images from context_product:
 
 <product-customizer-{{ ai_gen_id }}
   class="ai-custom-product-{{ ai_gen_id }}"
+  data-enable-upload="{{ block.settings.enable_user_upload }}"
   {{ block.shopify_attributes }}
 >
   <div class="ai-custom-product-container-{{ ai_gen_id }}">
     <div class="ai-custom-product-preview-{{ ai_gen_id }}">
       <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }}">
-        <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="ai-user-layer-{{ ai_gen_id }}">
-          <div class="ai-custom-product-placeholder-{{ ai_gen_id }}">
-            {{ 'image' | placeholder_svg_tag }}
-            <span>{{ block.settings.placeholder_text }}</span>
+        {% if block.settings.enable_user_upload %}
+          <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="ai-user-layer-{{ ai_gen_id }}">
+            <div class="ai-custom-product-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+              <span>{{ block.settings.placeholder_text }}</span>
+            </div>
           </div>
-        </div>
+        {% endif %}
 
         {% if overlay_image_url_500 or block.settings.overlay_image %}
           <div class="ai-custom-product-overlay-layer-{{ ai_gen_id }}" id="ai-overlay-layer-{{ ai_gen_id }}">
@@ -222,7 +223,7 @@ Auto-source product images from context_product:
           </div>
         {% endif %}
 
-        <!-- === [ADDED] User Text Layer (above admin overlay, below shape) === -->
+        <!-- USER TEXT LAYER SVG -->
         <div class="ai-custom-product-text-layer-{{ ai_gen_id }}" id="ai-text-layer-{{ ai_gen_id }}">
           <svg class="ai-text-svg-{{ ai_gen_id }}" id="ai-text-svg-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
@@ -245,7 +246,6 @@ Auto-source product images from context_product:
         <div class="ai-custom-product-info-{{ ai_gen_id }}">
           <h2 class="ai-custom-product-title-{{ ai_gen_id }}">{{ context_product.title }}</h2>
 
-          <!-- Price DOM uses static nodes so the radios component can update instantly -->
           <div class="ai-custom-product-price-{{ ai_gen_id }}" id="ai-product-price-{{ ai_gen_id }}">
             {% if current_variant.compare_at_price > current_variant.price %}
               <span class="ai-compare-price-{{ ai_gen_id }}" data-compare-price="{{ current_variant.compare_at_price }}">
@@ -260,7 +260,7 @@ Auto-source product images from context_product:
           </div>
 
           {% if context_product.variants.size > 1 %}
-            <!-- button-style radios -->
+            <!-- KEEP VARIANTS ORIGINAL (no logic changes) -->
             <variant-radios
               class="ai-custom-product-variant-selector-{{ ai_gen_id }}"
               data-section="{{ section.id }}"
@@ -304,31 +304,35 @@ Auto-source product images from context_product:
         </div>
       {% endif %}
 
-      <div class="ai-custom-product-upload-section-{{ ai_gen_id }}">
-        <input
-          type="file"
-          id="ai-user-upload-{{ ai_gen_id }}"
-          class="ai-custom-product-upload-input-{{ ai_gen_id }}"
-          accept="image/*"
-        >
-        <label for="ai-user-upload-{{ ai_gen_id }}" class="ai-custom-product-upload-button-{{ ai_gen_id }}">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7,10 12,15 17,10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          {{ block.settings.upload_button_text }}
-        </label>
-        <div class="ai-custom-product-upload-text-{{ ai_gen_id }}">
-          {{ block.settings.upload_help_text }}
+      {% if block.settings.enable_user_upload %}
+        <div class="ai-custom-product-upload-section-{{ ai_gen_id }}">
+          <input
+            type="file"
+            id="ai-user-upload-{{ ai_gen_id }}"
+            class="ai-custom-product-upload-input-{{ ai_gen_id }}"
+            accept="image/*"
+          >
+          <label for="ai-user-upload-{{ ai_gen_id }}" class="ai-custom-product-upload-button-{{ ai_gen_id }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7,10 12,15 17,10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            {{ block.settings.upload_button_text }}
+          </label>
+          <div class="ai-custom-product-upload-text-{{ ai_gen_id }}">
+            {{ block.settings.upload_help_text }}
+          </div>
+          <div id="ai-file-info-{{ ai_gen_id }}" class="ai-custom-product-file-info-{{ ai_gen_id }}" style="display:none;"></div>
         </div>
-        <div id="ai-file-info-{{ ai_gen_id }}" class="ai-custom-product-file-info-{{ ai_gen_id }}" style="display:none;"></div>
-      </div>
+      {% endif %}
 
       <div class="ai-custom-product-actions-{{ ai_gen_id }}">
-        <button type="button" id="ai-clear-button-{{ ai_gen_id }}" class="ai-custom-product-clear-button-{{ ai_gen_id }}" style="display:none;">
-          {{ block.settings.clear_button_text }}
-        </button>
+        {% if block.settings.enable_user_upload %}
+          <button type="button" id="ai-clear-button-{{ ai_gen_id }}" class="ai-custom-product-clear-button-{{ ai_gen_id }}" style="display:none;">
+            {{ block.settings.clear_button_text }}
+          </button>
+        {% endif %}
 
         {% if context_product %}
           <button type="button" id="ai-add-to-cart-{{ ai_gen_id }}" class="ai-custom-product-add-to-cart-{{ ai_gen_id }}" disabled>
@@ -337,18 +341,22 @@ Auto-source product images from context_product:
         {% endif %}
       </div>
 
-      <!-- === [ADDED] Shopper-visible text inputs only (content only) === -->
+      <!-- Shopper-visible text inputs (shown only for enabled texts) -->
       <div class="ai-customer-text-inputs-{{ ai_gen_id }}" style="margin-top:16px;">
-        <div style="margin-bottom:10px;">
-          <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 1</label>
-          <input type="text" id="ai-text1-input-{{ ai_gen_id }}" placeholder="Enter Text 1"
-            style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
-        </div>
-        <div>
-          <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 2</label>
-          <input type="text" id="ai-text2-input-{{ ai_gen_id }}" placeholder="Enter Text 2"
-            style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
-        </div>
+        {% if block.settings.enable_text1 %}
+          <div style="margin-bottom:10px;">
+            <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 1</label>
+            <input type="text" id="ai-text1-input-{{ ai_gen_id }}" placeholder="Enter Text 1"
+              style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
+          </div>
+        {% endif %}
+        {% if block.settings.enable_text2 %}
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 2</label>
+            <input type="text" id="ai-text2-input-{{ ai_gen_id }}" placeholder="Enter Text 2"
+              style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
+          </div>
+        {% endif %}
       </div>
 
     </div>
@@ -358,22 +366,29 @@ Auto-source product images from context_product:
     <form id="ai-cart-form-{{ ai_gen_id }}" class="ai-custom-product-form-{{ ai_gen_id }}" action="/cart/add" method="post" enctype="multipart/form-data">
       <input type="hidden" name="id" id="ai-variant-id-{{ ai_gen_id }}" value="{{ context_product.selected_or_first_available_variant.id }}">
       <input type="hidden" name="quantity" value="1">
-      <!-- Store the actual uploaded file so it shows in cart/order/admin -->
-      <input type="file" name="properties[Custom Image]" id="ai-hidden-file-{{ ai_gen_id }}" style="display:none;">
-      <!-- Extra props to help production: -->
-      <input type="hidden" name="properties[Image Position]" id="ai-image-position-{{ ai_gen_id }}">
-      <input type="hidden" name="properties[Image Scale]" id="ai-image-scale-{{ ai_gen_id }}">
 
-      <!-- === [ADDED] Save shopper text content to the order === -->
-      <input type="hidden" name="properties[Text1]" id="ai-li-text1-content-{{ ai_gen_id }}">
-      <input type="hidden" name="properties[Text2]" id="ai-li-text2-content-{{ ai_gen_id }}">
+      {% if block.settings.enable_user_upload %}
+        <!-- Attach actual uploaded file to line item when upload is enabled -->
+        <input type="file" name="properties[Custom Image]" id="ai-hidden-file-{{ ai_gen_id }}" style="display:none;">
+        <!-- Extra props: -->
+        <input type="hidden" name="properties[Image Position]" id="ai-image-position-{{ ai_gen_id }}">
+        <input type="hidden" name="properties[Image Scale]" id="ai-image-scale-{{ ai_gen_id }}">
+      {% endif %}
+
+      <!-- Save shopper text content (only content; styling is admin-controlled) -->
+      {% if block.settings.enable_text1 %}
+        <input type="hidden" name="properties[Text1]" id="ai-li-text1-content-{{ ai_gen_id }}">
+      {% endif %}
+      {% if block.settings.enable_text2 %}
+        <input type="hidden" name="properties[Text2]" id="ai-li-text2-content-{{ ai_gen_id }}">
+      {% endif %}
     </form>
   {% endif %}
 </product-customizer-{{ ai_gen_id }}>
 
 <script>
   (function() {
-    /* ===== Your customizer (image upload/masking/drag/resize + Add to Cart) ===== */
+    /* ===== Core customizer (image upload/drag/resize + Add to Cart) ===== */
     class ProductCustomizer{{ ai_gen_id }} extends HTMLElement {
       constructor() {
         super();
@@ -401,6 +416,8 @@ Auto-source product images from context_product:
       }
 
       connectedCallback() {
+        this.enableUpload = (this.dataset.enableUpload === 'true' || this.dataset.enableUpload === '1');
+
         this.uploadInput = this.querySelector('#ai-user-upload-{{ ai_gen_id }}');
         this.userLayer = this.querySelector('#ai-user-layer-{{ ai_gen_id }}');
         this.shapeLayer = this.querySelector('#ai-shape-layer-{{ ai_gen_id }}');
@@ -416,7 +433,7 @@ Auto-source product images from context_product:
         this.imageControls = this.querySelector('#ai-image-controls-{{ ai_gen_id }}');
         this.controlButtons = this.querySelectorAll('.ai-custom-product-control-button-{{ ai_gen_id }}');
 
-        // [ADDED] Shopper text inputs + hidden LIs
+        /* Shopper text inputs */
         this.text1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
         this.text2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
         this.liText1 = document.getElementById('ai-li-text1-content-{{ ai_gen_id }}');
@@ -447,9 +464,9 @@ Auto-source product images from context_product:
         document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive:false });
         document.addEventListener('touchend', () => this.endInteraction());
 
-        // [ADDED] keep hidden inputs synced for text content
-        if (this.text1Input) this.text1Input.addEventListener('input', ()=>{ if (this.liText1) this.liText1.value = this.text1Input.value || ''; });
-        if (this.text2Input) this.text2Input.addEventListener('input', ()=>{ if (this.liText2) this.liText2.value = this.text2Input.value || ''; });
+        /* keep text content synced to hidden LIs */
+        if (this.text1Input && this.liText1) this.text1Input.addEventListener('input', ()=>{ this.liText1.value = this.text1Input.value || ''; });
+        if (this.text2Input && this.liText2) this.text2Input.addEventListener('input', ()=>{ this.liText2.value = this.text2Input.value || ''; });
       }
 
       handleFileUpload(event) {
@@ -468,7 +485,7 @@ Auto-source product images from context_product:
           if (this.addToCartButton) this.addToCartButton.disabled = false;
           if (this.imageControls) this.imageControls.style.display = 'block';
 
-          if (this.shapeLayer) this.shapeLayer.style.opacity = '0'; // hide template after selection
+          if (this.shapeLayer) this.shapeLayer.style.opacity = '0';
         };
         reader.readAsDataURL(file);
       }
@@ -480,7 +497,6 @@ Auto-source product images from context_product:
         if (this.imagePositionInput) this.imagePositionInput.value = `${this.imageX},${this.imageY}`;
         if (this.imageScaleInput) this.imageScaleInput.value = `${this.imageWidth}x${this.imageHeight}`;
 
-        // sync text content to line-item properties
         if (this.liText1 && this.text1Input) this.liText1.value = this.text1Input.value || '';
         if (this.liText2 && this.text2Input) this.liText2.value = this.text2Input.value || '';
       }
@@ -670,19 +686,21 @@ Auto-source product images from context_product:
       }
 
       addToCart(){
-        if (!this.userImage){ alert('Please upload an image first.'); return; }
+        /* Require image only if admin enabled upload */
+        if (this.enableUpload && !this.userImage){ alert('Please upload an image first.'); return; }
         if (!this.currentVariantId){ alert('Please select a variant.'); return; }
         if (!this.cartForm){ alert('Form not found.'); return; }
-        // sync text content just before submit
+
         if (this.liText1 && this.text1Input) this.liText1.value = this.text1Input.value || '';
         if (this.liText2 && this.text2Input) this.liText2.value = this.text2Input.value || '';
+
         this.addToCartButton.disabled = true; this.addToCartButton.textContent = 'Adding...';
         this.cartForm.submit();
       }
     }
     customElements.define('product-customizer-{{ ai_gen_id }}', ProductCustomizer{{ ai_gen_id }});
 
-    /* ===== anotherlogic-style VariantSelects/VariantRadios ===== */
+    /* ===== Variants (UNCHANGED) ===== */
     (function(){
       class VariantSelects{{ ai_gen_id }} extends HTMLElement {
         constructor(){
@@ -693,10 +711,8 @@ Auto-source product images from context_product:
         onVariantChange(){
           this.updateOptions(); this.updateMasterId(); this.updateVariantStatuses(); this.updatePriceInstantly(); this.updateAvailabilityStatus();
           if (!this.currentVariant){ this.setUnavailable(); } else { this.updateURL(); this.updateVariantInput(); }
-          // also update our hidden variant input for custom form
           const customInput = document.querySelector('#ai-variant-id-{{ ai_gen_id }}');
           if (customInput && this.currentVariant){ customInput.value = this.currentVariant.id; customInput.dispatchEvent(new Event('change', { bubbles:true })); }
-          // wire through to custom element state
           const host = document.querySelector('product-customizer-{{ ai_gen_id }}');
           if (host) host.currentVariantId = this.currentVariant ? this.currentVariant.id : null;
         }
@@ -724,7 +740,7 @@ Auto-source product images from context_product:
             }
           }
         }
-        updateAvailabilityStatus(){ /* optional: add badge handling if needed */ }
+        updateAvailabilityStatus(){ }
         updateURL(){ if (!this.currentVariant || this.dataset.updateUrl==='false') return; window.history.replaceState({}, '', `${this.dataset.url}?variant=${this.currentVariant.id}`); }
         updateVariantInput(){
           const forms = document.querySelectorAll(`#product-form-{{ section.id }}, #product-form-installment-{{ section.id }}`);
@@ -760,9 +776,6 @@ updateVariantStatuses(){
   });
 }
 
-        setInputAvailability(inputs, availableValues){
-          inputs.forEach(input => { if (availableValues.includes(input.value)) input.removeAttribute('disabled'); else input.setAttribute('disabled', true); });
-        }
         setUnavailable(){
           const priceEl = document.querySelector('.ai-current-price-{{ ai_gen_id }}');
           const compareEl = document.querySelector('.ai-compare-price-{{ ai_gen_id }}');
@@ -774,24 +787,28 @@ updateVariantStatuses(){
       class VariantRadios extends VariantSelects{{ ai_gen_id }} {}
       customElements.define('variant-radios', VariantRadios);
     })();
-
-    /* === [ADDED] Google Fonts (from admin choices) === */
-    {%- assign _t1_font = block.settings.text1_font | default: 'Roboto' -%}
-    {%- assign _t2_font = block.settings.text2_font | default: 'Roboto' -%}
   })();
 </script>
+
+{%- assign _t1_font = block.settings.text1_font | default: 'Roboto' -%}
+{%- assign _t2_font = block.settings.text2_font | default: 'Roboto' -%}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+{% if block.settings.enable_text1 %}
 <link id="ai-font-1-{{ ai_gen_id }}" rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ _t1_font | replace: ' ', '+' }}:ital,wght@0,400;0,700;1,400;1,700&display=swap">
-{% unless _t2_font == _t1_font %}
+{% endif %}
+{% if block.settings.enable_text2 and _t2_font != _t1_font %}
 <link id="ai-font-2-{{ ai_gen_id }}" rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ _t2_font | replace: ' ', '+' }}:ital,wght@0,400;0,700;1,400;1,700&display=swap">
-{% endunless %}
+{% endif %}
 
 <script>
-/* === [ADDED] Admin-driven two-text renderer (no user styling, content only) === */
+/* === Admin-driven two-text renderer (each text can be toggled by admin) === */
 (function(){
   const svg = document.getElementById('ai-text-svg-{{ ai_gen_id }}');
   if (!svg) return;
+
+  const text1Enabled = {{ block.settings.enable_text1 | json }};
+  const text2Enabled = {{ block.settings.enable_text2 | json }};
 
   const t1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
   const t2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
@@ -801,6 +818,7 @@ updateVariantStatuses(){
 
   const ADMIN = {
     t1: {
+      enabled: text1Enabled,
       font: `{{ block.settings.text1_font | default: 'Roboto' }}`,
       size: {{ block.settings.text1_size | default: 36 }},
       bold: {{ block.settings.text1_bold | default: false }},
@@ -809,10 +827,11 @@ updateVariantStatuses(){
       y: {{ block.settings.text1_y | default: 20 }},
       rot: {{ block.settings.text1_rotate | default: 0 }},
       curve: {{ block.settings.text1_curve | default: 0 }},
-      color: `{{ block.settings.text1_color | default: '#111111' }}`,
-      origin: `{{ block.settings.text1_origin | default: 'center' }}`
+      origin: `{{ block.settings.text1_origin | default: 'center' }}`,
+      color: `{{ block.settings.text1_color | default: '#111111' }}`
     },
     t2: {
+      enabled: text2Enabled,
       font: `{{ block.settings.text2_font | default: 'Roboto' }}`,
       size: {{ block.settings.text2_size | default: 28 }},
       bold: {{ block.settings.text2_bold | default: false }},
@@ -821,8 +840,8 @@ updateVariantStatuses(){
       y: {{ block.settings.text2_y | default: 80 }},
       rot: {{ block.settings.text2_rotate | default: 0 }},
       curve: {{ block.settings.text2_curve | default: 0 }},
-      color: `{{ block.settings.text2_color | default: '#111111' }}`,
-      origin: `{{ block.settings.text2_origin | default: 'center' }}`
+      origin: `{{ block.settings.text2_origin | default: 'center' }}`,
+      color: `{{ block.settings.text2_color | default: '#111111' }}`
     }
   };
 
@@ -864,6 +883,8 @@ updateVariantStatuses(){
   }
 
   function applyAdmin(unit, admin, text){
+    if (!admin.enabled) { unit.g.style.display = 'none'; return; }
+
     unit.path.setAttribute('d', pathFor(admin));
     const anchor = admin.origin === 'left' ? 'start' : (admin.origin === 'right' ? 'end' : 'middle');
     unit.textPath.setAttribute('startOffset', anchor==='start' ? '0%' : (anchor==='end' ? '100%' : '50%'));
@@ -876,6 +897,7 @@ updateVariantStatuses(){
     unit.textEl.setAttribute('font-style', admin.italic ? 'italic' : 'normal');
     unit.textEl.setAttribute('fill', admin.color);
     unit.g.setAttribute('transform', `rotate(${admin.rot} ${admin.x}% ${admin.y}%)`);
+
     unit.g.style.display = (text && text.trim()) ? 'block' : 'none';
   }
 
@@ -890,8 +912,8 @@ updateVariantStatuses(){
     syncLI();
   }
 
-  t1Input && t1Input.addEventListener('input', render);
-  t2Input && t2Input.addEventListener('input', render);
+  if (t1Input) t1Input.addEventListener('input', render);
+  if (t2Input) t2Input.addEventListener('input', render);
 
   render();
   window.addEventListener('resize', render);
@@ -909,6 +931,11 @@ updateVariantStatuses(){
     { "type": "header", "content": "Fallback content" },
     { "type": "text", "id": "title", "label": "Fallback title", "default": "Customize Your Product" },
     { "type": "richtext", "id": "description", "label": "Fallback description", "default": "<p>Upload your image and see it shaped by our custom design template.</p>" },
+
+    { "type": "header", "content": "Feature toggles (Admin)" },
+    { "type": "checkbox", "id": "enable_user_upload", "label": "Enable user image upload layer", "default": true },
+    { "type": "checkbox", "id": "enable_text1", "label": "Enable Text 1 layer", "default": true },
+    { "type": "checkbox", "id": "enable_text2", "label": "Enable Text 2 layer", "default": true },
 
     { "type": "header", "content": "Shape mask layer" },
     { "type": "image_picker", "id": "shape_image", "label": "Shape mask image" },
@@ -970,6 +997,7 @@ updateVariantStatuses(){
     { "type": "range", "id": "text1_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
     { "type": "checkbox", "id": "text1_bold", "label": "Bold", "default": false },
     { "type": "checkbox", "id": "text1_italic", "label": "Italic", "default": false },
+    { "type": "color", "id": "text1_color", "label": "Text 1 color", "default": "#111111" },
     { "type": "range", "id": "text1_x", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
     { "type": "range", "id": "text1_y", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 20 },
     { "type": "range", "id": "text1_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
@@ -979,23 +1007,22 @@ updateVariantStatuses(){
       { "value": "center", "label": "Center" },
       { "value": "right", "label": "Right" }
     ]},
-    { "type": "color", "id": "text1_color", "label": "Text 1 color", "default": "#ffffff" },
 
     { "type": "header", "content": "Text 2 (Admin settings)" },
     { "type": "text", "id": "text2_font", "label": "Font family (Google Fonts name)", "default": "Roboto" },
     { "type": "range", "id": "text2_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
     { "type": "checkbox", "id": "text2_bold", "label": "Bold", "default": false },
     { "type": "checkbox", "id": "text2_italic", "label": "Italic", "default": false },
-    { "type": "range", "id": "text2_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
-    { "type": "range", "id": "text2_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 80 },
+    { "type": "color", "id": "text2_color", "label": "Text 2 color", "default": "#111111" },
+    { "type": "range", "id": "text2_x", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
+    { "type": "range", "id": "text2_y", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 80 },
     { "type": "range", "id": "text2_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
     { "type": "range", "id": "text2_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
     { "type": "select", "id": "text2_origin", "label": "Bend origin", "default": "center", "options": [
       { "value": "left", "label": "Left" },
       { "value": "center", "label": "Center" },
       { "value": "right", "label": "Right" }
-    ]},
-    { "type": "color", "id": "text2_color", "label": "Text 2 color", "default": "#ffffff" },
+    ]}
   ],
   "presets": [{ "name": "Custom product designer" }]
 }
