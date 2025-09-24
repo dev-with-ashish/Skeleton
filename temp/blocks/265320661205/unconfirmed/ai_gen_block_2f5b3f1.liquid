@@ -1,6 +1,485 @@
+{% doc %}
+  @prompt
+    a name plate section where user can see their name on the name plate (product first image will be used as name plate image layer) by typing using a text box in the left this, add option to select product in the customizer, cursive fonts not looks exact, font is working now, show font option with all atleast 100 nameplate used fonts in the customizer not to the user, most of the fonts under one category seems similar, all fonts of one category are same do not change the look, move font selection to admin theme customizer and should have google fonts, replace all fonts with all adobe fonts , make all fonts to wirk correctly, add x and y position option for moving text over anywhere on the board
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600;700&family=Dancing+Script:wght@400;700&family=Cinzel:wght@400;600&family=Great+Vibes&family=Pacifico&family=Lobster&family=Righteous&family=Oswald:wght@300;400;600&family=Raleway:wght@300;400;600&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600&family=Roboto:wght@300;400;500;700&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Source+Sans+Pro:wght@300;400;600&family=Ubuntu:wght@300;400;500;700&family=Nunito:wght@300;400;600;700&family=Work+Sans:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Abril+Fatface&family=Bebas+Neue&family=Anton&family=Fjalla+One&family=Russo+One&family=Permanent+Marker&family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&family=Satisfy&family=Amatic+SC:wght@400;700&family=Indie+Flower&family=Shadows+Into+Light&family=Handlee&family=Architects+Daughter&family=Patrick+Hand&family=Kaushan+Script&family=Allura&family=Alex+Brush&family=Tangerine:wght@400;700&family=Sacramento&family=Pinyon+Script&family=Courgette&family=Parisienne&family=Yellowtail&family=Damion&family=Grand+Hotel&family=Allison&family=Style+Script&family=Euphoria+Script&family=Mr+De+Haviland&family=Clicker+Script&family=Herr+Von+Muellerhoff&family=Monsieur+La+Doulaise&family=Rouge+Script&family=Engagement&family=Marck+Script&family=Qwigley&family=Homemade+Apple&family=Covered+By+Your+Grace&family=Coming+Soon&family=Schoolbell&family=Reenie+Beanie&family=Just+Me+Again+Down+Here&family=Waiting+for+the+Sunrise&family=Nothing+You+Could+Do&family=Crafty+Girls&family=Rock+Salt&family=Special+Elite&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&family=Rajdhani:wght@300;400;600;700&family=Titillium+Web:wght@300;400;600;700&family=Play:wght@400;700&family=Audiowide&family=Electrolize&family=Michroma&family=Syncopate:wght@400;700&family=Aldrich&family=Jura:wght@300;400;600;700&family=Quicksand:wght@300;400;500;600;700&family=Varela+Round&family=Comfortaa:wght@300;400;700&family=Dosis:wght@300;400;600;700&family=Rubik:wght@300;400;500;600;700&family=Karla:wght@300;400;600;700&family=Hind:wght@300;400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&family=Oxygen:wght@300;400;700&family=Noto+Sans:wght@300;400;500;600;700&family=PT+Sans:wght@400;700&family=Muli:wght@300;400;600;700&family=Barlow:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;700&family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+  .ai-nameplate-container-{{ ai_gen_id }} {
+    display: flex;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-nameplate-controls-{{ ai_gen_id }} {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .ai-nameplate-preview-{{ ai_gen_id }} {
+    flex: 1;
+    position: relative;
+  }
+
+  .ai-nameplate-input-group-{{ ai_gen_id }} {
+    margin-bottom: 24px;
+  }
+
+  .ai-nameplate-label-{{ ai_gen_id }} {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    font-size: 16px;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.input_text_color }};
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+    box-shadow: 0 0 0 3px {{ block.settings.input_focus_color }}33;
+  }
+
+  .ai-nameplate-range-group-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+  }
+
+  .ai-nameplate-range-item-{{ ai_gen_id }} {
+    flex: 1;
+  }
+
+  .ai-nameplate-range-{{ ai_gen_id }} {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: {{ block.settings.input_border_color }};
+    outline: none;
+    appearance: none;
+  }
+
+  .ai-nameplate-range-{{ ai_gen_id }}::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: {{ block.settings.input_focus_color }};
+    cursor: pointer;
+  }
+
+  .ai-nameplate-range-{{ ai_gen_id }}::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: {{ block.settings.input_focus_color }};
+    cursor: pointer;
+    border: none;
+  }
+
+  .ai-nameplate-image-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-nameplate-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-nameplate-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 400px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-nameplate-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    opacity: 0.3;
+  }
+
+  .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: {{ block.settings.text_position_y }}%;
+    left: {{ block.settings.text_position_x }}%;
+    transform: translate(-50%, -50%);
+    font-family: {{ block.settings.nameplate_font.family }}, {{ block.settings.nameplate_font.fallback_families }};
+    font-weight: {{ block.settings.nameplate_font.weight }};
+    font-style: {{ block.settings.nameplate_font.style }};
+    font-size: {{ block.settings.font_size }}px;
+    color: {{ block.settings.font_color }};
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    line-height: 1.2;
+    pointer-events: none;
+    z-index: 2;
+    font-display: swap;
+    transition: all 0.3s ease;
+  }
+
+  .ai-nameplate-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-nameplate-container-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 24px;
+      padding: 20px;
+    }
+
+    .ai-nameplate-range-group-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.font_size }}px * 0.8);
+    }
+  }
+{% endstyle %}
+
+<nameplate-customizer-{{ ai_gen_id }}
+  class="ai-nameplate-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-controls-{{ ai_gen_id }}">
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <label for="nameplate-text-{{ ai_gen_id }}" class="ai-nameplate-label-{{ ai_gen_id }}">
+        {{ block.settings.input_label }}
+      </label>
+      <input
+        type="text"
+        id="nameplate-text-{{ ai_gen_id }}"
+        class="ai-nameplate-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        maxlength="50"
+      >
+    </div>
+
+    <div class="ai-nameplate-input-group-{{ ai_gen_id }}">
+      <label class="ai-nameplate-label-{{ ai_gen_id }}">Text position</label>
+      <div class="ai-nameplate-range-group-{{ ai_gen_id }}">
+        <div class="ai-nameplate-range-item-{{ ai_gen_id }}">
+          <label for="position-x-{{ ai_gen_id }}" class="ai-nameplate-label-{{ ai_gen_id }}" style="font-size: 14px; margin-bottom: 4px;">Horizontal</label>
+          <input
+            type="range"
+            id="position-x-{{ ai_gen_id }}"
+            class="ai-nameplate-range-{{ ai_gen_id }}"
+            min="10"
+            max="90"
+            value="{{ block.settings.text_position_x }}"
+            step="1"
+          >
+        </div>
+        <div class="ai-nameplate-range-item-{{ ai_gen_id }}">
+          <label for="position-y-{{ ai_gen_id }}" class="ai-nameplate-label-{{ ai_gen_id }}" style="font-size: 14px; margin-bottom: 4px;">Vertical</label>
+          <input
+            type="range"
+            id="position-y-{{ ai_gen_id }}"
+            class="ai-nameplate-range-{{ ai_gen_id }}"
+            min="10"
+            max="90"
+            value="{{ block.settings.text_position_y }}"
+            step="1"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-nameplate-preview-{{ ai_gen_id }}">
+    <div class="ai-nameplate-image-container-{{ ai_gen_id }}">
+      {% if block.settings.selected_product and block.settings.selected_product.featured_image %}
+        <img
+          src="{{ block.settings.selected_product.featured_image | image_url: width: 800 }}"
+          alt="{{ block.settings.selected_product.featured_image.alt | escape }}"
+          class="ai-nameplate-image-{{ ai_gen_id }}"
+          width="{{ block.settings.selected_product.featured_image.width }}"
+          height="{{ block.settings.selected_product.featured_image.height }}"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="ai-nameplate-image-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+          <div class="ai-nameplate-empty-state-{{ ai_gen_id }}">
+            Select a product to preview
+          </div>
+        </div>
+      {% endif %}
+      
+      <div class="ai-nameplate-text-overlay-{{ ai_gen_id }}" id="nameplate-overlay-{{ ai_gen_id }}">
+        {{ block.settings.preview_text }}
+      </div>
+    </div>
+  </div>
+</nameplate-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('#nameplate-text-{{ ai_gen_id }}');
+        this.overlay = this.querySelector('#nameplate-overlay-{{ ai_gen_id }}');
+        this.positionXSlider = this.querySelector('#position-x-{{ ai_gen_id }}');
+        this.positionYSlider = this.querySelector('#position-y-{{ ai_gen_id }}');
+        
+        if (this.input && this.overlay) {
+          this.input.addEventListener('input', (e) => {
+            const text = e.target.value.trim();
+            this.overlay.textContent = text || '{{ block.settings.preview_text }}';
+          });
+        }
+
+        if (this.positionXSlider && this.overlay) {
+          this.positionXSlider.addEventListener('input', (e) => {
+            this.overlay.style.left = e.target.value + '%';
+          });
+        }
+
+        if (this.positionYSlider && this.overlay) {
+          this.positionYSlider.addEventListener('input', (e) => {
+            this.overlay.style.top = e.target.value + '%';
+          });
+        }
+
+        this.ensureFontLoading();
+      }
+
+      ensureFontLoading() {
+        const overlay = this.overlay;
+        if (overlay && 'fonts' in document) {
+          const fontFamily = getComputedStyle(overlay).fontFamily;
+          document.fonts.ready.then(() => {
+            overlay.style.fontDisplay = 'swap';
+          });
+        }
+      }
+    }
+
+    customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Name plate customizer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product selection"
+    },
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Select product"
+    },
+    {
+      "type": "header",
+      "content": "Text settings"
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Enter your name"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Type your name here..."
+    },
+    {
+      "type": "text",
+      "id": "preview_text",
+      "label": "Default preview text",
+      "default": "Your Name"
+    },
+    {
+      "type": "font_picker",
+      "id": "nameplate_font",
+      "label": "Nameplate font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 20,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "label": "Font size",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "font_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Text position"
+    },
+    {
+      "type": "range",
+      "id": "text_position_x",
+      "min": 10,
+      "max": 90,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "text_position_y",
+      "min": 10,
+      "max": 90,
+      "step": 1,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Text shadow"
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_x",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow X offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_y",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow Y offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_blur",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_shadow_color",
+      "label": "Shadow color",
+      "default": "#00000050"
+    },
+    {
+      "type": "header",
+      "content": "Layout colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Label text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Input text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#007acc"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Name plate customizer"
+    }
+  ]
+}
 {% endschema %}
