@@ -809,6 +809,7 @@ updateVariantStatuses(){
       y: {{ block.settings.text1_y | default: 20 }},
       rot: {{ block.settings.text1_rotate | default: 0 }},
       curve: {{ block.settings.text1_curve | default: 0 }},
+      color: `{{ block.settings.text1_color | default: '#111111' }}`,
       origin: `{{ block.settings.text1_origin | default: 'center' }}`
     },
     t2: {
@@ -820,6 +821,7 @@ updateVariantStatuses(){
       y: {{ block.settings.text2_y | default: 80 }},
       rot: {{ block.settings.text2_rotate | default: 0 }},
       curve: {{ block.settings.text2_curve | default: 0 }},
+      color: `{{ block.settings.text2_color | default: '#111111' }}`,
       origin: `{{ block.settings.text2_origin | default: 'center' }}`
     }
   };
@@ -872,6 +874,7 @@ updateVariantStatuses(){
     unit.textEl.setAttribute('font-size', admin.size);
     unit.textEl.setAttribute('font-weight', admin.bold ? 700 : 400);
     unit.textEl.setAttribute('font-style', admin.italic ? 'italic' : 'normal');
+    unit.textEl.setAttribute('fill', admin.color);
     unit.g.setAttribute('transform', `rotate(${admin.rot} ${admin.x}% ${admin.y}%)`);
     unit.g.style.display = (text && text.trim()) ? 'block' : 'none';
   }
@@ -976,6 +979,7 @@ updateVariantStatuses(){
       { "value": "center", "label": "Center" },
       { "value": "right", "label": "Right" }
     ]},
+    { "type": "color", "id": "text1_color", "label": "Selected variant text", "default": "#ffffff" },
 
     { "type": "header", "content": "Text 2 (Admin settings)" },
     { "type": "text", "id": "text2_font", "label": "Font family (Google Fonts name)", "default": "Roboto" },
@@ -990,7 +994,8 @@ updateVariantStatuses(){
       { "value": "left", "label": "Left" },
       { "value": "center", "label": "Center" },
       { "value": "right", "label": "Right" }
-    ]}
+    ]},
+    { "type": "color", "id": "text2_color", "label": "Selected variant text", "default": "#ffffff" },
   ],
   "presets": [{ "name": "Custom product designer" }]
 }
