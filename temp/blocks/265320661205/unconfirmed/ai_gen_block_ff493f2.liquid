@@ -1,6 +1,728 @@
+{% doc %}
+  @prompt
+    a name plate section where user can see their name on the name plate (product first image will be used as name plate image layer) by typing using a text box in the left this, add option to select product in the customizer, cursive fonts not looks exact, font is working now, show font option with all atleast 100 nameplate used fonts in the customizer not to the user, most of the fonts under one category seems similar, all fonts of one category are same do not change the look
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-nameplate-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    padding: 40px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-nameplate-input-section-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-nameplate-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 10px;
+  }
+
+  .ai-nameplate-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+    margin-bottom: 20px;
+  }
+
+  .ai-nameplate-input-wrapper-{{ ai_gen_id }} {
+    position: relative;
+  }
+
+  .ai-nameplate-input-label-{{ ai_gen_id }} {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 8px;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.text_color }};
+    transition: border-color 0.3s ease;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-font-selector-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.text_color }};
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .ai-nameplate-font-selector-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-font-selector-{{ ai_gen_id }} optgroup {
+    font-weight: bold;
+    color: {{ block.settings.text_color }};
+    background-color: {{ block.settings.input_background_color }};
+  }
+
+  .ai-nameplate-font-selector-{{ ai_gen_id }} option {
+    padding: 8px;
+    color: {{ block.settings.text_color }};
+    background-color: {{ block.settings.input_background_color }};
+  }
+
+  .ai-nameplate-preview-section-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ai-nameplate-preview-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    border-radius: {{ block.settings.preview_border_radius }}px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-nameplate-preview-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-nameplate-preview-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-nameplate-preview-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-nameplate-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+  }
+
+  .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: {{ block.settings.nameplate_text_size }}px;
+    color: {{ block.settings.nameplate_text_color }};
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+    pointer-events: none;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    font-family: "Times New Roman", serif;
+  }
+
+  .ai-nameplate-preview-label-{{ ai_gen_id }} {
+    margin-top: 16px;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .ai-nameplate-product-info-{{ ai_gen_id }} {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-nameplate-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.nameplate_text_size }}px * 0.8);
+    }
+  }
+{% endstyle %}
+
+<nameplate-customizer-{{ ai_gen_id }}
+  class="ai-nameplate-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-input-section-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-nameplate-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    {% if block.settings.description != blank %}
+      <div class="ai-nameplate-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+    {% endif %}
+
+    {% if block.settings.selected_product != blank %}
+      <div class="ai-nameplate-input-wrapper-{{ ai_gen_id }}">
+        <label class="ai-nameplate-input-label-{{ ai_gen_id }}">
+          Selected Product
+        </label>
+        <div class="ai-nameplate-product-info-{{ ai_gen_id }}">
+          <strong>{{ block.settings.selected_product.title }}</strong><br>
+          {{ block.settings.selected_product.price | money }}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ai-nameplate-input-wrapper-{{ ai_gen_id }}">
+      <label for="nameplate-input-{{ ai_gen_id }}" class="ai-nameplate-input-label-{{ ai_gen_id }}">
+        {{ block.settings.input_label }}
+      </label>
+      <input
+        type="text"
+        id="nameplate-input-{{ ai_gen_id }}"
+        class="ai-nameplate-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        maxlength="{{ block.settings.max_characters }}"
+        autocomplete="off"
+      >
+    </div>
+
+    <div class="ai-nameplate-input-wrapper-{{ ai_gen_id }}">
+      <label for="font-selector-{{ ai_gen_id }}" class="ai-nameplate-input-label-{{ ai_gen_id }}">
+        Font Style
+      </label>
+      <select
+        id="font-selector-{{ ai_gen_id }}"
+        class="ai-nameplate-font-selector-{{ ai_gen_id }}"
+      >
+        <optgroup label="Elegant Script">
+          <option value="'Brush Script MT', cursive">Brush Script MT</option>
+          <option value="'Edwardian Script ITC', cursive">Edwardian Script</option>
+          <option value="'French Script MT', cursive">French Script</option>
+          <option value="'Kunstler Script', cursive">Kunstler Script</option>
+          <option value="'Vivaldi', cursive">Vivaldi</option>
+          <option value="'Vladimir Script', cursive">Vladimir Script</option>
+          <option value="'Monotype Corsiva', cursive">Monotype Corsiva</option>
+          <option value="'Palace Script MT', cursive">Palace Script</option>
+          <option value="'Rage Italic', cursive">Rage Italic</option>
+          <option value="'Snell Roundhand', cursive">Snell Roundhand</option>
+          <option value="'Zapfino', cursive">Zapfino</option>
+          <option value="'Lucida Handwriting', cursive">Lucida Handwriting</option>
+        </optgroup>
+
+        <optgroup label="Modern Calligraphy">
+          <option value="'Pacifico', cursive">Pacifico</option>
+          <option value="'Dancing Script', cursive">Dancing Script</option>
+          <option value="'Great Vibes', cursive">Great Vibes</option>
+          <option value="'Allura', cursive">Allura</option>
+          <option value="'Alex Brush', cursive">Alex Brush</option>
+          <option value="'Satisfy', cursive">Satisfy</option>
+          <option value="'Kaushan Script', cursive">Kaushan Script</option>
+          <option value="'Sacramento', cursive">Sacramento</option>
+          <option value="'Tangerine', cursive">Tangerine</option>
+          <option value="'Yellowtail', cursive">Yellowtail</option>
+          <option value="'Courgette', cursive">Courgette</option>
+          <option value="'Marck Script', cursive">Marck Script</option>
+        </optgroup>
+
+        <optgroup label="Classic Serif">
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="'Georgia', serif">Georgia</option>
+          <option value="'Garamond', serif">Garamond</option>
+          <option value="'Baskerville', serif">Baskerville</option>
+          <option value="'Caslon', serif">Caslon</option>
+          <option value="'Minion Pro', serif">Minion Pro</option>
+          <option value="'Trajan Pro', serif">Trajan Pro</option>
+          <option value="'Optima', serif">Optima</option>
+          <option value="'Palatino', serif">Palatino</option>
+          <option value="'Book Antiqua', serif">Book Antiqua</option>
+          <option value="'Centaur', serif">Centaur</option>
+          <option value="'Goudy Old Style', serif">Goudy Old Style</option>
+        </optgroup>
+
+        <optgroup label="Luxury Serif">
+          <option value="'Playfair Display', serif">Playfair Display</option>
+          <option value="'Crimson Text', serif">Crimson Text</option>
+          <option value="'Libre Baskerville', serif">Libre Baskerville</option>
+          <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+          <option value="'EB Garamond', serif">EB Garamond</option>
+          <option value="'Merriweather', serif">Merriweather</option>
+          <option value="'Lora', serif">Lora</option>
+          <option value="'Abril Fatface', serif">Abril Fatface</option>
+          <option value="'Cinzel', serif">Cinzel</option>
+          <option value="'Didot', serif">Didot</option>
+          <option value="'Bodoni', serif">Bodoni</option>
+          <option value="'Sabon', serif">Sabon</option>
+        </optgroup>
+
+        <optgroup label="Bold Display">
+          <option value="'Impact', sans-serif">Impact</option>
+          <option value="'Arial Black', sans-serif">Arial Black</option>
+          <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+          <option value="'Oswald', sans-serif">Oswald</option>
+          <option value="'Anton', sans-serif">Anton</option>
+          <option value="'Fjalla One', sans-serif">Fjalla One</option>
+          <option value="'Alfa Slab One', serif">Alfa Slab One</option>
+          <option value="'Black Ops One', sans-serif">Black Ops One</option>
+          <option value="'Righteous', sans-serif">Righteous</option>
+          <option value="'Russo One', sans-serif">Russo One</option>
+          <option value="'Squada One', sans-serif">Squada One</option>
+          <option value="'Teko', sans-serif">Teko</option>
+        </optgroup>
+
+        <optgroup label="Modern Sans">
+          <option value="'Helvetica', sans-serif">Helvetica</option>
+          <option value="'Futura', sans-serif">Futura</option>
+          <option value="'Avenir', sans-serif">Avenir</option>
+          <option value="'Gotham', sans-serif">Gotham</option>
+          <option value="'Proxima Nova', sans-serif">Proxima Nova</option>
+          <option value="'Montserrat', sans-serif">Montserrat</option>
+          <option value="'Open Sans', sans-serif">Open Sans</option>
+          <option value="'Lato', sans-serif">Lato</option>
+          <option value="'Roboto', sans-serif">Roboto</option>
+          <option value="'Source Sans Pro', sans-serif">Source Sans Pro</option>
+          <option value="'Poppins', sans-serif">Poppins</option>
+          <option value="'Raleway', sans-serif">Raleway</option>
+        </optgroup>
+
+        <optgroup label="Handwritten">
+          <option value="'Kalam', cursive">Kalam</option>
+          <option value="'Caveat', cursive">Caveat</option>
+          <option value="'Indie Flower', cursive">Indie Flower</option>
+          <option value="'Shadows Into Light', cursive">Shadows Into Light</option>
+          <option value="'Patrick Hand', cursive">Patrick Hand</option>
+          <option value="'Architects Daughter', cursive">Architects Daughter</option>
+          <option value="'Covered By Your Grace', cursive">Covered By Your Grace</option>
+          <option value="'Permanent Marker', cursive">Permanent Marker</option>
+          <option value="'Homemade Apple', cursive">Homemade Apple</option>
+          <option value="'Reenie Beanie', cursive">Reenie Beanie</option>
+          <option value="'Just Me Again Down Here', cursive">Just Me Again</option>
+          <option value="'Coming Soon', cursive">Coming Soon</option>
+        </optgroup>
+
+        <optgroup label="Vintage & Retro">
+          <option value="'Rockwell', serif">Rockwell</option>
+          <option value="'Courier New', monospace">Courier New</option>
+          <option value="'American Typewriter', serif">American Typewriter</option>
+          <option value="'Clarendon', serif">Clarendon</option>
+          <option value="'Cooper Black', serif">Cooper Black</option>
+          <option value="'Stencil', sans-serif">Stencil</option>
+          <option value="'League Gothic', sans-serif">League Gothic</option>
+          <option value="'Chunk Five', sans-serif">Chunk Five</option>
+          <option value="'Varsity', sans-serif">Varsity</option>
+          <option value="'Collegiate', sans-serif">Collegiate</option>
+          <option value="'Bebas', sans-serif">Bebas</option>
+          <option value="'Lobster', cursive">Lobster</option>
+        </optgroup>
+
+        <optgroup label="Decorative & Unique">
+          <option value="'Philosopher', sans-serif">Philosopher</option>
+          <option value="'Quicksand', sans-serif">Quicksand</option>
+          <option value="'Amatic SC', cursive">Amatic SC</option>
+          <option value="'Bangers', cursive">Bangers</option>
+          <option value="'Creepster', cursive">Creepster</option>
+          <option value="'Fredoka One', cursive">Fredoka One</option>
+          <option value="'Griffy', cursive">Griffy</option>
+          <option value="'Henny Penny', cursive">Henny Penny</option>
+          <option value="'Jokerman', cursive">Jokerman</option>
+          <option value="'Kimberly', cursive">Kimberly</option>
+          <option value="'Luckiest Guy', cursive">Luckiest Guy</option>
+          <option value="'Nosifer', cursive">Nosifer</option>
+        </optgroup>
+
+        <optgroup label="Monospace & Technical">
+          <option value="'Monaco', monospace">Monaco</option>
+          <option value="'Consolas', monospace">Consolas</option>
+          <option value="'Menlo', monospace">Menlo</option>
+          <option value="'Source Code Pro', monospace">Source Code Pro</option>
+          <option value="'Fira Code', monospace">Fira Code</option>
+          <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+          <option value="'Ubuntu Mono', monospace">Ubuntu Mono</option>
+          <option value="'Roboto Mono', monospace">Roboto Mono</option>
+          <option value="'Space Mono', monospace">Space Mono</option>
+          <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+          <option value="'Inconsolata', monospace">Inconsolata</option>
+          <option value="'Anonymous Pro', monospace">Anonymous Pro</option>
+        </optgroup>
+
+        <optgroup label="International & Cultural">
+          <option value="'Noto Sans', sans-serif">Noto Sans</option>
+          <option value="'Noto Serif', serif">Noto Serif</option>
+          <option value="'Droid Sans', sans-serif">Droid Sans</option>
+          <option value="'Droid Serif', serif">Droid Serif</option>
+          <option value="'PT Sans', sans-serif">PT Sans</option>
+          <option value="'PT Serif', serif">PT Serif</option>
+          <option value="'Ubuntu', sans-serif">Ubuntu</option>
+          <option value="'Fira Sans', sans-serif">Fira Sans</option>
+          <option value="'Oxygen', sans-serif">Oxygen</option>
+          <option value="'Nunito', sans-serif">Nunito</option>
+          <option value="'Work Sans', sans-serif">Work Sans</option>
+          <option value="'Inter', sans-serif">Inter</option>
+        </optgroup>
+      </select>
+    </div>
+  </div>
+
+  <div class="ai-nameplate-preview-section-{{ ai_gen_id }}">
+    <div class="ai-nameplate-preview-wrapper-{{ ai_gen_id }}">
+      {% assign display_product = block.settings.selected_product | default: product %}
+      
+      {% if display_product.featured_image %}
+        <img
+          src="{{ display_product.featured_image | image_url: width: 800 }}"
+          alt="{{ display_product.featured_image.alt | escape }}"
+          class="ai-nameplate-preview-image-{{ ai_gen_id }}"
+          width="{{ display_product.featured_image.width }}"
+          height="{{ display_product.featured_image.height }}"
+          loading="lazy"
+          id="preview-image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-nameplate-preview-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+          <div class="ai-nameplate-empty-state-{{ ai_gen_id }}">
+            {% if block.settings.selected_product == blank %}
+              Select a product to see preview
+            {% else %}
+              Add a product image to see preview
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div
+        class="ai-nameplate-text-overlay-{{ ai_gen_id }}"
+        id="nameplate-text-{{ ai_gen_id }}"
+      >
+        {{ block.settings.preview_text }}
+      </div>
+    </div>
+
+    <div class="ai-nameplate-preview-label-{{ ai_gen_id }}">
+      {{ block.settings.preview_label }}
+    </div>
+  </div>
+</nameplate-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('#nameplate-input-{{ ai_gen_id }}');
+        this.fontSelector = this.querySelector('#font-selector-{{ ai_gen_id }}');
+        this.textOverlay = this.querySelector('#nameplate-text-{{ ai_gen_id }}');
+        this.defaultText = '{{ block.settings.preview_text }}';
+
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        if (this.input && this.textOverlay) {
+          this.input.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            this.textOverlay.textContent = value || this.defaultText;
+          });
+
+          this.input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          });
+        }
+
+        if (this.fontSelector && this.textOverlay) {
+          this.fontSelector.addEventListener('change', (e) => {
+            const selectedFont = e.target.value;
+            this.textOverlay.style.fontFamily = selectedFont;
+          });
+        }
+      }
+    }
+
+    customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Name plate customizer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product selection"
+    },
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Select product"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Customize Your Name Plate"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Enter your name below to see how it will look on your personalized name plate."
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Your Name"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Enter your name here..."
+    },
+    {
+      "type": "text",
+      "id": "preview_text",
+      "label": "Default preview text",
+      "default": "YOUR NAME"
+    },
+    {
+      "type": "text",
+      "id": "preview_label",
+      "label": "Preview label",
+      "default": "Live Preview"
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "label": "Maximum characters",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Name plate text style"
+    },
+    {
+      "type": "range",
+      "id": "nameplate_text_size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "nameplate_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -2,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Text shadow"
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_x",
+      "min": -5,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow X offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_y",
+      "min": -5,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow Y offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_blur",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_shadow_color",
+      "label": "Shadow color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#e1e5e9"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#007bff"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "preview_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Preview border radius",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Name plate customizer"
+    }
+  ]
+}
 {% endschema %}
