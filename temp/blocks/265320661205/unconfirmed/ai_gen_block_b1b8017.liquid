@@ -1,6 +1,861 @@
+{% doc %}
+  @prompt
+    a name plate section where user can see their name on the name plate (product first image will be used as name plate image layer) by typing using a text box in the left this, add option to select product in the customizer, cursive fonts not looks exact, font is working now, show font option with all atleast 100 nameplate used fonts in the customizer not to the user, most of the fonts under one category seems similar, all fonts of one category are same do not change the look, move font selection to admin theme customizer and should have google fonts
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Pacifico&family=Satisfy&family=Kaushan+Script&family=Sacramento&family=Allura&family=Alex+Brush&family=Tangerine:wght@400;700&family=Yellowtail&family=Courgette&family=Marck+Script&family=Crimson+Text:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Cormorant+Garamond:wght@400;700&family=EB+Garamond:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;700&family=Abril+Fatface&family=Cinzel:wght@400;700&family=Bebas+Neue&family=Oswald:wght@400;700&family=Anton&family=Fjalla+One&family=Alfa+Slab+One&family=Black+Ops+One&family=Righteous&family=Russo+One&family=Squada+One&family=Teko:wght@400;700&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Roboto:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Kalam:wght@400;700&family=Caveat:wght@400;700&family=Indie+Flower&family=Shadows+Into+Light&family=Patrick+Hand&family=Architects+Daughter&family=Covered+By+Your+Grace&family=Permanent+Marker&family=Homemade+Apple&family=Reenie+Beanie&family=Coming+Soon&family=League+Gothic&family=Lobster&family=Philosopher:wght@400;700&family=Quicksand:wght@400;700&family=Amatic+SC:wght@400;700&family=Bangers&family=Fredoka+One&family=Luckiest+Guy&family=Source+Code+Pro:wght@400;700&family=Fira+Code:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Ubuntu+Mono:wght@400;700&family=Roboto+Mono:wght@400;700&family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Inconsolata:wght@400;700&family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&family=Ubuntu:wght@400;700&family=Fira+Sans:wght@400;700&family=Oxygen:wght@400;700&family=Nunito:wght@400;700&family=Work+Sans:wght@400;700&family=Inter:wght@400;700&display=swap');
+
+  .ai-nameplate-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    padding: 40px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-nameplate-input-section-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-nameplate-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 10px;
+  }
+
+  .ai-nameplate-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+    margin-bottom: 20px;
+  }
+
+  .ai-nameplate-input-wrapper-{{ ai_gen_id }} {
+    position: relative;
+  }
+
+  .ai-nameplate-input-label-{{ ai_gen_id }} {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 8px;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.text_color }};
+    transition: border-color 0.3s ease;
+  }
+
+  .ai-nameplate-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.input_focus_color }};
+  }
+
+  .ai-nameplate-preview-section-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ai-nameplate-preview-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    border-radius: {{ block.settings.preview_border_radius }}px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-nameplate-preview-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-nameplate-preview-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-nameplate-preview-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-nameplate-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+  }
+
+  .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: {{ block.settings.nameplate_text_size }}px;
+    color: {{ block.settings.nameplate_text_color }};
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+    pointer-events: none;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    font-family: {{ block.settings.nameplate_font }};
+    font-weight: {{ block.settings.font_weight }};
+  }
+
+  .ai-nameplate-preview-label-{{ ai_gen_id }} {
+    margin-top: 16px;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .ai-nameplate-product-info-{{ ai_gen_id }} {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-nameplate-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .ai-nameplate-text-overlay-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.nameplate_text_size }}px * 0.8);
+    }
+  }
+{% endstyle %}
+
+<nameplate-customizer-{{ ai_gen_id }}
+  class="ai-nameplate-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-nameplate-input-section-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-nameplate-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    {% if block.settings.description != blank %}
+      <div class="ai-nameplate-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+    {% endif %}
+
+    {% if block.settings.selected_product != blank %}
+      <div class="ai-nameplate-input-wrapper-{{ ai_gen_id }}">
+        <label class="ai-nameplate-input-label-{{ ai_gen_id }}">
+          Selected Product
+        </label>
+        <div class="ai-nameplate-product-info-{{ ai_gen_id }}">
+          <strong>{{ block.settings.selected_product.title }}</strong><br>
+          {{ block.settings.selected_product.price | money }}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ai-nameplate-input-wrapper-{{ ai_gen_id }}">
+      <label for="nameplate-input-{{ ai_gen_id }}" class="ai-nameplate-input-label-{{ ai_gen_id }}">
+        {{ block.settings.input_label }}
+      </label>
+      <input
+        type="text"
+        id="nameplate-input-{{ ai_gen_id }}"
+        class="ai-nameplate-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        maxlength="{{ block.settings.max_characters }}"
+        autocomplete="off"
+      >
+    </div>
+  </div>
+
+  <div class="ai-nameplate-preview-section-{{ ai_gen_id }}">
+    <div class="ai-nameplate-preview-wrapper-{{ ai_gen_id }}">
+      {% assign display_product = block.settings.selected_product | default: product %}
+      
+      {% if display_product.featured_image %}
+        <img
+          src="{{ display_product.featured_image | image_url: width: 800 }}"
+          alt="{{ display_product.featured_image.alt | escape }}"
+          class="ai-nameplate-preview-image-{{ ai_gen_id }}"
+          width="{{ display_product.featured_image.width }}"
+          height="{{ display_product.featured_image.height }}"
+          loading="lazy"
+          id="preview-image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-nameplate-preview-placeholder-{{ ai_gen_id }}">
+          {{ 'product-1' | placeholder_svg_tag }}
+          <div class="ai-nameplate-empty-state-{{ ai_gen_id }}">
+            {% if block.settings.selected_product == blank %}
+              Select a product to see preview
+            {% else %}
+              Add a product image to see preview
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div
+        class="ai-nameplate-text-overlay-{{ ai_gen_id }}"
+        id="nameplate-text-{{ ai_gen_id }}"
+      >
+        {{ block.settings.preview_text }}
+      </div>
+    </div>
+
+    <div class="ai-nameplate-preview-label-{{ ai_gen_id }}">
+      {{ block.settings.preview_label }}
+    </div>
+  </div>
+</nameplate-customizer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class NameplateCustomizer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('#nameplate-input-{{ ai_gen_id }}');
+        this.textOverlay = this.querySelector('#nameplate-text-{{ ai_gen_id }}');
+        this.defaultText = '{{ block.settings.preview_text }}';
+
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        if (this.input && this.textOverlay) {
+          this.input.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            this.textOverlay.textContent = value || this.defaultText;
+          });
+
+          this.input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          });
+        }
+      }
+    }
+
+    customElements.define('nameplate-customizer-{{ ai_gen_id }}', NameplateCustomizer{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Name plate customizer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product selection"
+    },
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Select product"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Customize Your Name Plate"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Enter your name below to see how it will look on your personalized name plate."
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Your Name"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Enter your name here..."
+    },
+    {
+      "type": "text",
+      "id": "preview_text",
+      "label": "Default preview text",
+      "default": "YOUR NAME"
+    },
+    {
+      "type": "text",
+      "id": "preview_label",
+      "label": "Preview label",
+      "default": "Live Preview"
+    },
+    {
+      "type": "range",
+      "id": "max_characters",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "label": "Maximum characters",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Name plate text style"
+    },
+    {
+      "type": "select",
+      "id": "nameplate_font",
+      "label": "Font family",
+      "options": [
+        {
+          "value": "'Playfair Display', serif",
+          "label": "Playfair Display (Elegant Serif)"
+        },
+        {
+          "value": "'Dancing Script', cursive",
+          "label": "Dancing Script (Modern Script)"
+        },
+        {
+          "value": "'Great Vibes', cursive",
+          "label": "Great Vibes (Elegant Script)"
+        },
+        {
+          "value": "'Pacifico', cursive",
+          "label": "Pacifico (Casual Script)"
+        },
+        {
+          "value": "'Satisfy', cursive",
+          "label": "Satisfy (Handwritten)"
+        },
+        {
+          "value": "'Kaushan Script', cursive",
+          "label": "Kaushan Script (Bold Script)"
+        },
+        {
+          "value": "'Sacramento', cursive",
+          "label": "Sacramento (Elegant Script)"
+        },
+        {
+          "value": "'Allura', cursive",
+          "label": "Allura (Formal Script)"
+        },
+        {
+          "value": "'Alex Brush', cursive",
+          "label": "Alex Brush (Brush Script)"
+        },
+        {
+          "value": "'Tangerine', cursive",
+          "label": "Tangerine (Decorative Script)"
+        },
+        {
+          "value": "'Yellowtail', cursive",
+          "label": "Yellowtail (Retro Script)"
+        },
+        {
+          "value": "'Courgette', cursive",
+          "label": "Courgette (Casual Script)"
+        },
+        {
+          "value": "'Marck Script', cursive",
+          "label": "Marck Script (Marker Style)"
+        },
+        {
+          "value": "'Crimson Text', serif",
+          "label": "Crimson Text (Classic Serif)"
+        },
+        {
+          "value": "'Libre Baskerville', serif",
+          "label": "Libre Baskerville (Traditional)"
+        },
+        {
+          "value": "'Cormorant Garamond', serif",
+          "label": "Cormorant Garamond (Luxury)"
+        },
+        {
+          "value": "'EB Garamond', serif",
+          "label": "EB Garamond (Classic)"
+        },
+        {
+          "value": "'Merriweather', serif",
+          "label": "Merriweather (Readable Serif)"
+        },
+        {
+          "value": "'Lora', serif",
+          "label": "Lora (Modern Serif)"
+        },
+        {
+          "value": "'Abril Fatface', serif",
+          "label": "Abril Fatface (Display Serif)"
+        },
+        {
+          "value": "'Cinzel', serif",
+          "label": "Cinzel (Roman Style)"
+        },
+        {
+          "value": "'Bebas Neue', sans-serif",
+          "label": "Bebas Neue (Bold Sans)"
+        },
+        {
+          "value": "'Oswald', sans-serif",
+          "label": "Oswald (Condensed Sans)"
+        },
+        {
+          "value": "'Anton', sans-serif",
+          "label": "Anton (Heavy Sans)"
+        },
+        {
+          "value": "'Fjalla One', sans-serif",
+          "label": "Fjalla One (Nordic Sans)"
+        },
+        {
+          "value": "'Alfa Slab One', serif",
+          "label": "Alfa Slab One (Bold Slab)"
+        },
+        {
+          "value": "'Black Ops One', sans-serif",
+          "label": "Black Ops One (Military Style)"
+        },
+        {
+          "value": "'Righteous', sans-serif",
+          "label": "Righteous (Retro Sans)"
+        },
+        {
+          "value": "'Russo One', sans-serif",
+          "label": "Russo One (Bold Display)"
+        },
+        {
+          "value": "'Squada One', sans-serif",
+          "label": "Squada One (Geometric)"
+        },
+        {
+          "value": "'Teko', sans-serif",
+          "label": "Teko (Condensed)"
+        },
+        {
+          "value": "'Montserrat', sans-serif",
+          "label": "Montserrat (Modern Sans)"
+        },
+        {
+          "value": "'Open Sans', sans-serif",
+          "label": "Open Sans (Clean Sans)"
+        },
+        {
+          "value": "'Lato', sans-serif",
+          "label": "Lato (Friendly Sans)"
+        },
+        {
+          "value": "'Roboto', sans-serif",
+          "label": "Roboto (Tech Sans)"
+        },
+        {
+          "value": "'Source Sans Pro', sans-serif",
+          "label": "Source Sans Pro (Professional)"
+        },
+        {
+          "value": "'Poppins', sans-serif",
+          "label": "Poppins (Rounded Sans)"
+        },
+        {
+          "value": "'Raleway', sans-serif",
+          "label": "Raleway (Elegant Sans)"
+        },
+        {
+          "value": "'Kalam', cursive",
+          "label": "Kalam (Handwritten)"
+        },
+        {
+          "value": "'Caveat', cursive",
+          "label": "Caveat (Casual Handwriting)"
+        },
+        {
+          "value": "'Indie Flower', cursive",
+          "label": "Indie Flower (Quirky Handwriting)"
+        },
+        {
+          "value": "'Shadows Into Light', cursive",
+          "label": "Shadows Into Light (Marker)"
+        },
+        {
+          "value": "'Patrick Hand', cursive",
+          "label": "Patrick Hand (Natural Handwriting)"
+        },
+        {
+          "value": "'Architects Daughter', cursive",
+          "label": "Architects Daughter (Architect Style)"
+        },
+        {
+          "value": "'Covered By Your Grace', cursive",
+          "label": "Covered By Your Grace (Casual)"
+        },
+        {
+          "value": "'Permanent Marker', cursive",
+          "label": "Permanent Marker (Bold Marker)"
+        },
+        {
+          "value": "'Homemade Apple', cursive",
+          "label": "Homemade Apple (Rough Handwriting)"
+        },
+        {
+          "value": "'Reenie Beanie', cursive",
+          "label": "Reenie Beanie (Notebook Style)"
+        },
+        {
+          "value": "'Coming Soon', cursive",
+          "label": "Coming Soon (Playful)"
+        },
+        {
+          "value": "'League Gothic', sans-serif",
+          "label": "League Gothic (Vintage Sans)"
+        },
+        {
+          "value": "'Lobster', cursive",
+          "label": "Lobster (Retro Script)"
+        },
+        {
+          "value": "'Philosopher', sans-serif",
+          "label": "Philosopher (Intellectual)"
+        },
+        {
+          "value": "'Quicksand', sans-serif",
+          "label": "Quicksand (Friendly Rounded)"
+        },
+        {
+          "value": "'Amatic SC', cursive",
+          "label": "Amatic SC (Hand Drawn)"
+        },
+        {
+          "value": "'Bangers', cursive",
+          "label": "Bangers (Comic Style)"
+        },
+        {
+          "value": "'Fredoka One', cursive",
+          "label": "Fredoka One (Playful Bold)"
+        },
+        {
+          "value": "'Luckiest Guy', cursive",
+          "label": "Luckiest Guy (Vintage Display)"
+        },
+        {
+          "value": "'Source Code Pro', monospace",
+          "label": "Source Code Pro (Code Style)"
+        },
+        {
+          "value": "'Fira Code', monospace",
+          "label": "Fira Code (Programming)"
+        },
+        {
+          "value": "'JetBrains Mono', monospace",
+          "label": "JetBrains Mono (Developer)"
+        },
+        {
+          "value": "'Ubuntu Mono', monospace",
+          "label": "Ubuntu Mono (Tech Mono)"
+        },
+        {
+          "value": "'Roboto Mono', monospace",
+          "label": "Roboto Mono (Modern Mono)"
+        },
+        {
+          "value": "'Space Mono', monospace",
+          "label": "Space Mono (Futuristic)"
+        },
+        {
+          "value": "'IBM Plex Mono', monospace",
+          "label": "IBM Plex Mono (Corporate)"
+        },
+        {
+          "value": "'Inconsolata', monospace",
+          "label": "Inconsolata (Terminal Style)"
+        },
+        {
+          "value": "'Noto Sans', sans-serif",
+          "label": "Noto Sans (Universal Sans)"
+        },
+        {
+          "value": "'Noto Serif', serif",
+          "label": "Noto Serif (Universal Serif)"
+        },
+        {
+          "value": "'PT Sans', sans-serif",
+          "label": "PT Sans (Russian Style)"
+        },
+        {
+          "value": "'PT Serif', serif",
+          "label": "PT Serif (Traditional)"
+        },
+        {
+          "value": "'Ubuntu', sans-serif",
+          "label": "Ubuntu (Humanist Sans)"
+        },
+        {
+          "value": "'Fira Sans', sans-serif",
+          "label": "Fira Sans (Mozilla Sans)"
+        },
+        {
+          "value": "'Oxygen', sans-serif",
+          "label": "Oxygen (Clean Sans)"
+        },
+        {
+          "value": "'Nunito', sans-serif",
+          "label": "Nunito (Rounded Sans)"
+        },
+        {
+          "value": "'Work Sans', sans-serif",
+          "label": "Work Sans (Optimized Sans)"
+        },
+        {
+          "value": "'Inter', sans-serif",
+          "label": "Inter (UI Sans)"
+        },
+        {
+          "value": "'Times New Roman', serif",
+          "label": "Times New Roman (Classic)"
+        },
+        {
+          "value": "'Georgia', serif",
+          "label": "Georgia (Web Serif)"
+        },
+        {
+          "value": "'Arial', sans-serif",
+          "label": "Arial (Standard Sans)"
+        },
+        {
+          "value": "'Helvetica', sans-serif",
+          "label": "Helvetica (Swiss Sans)"
+        },
+        {
+          "value": "'Courier New', monospace",
+          "label": "Courier New (Typewriter)"
+        }
+      ],
+      "default": "'Playfair Display', serif"
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "nameplate_text_size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "nameplate_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -2,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Text shadow"
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_x",
+      "min": -5,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow X offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_y",
+      "min": -5,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow Y offset",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_blur",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_shadow_color",
+      "label": "Shadow color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#e1e5e9"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input focus color",
+      "default": "#007bff"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "preview_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Preview border radius",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Name plate customizer"
+    }
+  ]
+}
 {% endschema %}
