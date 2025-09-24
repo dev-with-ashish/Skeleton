@@ -12,9 +12,80 @@
     "main": {
       "type": "product",
       "settings": {}
+    },
+    "custom_section_XbbKQp": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_11018a3_JqnJwx": {
+          "type": "ai_gen_block_11018a3",
+          "name": "Name plate customizer",
+          "settings": {
+            "selected_product": "nameplate",
+            "input_label_1": "Enter first line",
+            "input_placeholder_1": "First line text...",
+            "preview_text_1": "Your Name",
+            "nameplate_font": "sans_serif_n4",
+            "font_size": 48,
+            "font_color": "#000000",
+            "letter_spacing": 2,
+            "text_shadow_x": 2,
+            "text_shadow_y": 2,
+            "text_shadow_blur": 4,
+            "text_shadow_color": "#00000050",
+            "input_label_2": "Enter second line",
+            "input_placeholder_2": "Second line text...",
+            "preview_text_2": "Title",
+            "nameplate_font_2": "sans_serif_n4",
+            "font_size_2": 32,
+            "font_color_2": "#666666",
+            "letter_spacing_2": 1,
+            "text_shadow_x_2": 1,
+            "text_shadow_y_2": 1,
+            "text_shadow_blur_2": 2,
+            "text_shadow_color_2": "#00000030",
+            "text_position_x": 50,
+            "text_position_y": 50,
+            "line_spacing": 8,
+            "variant_bg_color": "#ffffff",
+            "variant_text_color": "#333333",
+            "variant_border_color": "#cccccc",
+            "variant_hover_bg_color": "#f5f5f5",
+            "variant_hover_text_color": "#000000",
+            "variant_hover_border_color": "#999999",
+            "variant_selected_bg_color": "#007acc",
+            "variant_selected_text_color": "#ffffff",
+            "variant_selected_border_color": "#007acc",
+            "background_color": "#ffffff",
+            "text_color": "#333333",
+            "price_color": "#007acc",
+            "border_color": "#e5e5e5",
+            "input_background_color": "#ffffff",
+            "input_text_color": "#333333",
+            "input_border_color": "#cccccc",
+            "input_focus_color": "#007acc"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_11018a3_JqnJwx"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 40,
+        "padding_bottom": 40,
+        "padding_left": 40,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "custom_section_XbbKQp"
   ]
 }

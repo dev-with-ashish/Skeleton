@@ -76,10 +76,91 @@
         "margin_bottom": 0,
         "margin_left": 0
       }
+    },
+    "custom_section_KxEUN8": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_4495281_kCUy3M": {
+          "type": "ai_gen_block_4495281",
+          "settings": {
+            "product": "nameplate",
+            "title": "Choose Your Options",
+            "description": "Select from available product options below",
+            "add_to_cart_text": "Add to Cart",
+            "show_text_inputs": true,
+            "text_inputs_title": "Customize Your Text",
+            "text_1_label": "First line text",
+            "text_1_placeholder": "Enter your name",
+            "text_1_max_length": 20,
+            "text_2_label": "Second line text",
+            "text_2_placeholder": "Enter title",
+            "text_2_max_length": 20,
+            "text_1_font": "sans_serif_n4",
+            "text_1_size": 18,
+            "text_1_color": "#ffffff",
+            "text_1_x": 50,
+            "text_1_y": 25,
+            "text_2_font": "sans_serif_n4",
+            "text_2_size": 16,
+            "text_2_color": "#ffffff",
+            "text_2_x": 50,
+            "text_2_y": 75,
+            "background_color": "#ffffff",
+            "text_color": "#333333",
+            "price_color": "#000000",
+            "variant_background_color": "#ffffff",
+            "variant_text_color": "#333333",
+            "variant_border_color": "#e0e0e0",
+            "variant_hover_background_color": "#f8f8f8",
+            "variant_hover_text_color": "#333333",
+            "variant_hover_border_color": "#cccccc",
+            "variant_selected_background_color": "#007acc",
+            "variant_selected_text_color": "#ffffff",
+            "variant_selected_border_color": "#005a99",
+            "button_color": "#007acc",
+            "button_text_color": "#ffffff",
+            "button_hover_color": "#005a99",
+            "title_size": 32,
+            "description_size": 16,
+            "product_title_size": 24,
+            "price_size": 20,
+            "option_label_size": 16,
+            "variant_text_size": 14,
+            "button_text_size": 16,
+            "section_padding": 32,
+            "border_radius": 8,
+            "image_border_radius": 8,
+            "variant_border_radius": 6,
+            "button_border_radius": 6,
+            "button_min_height": 70,
+            "row_gap": 20,
+            "option_gap": 12,
+            "button_padding_vertical": 12,
+            "button_padding_horizontal": 16
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_4495281_kCUy3M"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 40,
+        "padding_bottom": 40,
+        "padding_left": 40,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
     }
   },
   "order": [
     "header_qg9GTT",
-    "custom_section_3J3QwK"
+    "custom_section_3J3QwK",
+    "custom_section_KxEUN8"
   ]
 }
