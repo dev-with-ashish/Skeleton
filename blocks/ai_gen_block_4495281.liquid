@@ -1,11 +1,9 @@
 {% doc %}
   @prompt
-    Customizable product section with masked user image, admin overlay, variants as buttons (original logic), three admin-styled text layers (Text1/2/3) rendered on SVG, drag/resize/pinch of user image, line item properties for image + texts, Add to Cart always allowed, admin toggle to enable/disable user image layer, alignment controls for Text1/2/3 (Left/Center/Right). When user image layer is disabled, duplicate the overlay image into the user layer automatically and disable all user image interactions.
+    Customizable product section with masked user image, admin overlay, variants as buttons (original logic), three admin-styled text layers (Text1/2/3) rendered as HTML text boxes (no SVG), drag/resize/pinch of user image, line item properties for image + texts, Add to Cart always allowed, admin toggle to enable/disable user image layer, alignment controls for Text1/2/3 (Left/Center/Right). When user image layer is disabled, duplicate the overlay image into the user layer automatically and disable all user image interactions. Text boxes are clipped to the shape mask and responsive to canvas width.
 {% enddoc %}
 
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
-
-
 
 {%- assign context_product = product | default: block.settings.product -%}
 {%- assign cd = context_product.metafields.custom -%}
@@ -30,12 +28,6 @@
 {%- assign _t3_font = cd.text3_font | default: block.settings.text3_font | default: _t1_font -%}
 
 {%- comment -%}
-Context product:
-- On product page, use `product`.
-- Elsewhere (home/collection/custom), fall back to block setting.
-{%- endcomment -%}
-
-{%- comment -%}
 Auto-source product images from context_product:
 - shape_media: first image
 - overlay_media: second image
@@ -57,7 +49,6 @@ Auto-source product images from context_product:
 {%- if overlay_image_url_500 or block.settings.overlay_image -%}
   {%- assign has_overlay_image = true -%}
 {%- endif -%}
-
 
 {% style %}
   .ai-custom-product-{{ ai_gen_id }} {
@@ -202,11 +193,25 @@ Auto-source product images from context_product:
 
   .ai-custom-product-form-{{ ai_gen_id }}{ display:none; }
 
-  /* TEXT LAYER (above admin overlay, below shape) */
-  .ai-custom-product-text-layer-{{ ai_gen_id }}{
-    position:absolute; top:0; left:0; width:100%; height:100%; z-index:3; pointer-events:none;
+  /* ===== HTML TEXTBOX LAYER (replaces SVG) ===== */
+  .ai-textbox-layer-{{ ai_gen_id }}{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    {% if shape_image_url_500 or block.settings.shape_image %}
+      {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}'); mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-size:contain; mask-size:contain;
+      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+      -webkit-mask-position:center; mask-position:center;
+    {% endif %}
   }
-  .ai-text-svg-{{ ai_gen_id }}{ width:100%; height:100%; }
+  .ai-textbox-{{ ai_gen_id }}{
+    position:absolute;
+    white-space:normal; word-wrap:break-word; overflow:hidden;
+    line-height:1.2; pointer-events:none;
+  }
+  .ai-align-left-{{ ai_gen_id }}  { text-align:left;  transform-origin:top left; }
+  .ai-align-center-{{ ai_gen_id }}{ text-align:center; transform-origin:top center; }
+  .ai-align-right-{{ ai_gen_id }} { text-align:right; transform-origin:top right; }
 
   @media screen and (max-width: 768px) {
     .ai-custom-product-container-{{ ai_gen_id }} { grid-template-columns:1fr; gap:24px; }
@@ -227,17 +232,16 @@ Auto-source product images from context_product:
 >
   <div class="ai-custom-product-container-{{ ai_gen_id }}">
     <div class="ai-custom-product-preview-{{ ai_gen_id }}">
-      <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }} {% unless userImageEnabled %}ai-user-disabled-{{ ai_gen_id }}{% endunless %}">        <!-- USER LAYER: always present -->
+      <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }} {% unless userImageEnabled %}ai-user-disabled-{{ ai_gen_id }}{% endunless %}">
+
+        <!-- USER LAYER -->
         <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="ai-user-layer-{{ ai_gen_id }}">
           {% if userImageEnabled %}
             <div class="ai-custom-product-placeholder-{{ ai_gen_id }}">
               {{ 'image' | placeholder_svg_tag }}
               <span>{{ block.settings.placeholder_text }}</span>
             </div>
-          {% else %}
-            <!-- Upload disabled: auto-filled with overlay image via JS -->
           {% endif %}
-
         </div>
 
         {% if overlayEnabled and has_overlay_image %}
@@ -250,9 +254,11 @@ Auto-source product images from context_product:
           </div>
         {% endif %}
 
-        <!-- USER TEXT LAYER SVG (Text1, Text2, Text3) -->
-        <div class="ai-custom-product-text-layer-{{ ai_gen_id }}" id="ai-text-layer-{{ ai_gen_id }}">
-          <svg class="ai-text-svg-{{ ai_gen_id }}" id="ai-text-svg-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg"></svg>
+        <!-- HTML TEXTBOX LAYER (Text1/2/3) -->
+        <div class="ai-textbox-layer-{{ ai_gen_id }}" id="ai-textbox-layer-{{ ai_gen_id }}">
+          {% if t1Enabled %}<div id="ai-t1-box-{{ ai_gen_id }}" class="ai-textbox-{{ ai_gen_id }}"></div>{% endif %}
+          {% if t2Enabled %}<div id="ai-t2-box-{{ ai_gen_id }}" class="ai-textbox-{{ ai_gen_id }}"></div>{% endif %}
+          {% if t3Enabled %}<div id="ai-t3-box-{{ ai_gen_id }}" class="ai-textbox-{{ ai_gen_id }}"></div>{% endif %}
         </div>
 
         {% if shape_image_url_500 or block.settings.shape_image %}
@@ -287,7 +293,6 @@ Auto-source product images from context_product:
           </div>
 
           {% if context_product.variants.size > 1 %}
-            <!-- ORIGINAL variant radios -->
             <variant-radios
               class="ai-custom-product-variant-selector-{{ ai_gen_id }}"
               data-section="{{ section.id }}"
@@ -387,7 +392,6 @@ Auto-source product images from context_product:
         {% endif %}
 
         {% if context_product %}
-          <!-- Always enabled -->
           <button type="button" id="ai-add-to-cart-{{ ai_gen_id }}" class="ai-custom-product-add-to-cart-{{ ai_gen_id }}">
             {{ block.settings.cart_button_text }}
           </button>
@@ -406,15 +410,9 @@ Auto-source product images from context_product:
       <input type="hidden" name="properties[Image Position]" id="ai-image-position-{{ ai_gen_id }}">
       <input type="hidden" name="properties[Image Scale]" id="ai-image-scale-{{ ai_gen_id }}">
 
-      {% if t1Enabled %}
-        <input type="hidden" name="properties[Text1]" id="ai-li-text1-content-{{ ai_gen_id }}">
-      {% endif %}
-      {% if t2Enabled %}
-        <input type="hidden" name="properties[Text2]" id="ai-li-text2-content-{{ ai_gen_id }}">
-      {% endif %}
-      {% if t3Enabled %}
-        <input type="hidden" name="properties[Text3]" id="ai-li-text3-content-{{ ai_gen_id }}">
-      {% endif %}
+      {% if t1Enabled %}<input type="hidden" name="properties[Text1]" id="ai-li-text1-content-{{ ai_gen_id }}">{% endif %}
+      {% if t2Enabled %}<input type="hidden" name="properties[Text2]" id="ai-li-text2-content-{{ ai_gen_id }}">{% endif %}
+      {% if t3Enabled %}<input type="hidden" name="properties[Text3]" id="ai-li-text3-content-{{ ai_gen_id }}">{% endif %}
     </form>
   {% endif %}
 </product-customizer-{{ ai_gen_id }}>
@@ -471,9 +469,8 @@ Auto-source product images from context_product:
         this.liText3 = document.getElementById('ai-li-text3-content-{{ ai_gen_id }}');
 
         this.setupEventListeners();
-        if (this.addToCartButton) this.addToCartButton.disabled = false; // always enabled
+        if (this.addToCartButton) this.addToCartButton.disabled = false;
 
-        // If user upload is disabled, auto-use overlay image as the "user" image and disable interactions
         if (!this.userUploadEnabled && this.overlayImgEl && this.overlayImgEl.src) {
           this.bootstrapOverlayAsUser(this.overlayImgEl.src);
         }
@@ -490,7 +487,6 @@ Auto-source product images from context_product:
           this.addToCartButton.addEventListener('click', (e) => { e.preventDefault(); this.addToCart(); });
         }
 
-        // Only attach interaction listeners if upload is enabled
         if (this.userUploadEnabled) {
           document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
           document.addEventListener('mouseup', () => this.endInteraction());
@@ -498,7 +494,6 @@ Auto-source product images from context_product:
           document.addEventListener('touchend', () => this.endInteraction());
         }
 
-        /* keep text content synced to hidden LIs */
         if (this.text1Input && this.liText1) this.text1Input.addEventListener('input', ()=>{ this.liText1.value = this.text1Input.value || ''; });
         if (this.text2Input && this.liText2) this.text2Input.addEventListener('input', ()=>{ this.liText2.value = this.text2Input.value || ''; });
         if (this.text3Input && this.liText3) this.text3Input.addEventListener('input', ()=>{ this.liText3.value = this.text3Input.value || ''; });
@@ -533,15 +528,12 @@ Auto-source product images from context_product:
           this.userImageFile = file;
           this.userImage = URL.createObjectURL(file);
 
-          // Render a non-interactive user image: full container, no handles, no drag
-          this.updatePreview(/*nonInteractive*/ true);
+          this.updatePreview(true);
           this.updateFormInputs();
 
-          // Hide the visual overlay layer to avoid double-rendering
           const overlayLayer = this.querySelector('#ai-overlay-layer-{{ ai_gen_id }}');
           if (overlayLayer) overlayLayer.style.display = 'none';
 
-          // Keep shape at configured opacity
           if (this.shapeLayer) {
             this.shapeLayer.style.opacity = '{{ block.settings.shape_overlay_opacity | divided_by: 100.0 }}';
           }
@@ -578,7 +570,6 @@ Auto-source product images from context_product:
         const img = document.createElement('img');
         img.src = this.userImage; img.className = 'ai-custom-product-user-image-{{ ai_gen_id }}';
 
-        // Only add handles & interaction if upload is enabled AND not forced nonInteractive
         if (this.userUploadEnabled && !nonInteractive) {
           const handles = document.createElement('div'); handles.className = 'ai-custom-product-resize-handles-{{ ai_gen_id }}';
           ['nw','ne','sw','se'].forEach(pos => {
@@ -596,14 +587,13 @@ Auto-source product images from context_product:
 
           wrapper.appendChild(img); wrapper.appendChild(handles);
         } else {
-          // Non-interactive: no handles, no pointer behaviour
           wrapper.style.cursor = 'default';
           wrapper.appendChild(img);
         }
 
         img.onload = () => {
           if (this.userUploadEnabled && !nonInteractive) { this.setDefaultImageSize(); }
-          else { this.fillContainer(); } // non-interactive: fill the mask cleanly
+          else { this.fillContainer(); }
         };
 
         container.appendChild(wrapper);
@@ -617,14 +607,6 @@ Auto-source product images from context_product:
         if (!this.userImageWrapper || !this.userLayer) return;
         const w = this.userLayer.offsetWidth, h = this.userLayer.offsetHeight;
         this.imageWidth = w; this.imageHeight = h; this.imageX = 0; this.imageY = 0;
-        this.updateImageTransform(); this.updateFormInputs();
-      }
-
-      fitImageToContainer() {
-        if (!this.userImageWrapper || !this.userLayer) return;
-        const w = this.userLayer.offsetWidth, h = this.userLayer.offsetHeight;
-        this.imageWidth = Math.min(w*0.6, 300); this.imageHeight = Math.min(h*0.6, 300);
-        this.imageX = (w - this.imageWidth)/2; this.imageY = (h - this.imageHeight)/2;
         this.updateImageTransform(); this.updateFormInputs();
       }
 
@@ -665,10 +647,7 @@ Auto-source product images from context_product:
         this.pinchStartDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 
         const rect = this.userLayer.getBoundingClientRect();
-        this.pinchCenter = {
-          x: ((t1.clientX + t2.clientX) / 2) - rect.left,
-          y: ((t1.clientY + t2.clientY) / 2) - rect.top
-        };
+        this.pinchCenter = { x: ((t1.clientX + t2.clientX) / 2) - rect.left, y: ((t1.clientY + t2.clientY) / 2) - rect.top };
       }
 
       pinchMove(t1, t2) {
@@ -765,7 +744,7 @@ Auto-source product images from context_product:
     }
     customElements.define('product-customizer-{{ ai_gen_id }}', ProductCustomizer{{ ai_gen_id }});
 
-    /* ===== VariantSelects/VariantRadios (ORIGINAL from your snippet) ===== */
+    /* ===== VariantSelects/VariantRadios (original) ===== */
     (function(){
       class VariantSelects{{ ai_gen_id }} extends HTMLElement {
         constructor(){
@@ -869,17 +848,15 @@ Auto-source product images from context_product:
   href="https://fonts.googleapis.com/css2?family={{ _t3_font | strip | replace: ' ', '+' }}:wght@400;700&display=swap">
 {% endif %}
 
-
 <script>
-/* === Admin-driven three-text renderer with Alignment (Left/Center/Right) === */
+/* === HTML Textbox renderer with Alignment + Responsive width === */
 (function(){
-  const svg = document.getElementById('ai-text-svg-{{ ai_gen_id }}');
-  if (!svg) return;
+  const layer = document.getElementById('ai-textbox-layer-{{ ai_gen_id }}');
+  if (!layer) return;
 
   const t1Enabled = {{ t1Enabled | json }};
   const t2Enabled = {{ t2Enabled | json }};
   const t3Enabled = {{ t3Enabled | json }};
-
 
   const t1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
   const t2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
@@ -889,122 +866,108 @@ Auto-source product images from context_product:
   const liT2 = document.getElementById('ai-li-text2-content-{{ ai_gen_id }}');
   const liT3 = document.getElementById('ai-li-text3-content-{{ ai_gen_id }}');
 
+  const elT1 = document.getElementById('ai-t1-box-{{ ai_gen_id }}');
+  const elT2 = document.getElementById('ai-t2-box-{{ ai_gen_id }}');
+  const elT3 = document.getElementById('ai-t3-box-{{ ai_gen_id }}');
+
+  // Global responsive knobs
+  const BASE_W = {{ block.settings.canvas_base_w | default: 500 }};
+  const MIN_W  = {{ block.settings.text_box_min | default: 160 }};
+  const MAX_W  = {{ block.settings.text_box_max | default: 480 }};
+
   const ADMIN = {
-  t1: {
-    enabled: {{ t1Enabled | json }},
-    font: `{{ cd.text1_font | default: block.settings.text1_font | default: 'Roboto' | escape }}`,
-    size: {{ cd.text1_size | default: block.settings.text1_size | default: 36 | json }},
-    bold: {{ block.settings.text1_bold | default: false | json }},
-    italic: {{ block.settings.text1_italic | default: false | json }},
-    x: {{ cd.text1_x | default: block.settings.text1_x | default: 50 | json }},
-    y: {{ cd.text1_y | default: block.settings.text1_y | default: 20 | json }},
-    rot: {{ cd.text1_rotate | default: block.settings.text1_rotate | default: 0 | json }},
-    curve: {{ cd.text1_curve | default: block.settings.text1_curve | default: 0 | json }},
-    origin: `{{ cd.text1_origin | default: block.settings.text1_origin | default: 'center' | escape }}`,
-    align:  `{{ cd.text1_align  | default: block.settings.text1_align  | default: 'center' | escape }}`,
-    color:  `{{ cd.text1_color  | default: block.settings.text1_color  | default: '#111111' | escape }}`
-  },
-  t2: {
-    enabled: {{ t2Enabled | json }},
-    font: `{{ cd.text2_font | default: block.settings.text2_font | default: 'Roboto' | escape }}`,
-    size: {{ cd.text2_size | default: block.settings.text2_size | default: 28 | json }},
-    bold: {{ block.settings.text2_bold | default: false | json }},
-    italic: {{ block.settings.text2_italic | default: false | json }},
-    x: {{ cd.text2_x | default: block.settings.text2_x | default: 50 | json }},
-    y: {{ cd.text2_y | default: block.settings.text2_y | default: 80 | json }},
-    rot: {{ cd.text2_rotate | default: block.settings.text2_rotate | default: 0 | json }},
-    curve: {{ cd.text2_curve | default: block.settings.text2_curve | default: 0 | json }},
-    origin: `{{ cd.text2_origin | default: block.settings.text2_origin | default: 'center' | escape }}`,
-    align:  `{{ cd.text2_align  | default: block.settings.text2_align  | default: 'center' | escape }}`,
-    color:  `{{ cd.text2_color  | default: block.settings.text2_color  | default: '#111111' | escape }}`
-  },
-  t3: {
-    enabled: {{ t3Enabled | json }},
-    font: `{{ cd.text3_font | default: block.settings.text3_font | default: 'Roboto' | escape }}`,
-    size: {{ cd.text3_size | default: block.settings.text3_size | default: 24 | json }},
-    bold: {{ block.settings.text3_bold | default: false | json }},
-    italic: {{ block.settings.text3_italic | default: false | json }},
-    x: {{ cd.text3_x | default: block.settings.text3_x | default: 50 | json }},
-    y: {{ cd.text3_y | default: block.settings.text3_y | default: 50 | json }},
-    rot: {{ cd.text3_rotate | default: block.settings.text3_rotate | default: 0 | json }},
-    curve: {{ cd.text3_curve | default: block.settings.text3_curve | default: 0 | json }},
-    origin: `{{ cd.text3_origin | default: block.settings.text3_origin | default: 'center' | escape }}`,
-    align:  `{{ cd.text3_align  | default: block.settings.text3_align  | default: 'center' | escape }}`,
-    color:  `{{ cd.text3_color  | default: block.settings.text3_color  | default: '#111111' | escape }}`
-  }
-};
+    t1: {
+      enabled: {{ t1Enabled | json }},
+      font: `{{ _t1_font | escape }}`,
+      size: {{ cd.text1_size | default: block.settings.text1_size | default: 36 | json }},
+      bold: {{ block.settings.text1_bold | default: false | json }},
+      italic: {{ block.settings.text1_italic | default: false | json }},
+      color: `{{ cd.text1_color | default: block.settings.text1_color | default: '#111111' | escape }}`,
+      x: {{ cd.text1_x | default: block.settings.text1_x | default: 50 | json }},
+      y: {{ cd.text1_y | default: block.settings.text1_y | default: 20 | json }},
+      rot: {{ cd.text1_rotate | default: block.settings.text1_rotate | default: 0 | json }},
+      align: `{{ cd.text1_align | default: block.settings.text1_align | default: 'center' | escape }}`,
+      width: {{ block.settings.text1_box_width | default: 300 | json }}
+    },
+    t2: {
+      enabled: {{ t2Enabled | json }},
+      font: `{{ _t2_font | escape }}`,
+      size: {{ cd.text2_size | default: block.settings.text2_size | default: 28 | json }},
+      bold: {{ block.settings.text2_bold | default: false | json }},
+      italic: {{ block.settings.text2_italic | default: false | json }},
+      color: `{{ cd.text2_color | default: block.settings.text2_color | default: '#111111' | escape }}`,
+      x: {{ cd.text2_x | default: block.settings.text2_x | default: 50 | json }},
+      y: {{ cd.text2_y | default: block.settings.text2_y | default: 80 | json }},
+      rot: {{ cd.text2_rotate | default: block.settings.text2_rotate | default: 0 | json }},
+      align: `{{ cd.text2_align | default: block.settings.text2_align | default: 'center' | escape }}`,
+      width: {{ block.settings.text2_box_width | default: 300 | json }}
+    },
+    t3: {
+      enabled: {{ t3Enabled | json }},
+      font: `{{ _t3_font | escape }}`,
+      size: {{ cd.text3_size | default: block.settings.text3_size | default: 24 | json }},
+      bold: {{ block.settings.text3_bold | default: false | json }},
+      italic: {{ block.settings.text3_italic | default: false | json }},
+      color: `{{ cd.text3_color | default: block.settings.text3_color | default: '#111111' | escape }}`,
+      x: {{ cd.text3_x | default: block.settings.text3_x | default: 50 | json }},
+      y: {{ cd.text3_y | default: block.settings.text3_y | default: 50 | json }},
+      rot: {{ cd.text3_rotate | default: block.settings.text3_rotate | default: 0 | json }},
+      align: `{{ cd.text3_align | default: block.settings.text3_align | default: 'center' | escape }}`,
+      width: {{ block.settings.text3_box_width | default: 260 | json }}
+    }
+  };
 
+  function applyBox(el, cfg, text){
+    if (!el || !cfg.enabled) { if (el) el.style.display='none'; return; }
+    const content = text || '';
+    el.style.display = content.trim() ? 'block' : 'none';
+    el.textContent = content;
 
-  function makeUnit(id){
-    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('id', `ai-${id}-path-{{ ai_gen_id }}`);
-    defs.appendChild(path);
+    // alignment class
+    el.classList.remove('ai-align-left-{{ ai_gen_id }}','ai-align-center-{{ ai_gen_id }}','ai-align-right-{{ ai_gen_id }}');
+    const alignClass = cfg.align === 'left' ? 'ai-align-left-{{ ai_gen_id }}' :
+                       (cfg.align === 'right' ? 'ai-align-right-{{ ai_gen_id }}' : 'ai-align-center-{{ ai_gen_id }}');
+    el.classList.add(alignClass);
 
-    const textEl = document.createElementNS('http://www.w3.org/2000/svg','text');
-    const textPath = document.createElementNS('http://www.w3.org/2000/svg','textPath');
-    textPath.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href', `#ai-${id}-path-{{ ai_gen_id }}`);
-    textEl.appendChild(textPath);
+    // responsive width
+    const w = layer.clientWidth || BASE_W;
+    const h = layer.clientHeight || BASE_W;
+    const SCALE = w / BASE_W;
+    const base = cfg.width;
+    const boxW = Math.max(MIN_W, Math.min(Math.round(base * SCALE), MAX_W));
+    el.style.width = `${boxW}px`;
 
-    svg.appendChild(defs);
-    svg.appendChild(g);
-    g.appendChild(textEl);
+    // place by alignment around anchor (%)
+    const px = (cfg.x/100) * w;
+    const py = (cfg.y/100) * h;
+    let left = px;
+    if (cfg.align === 'center') left = px - boxW/2;
+    if (cfg.align === 'right')  left = px - boxW;
 
-    return { g, path, textEl, textPath };
-  }
+    el.style.left = `${left}px`;
+    el.style.top  = `${py}px`;
 
-  const u1 = makeUnit('t1');
-  const u2 = makeUnit('t2');
-  const u3 = makeUnit('t3');
+    // style
+    el.style.fontFamily = `${cfg.font}, sans-serif`;
+    el.style.fontSize   = `${cfg.size}px`;
+    el.style.fontWeight = cfg.bold ? '700' : '400';
+    el.style.fontStyle  = cfg.italic ? 'italic' : 'normal';
+    el.style.color      = cfg.color;
 
-  function pathFor(admin){
-    const w = svg.clientWidth || 500, h = svg.clientHeight || 500;
-    const cx = admin.x/100 * w, cy = admin.y/100 * h;
-    if (admin.curve === 0) return `M ${cx-200} ${cy} L ${cx+200} ${cy}`;
-    const r = Math.max(50, 1000 - Math.abs(admin.curve)*5);
-    const span = Math.PI/2 * (Math.min(1, Math.abs(admin.curve)/90));
-    const a0 = Math.PI/2 - span, a1 = Math.PI/2 + span;
-    const sign = admin.curve >= 0 ? 1 : -1;
-    const x0 = cx + r*Math.cos(a0), y0 = cy + sign*r*Math.sin(a0);
-    const x1 = cx + r*Math.cos(a1), y1 = cy + sign*r*Math.sin(a1);
-    const largeArc = span > Math.PI/2 ? 1 : 0;
-    const sweep = (sign>0) ? 0 : 1;
-    return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 ${largeArc} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
-  }
-
-  function applyAdmin(unit, admin, text){
-    if (!admin.enabled) { unit.g.style.display = 'none'; return; }
-
-    unit.path.setAttribute('d', pathFor(admin));
-
-    // Alignment (Left/Center/Right)
-    const anchor = admin.align === 'left' ? 'start' : (admin.align === 'right' ? 'end' : 'middle');
-    unit.textPath.setAttribute('startOffset', anchor==='start' ? '0%' : (anchor==='end' ? '100%' : '50%'));
-    unit.textPath.setAttribute('text-anchor', anchor);
-
-    unit.textPath.textContent = text || '';
-    unit.textEl.setAttribute('font-family', `${admin.font}, sans-serif`);
-    unit.textEl.setAttribute('font-size', admin.size);
-    unit.textEl.setAttribute('font-weight', admin.bold ? 700 : 400);
-    unit.textEl.setAttribute('font-style', admin.italic ? 'italic' : 'normal');
-    unit.textEl.setAttribute('fill', admin.color);
-    // Rotate around percentage position
-    unit.g.setAttribute('transform', `rotate(${admin.rot} ${admin.x}% ${admin.y}%)`);
-
-    unit.g.style.display = (text && text.trim()) ? 'block' : 'none';
+    // rotation
+    el.style.transform = `rotate(${cfg.rot}deg)`;
   }
 
   function syncLI(){
-    if (liT1) liT1.value = t1Input?.value || '';
-    if (liT2) liT2.value = t2Input?.value || '';
-    if (liT3) liT3.value = t3Input?.value || '';
+    if (liT1 && t1Input) liT1.value = t1Input.value || '';
+    if (liT2 && t2Input) liT2.value = t2Input.value || '';
+    if (liT3 && t3Input) liT3.value = t3Input.value || '';
   }
 
   function render(){
-    applyAdmin(u1, ADMIN.t1, t1Input?.value || '');
-    applyAdmin(u2, ADMIN.t2, t2Input?.value || '');
-    applyAdmin(u3, ADMIN.t3, t3Input?.value || '');
+    applyBox(elT1, ADMIN.t1, t1Input?.value || '');
+    applyBox(elT2, ADMIN.t2, t2Input?.value || '');
+    applyBox(elT3, ADMIN.t3, t3Input?.value || '');
     syncLI();
   }
 
@@ -1014,6 +977,7 @@ Auto-source product images from context_product:
 
   render();
   window.addEventListener('resize', render);
+  if ('ResizeObserver' in window){ new ResizeObserver(()=>render()).observe(layer); }
 })();
 </script>
 
@@ -1086,14 +1050,8 @@ Auto-source product images from context_product:
     { "type": "range", "id": "text1_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
     { "type": "range", "id": "text1_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 20 },
     { "type": "range", "id": "text1_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
-    { "type": "range", "id": "text1_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
-    { "type": "select", "id": "text1_origin", "label": "Bend origin", "default": "center", "options": [
-      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
-    ]},
-    { "type": "select", "id": "text1_align", "label": "Alignment", "default": "center", "options": [
-      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
-    ]},
     { "type": "color", "id": "text1_color", "label": "Text 1 color", "default": "#111111" },
+    { "type": "range", "id": "text1_box_width", "min": 80, "max": 800, "step": 10, "unit": "px", "label": "Text 1 box width", "default": 300 },
 
     { "type": "header", "content": "Text 2 (Admin)" },
     { "type": "checkbox", "id": "enable_text2", "label": "Enable Text 2", "default": true },
@@ -1104,32 +1062,25 @@ Auto-source product images from context_product:
     { "type": "range", "id": "text2_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
     { "type": "range", "id": "text2_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 80 },
     { "type": "range", "id": "text2_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
-    { "type": "range", "id": "text2_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
-    { "type": "select", "id": "text2_origin", "label": "Bend origin", "default": "center", "options": [
-      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
-    ]},
-    { "type": "select", "id": "text2_align", "label": "Alignment", "default": "center", "options": [
-      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
-    ]},
     { "type": "color", "id": "text2_color", "label": "Text 2 color", "default": "#111111" },
+    { "type": "range", "id": "text2_box_width", "min": 80, "max": 800, "step": 10, "unit": "px", "label": "Text 2 box width", "default": 300 },
 
     { "type": "header", "content": "Text 3 (Admin)" },
     { "type": "checkbox", "id": "enable_text3", "label": "Enable Text 3", "default": true },
     { "type": "text", "id": "text3_font", "label": "Font family (Google Fonts)", "default": "Roboto" },
     { "type": "range", "id": "text3_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
-    { "type": "checkbox", "id": "text3_bold", "label": "Bold", "default": false },
     { "type": "checkbox", "id": "text3_italic", "label": "Italic", "default": false },
+    { "type": "checkbox", "id": "text3_bold", "label": "Bold", "default": false },
     { "type": "range", "id": "text3_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
     { "type": "range", "id": "text3_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 50 },
     { "type": "range", "id": "text3_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
-    { "type": "range", "id": "text3_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
-    { "type": "select", "id": "text3_origin", "label": "Bend origin", "default": "center", "options": [
-      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
-    ]},
-    { "type": "select", "id": "text3_align", "label": "Alignment", "default": "center", "options": [
-      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
-    ]},
-    { "type": "color", "id": "text3_color", "label": "Text 3 color", "default": "#111111" }
+    { "type": "color", "id": "text3_color", "label": "Text 3 color", "default": "#111111" },
+    { "type": "range", "id": "text3_box_width", "min": 80, "max": 800, "step": 10, "unit": "px", "label": "Text 3 box width", "default": 260 },
+
+    { "type": "header", "content": "Textbox Responsiveness" },
+    { "type": "range", "id": "canvas_base_w", "min": 320, "max": 1200, "step": 10, "unit": "px", "label": "Canvas base width (for scaling)", "default": 500 },
+    { "type": "range", "id": "text_box_min", "min": 80, "max": 360, "step": 10, "unit": "px", "label": "Textbox min width", "default": 160 },
+    { "type": "range", "id": "text_box_max", "min": 240, "max": 800, "step": 10, "unit": "px", "label": "Textbox max width", "default": 480 }
   ],
   "presets": [{ "name": "Custom product designer" }]
 }
