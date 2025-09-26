@@ -1,18 +1,39 @@
 {% doc %}
   @prompt
-    cutomizable product section with two layers one for admin to upload shape image and other for user to upload image add mask property to the user image layer so that that user image get the shape of the admin uploaded shape png file, apply shape image layer mask to the user uploaded image, apply shape image masking to the user image layer , everything fine just display selected product title description and prices (whcih updated with product variant price), variant should be in button style and make sure shape image opecity becomes 0 after user selected the image, unable to change variants fix that , unable to select a variant, keep everything as it is just change variant style make sure the user can select variant as it was when in list style, change variant style to button just change style of the variant, add an png overlay for the admin above the user image layer with the same masking feature, do not display selected shape template and overlay image in the website in the right panel, keep everything as it is now just make sure the the user uploaded Image gets stored and the URL is saved as a line item property.
-
-    This image should show up in the cart, order details, and admin panel, add drag and resize property to the user uploaded image constrained within the mask also make sure the image should always cover the masked area, add drag and resize property to the user uploaded image constrained within the mask, add drag and no limit resize property to the user uploaded image constrained within the shape mask, resize by holding the corner of the image feature , all property as it is now but by default the file should be covering the mask , all property as it is now but by default the file should be covering the mask
+    Customizable product section with masked user image, admin overlay, variants as buttons (original logic), three admin-styled text layers (Text1/2/3) rendered on SVG, drag/resize/pinch of user image, line item properties for image + texts, Add to Cart always allowed, admin toggle to enable/disable user image layer, alignment controls for Text1/2/3 (Left/Center/Right). When user image layer is disabled, duplicate the overlay image into the user layer automatically and disable all user image interactions.
 {% enddoc %}
 
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+
+
+{%- assign context_product = product | default: block.settings.product -%}
+{%- assign cd = context_product.metafields.custom -%}
+
+{%- assign t1Enabled = cd.enable_text1.value -%}
+{%- if t1Enabled == nil -%}{%- assign t1Enabled = block.settings.enable_text1 -%}{%- endif -%}
+
+{%- assign t2Enabled = cd.enable_text2.value -%}
+{%- if t2Enabled == nil -%}{%- assign t2Enabled = block.settings.enable_text2 -%}{%- endif -%}
+
+{%- assign t3Enabled = cd.enable_text3.value -%}
+{%- if t3Enabled == nil -%}{%- assign t3Enabled = block.settings.enable_text3 -%}{%- endif -%}
+
+{%- assign userImageEnabled = cd.enable_user_image.value -%}
+{%- if userImageEnabled == nil -%}{%- assign userImageEnabled = block.settings.enable_user_image -%}{%- endif -%}
+
+{%- assign overlayEnabled = cd.enable_overlay.value -%}
+{%- if overlayEnabled == nil -%}{%- assign overlayEnabled = true -%}{%- endif -%}
+
+{%- assign _t1_font = cd.text1_font | default: block.settings.text1_font | default: 'Roboto' -%}
+{%- assign _t2_font = cd.text2_font | default: block.settings.text2_font | default: _t1_font -%}
+{%- assign _t3_font = cd.text3_font | default: block.settings.text3_font | default: _t1_font -%}
 
 {%- comment -%}
 Context product:
 - On product page, use `product`.
 - Elsewhere (home/collection/custom), fall back to block setting.
 {%- endcomment -%}
-{% assign context_product = product | default: block.settings.product %}
 
 {%- comment -%}
 Auto-source product images from context_product:
@@ -31,6 +52,12 @@ Auto-source product images from context_product:
     {% assign overlay_image_url_500 = overlay_media | image_url: width: 500 %}
   {% endif %}
 {% endif %}
+
+{%- assign has_overlay_image = false -%}
+{%- if overlay_image_url_500 or block.settings.overlay_image -%}
+  {%- assign has_overlay_image = true -%}
+{%- endif -%}
+
 
 {% style %}
   .ai-custom-product-{{ ai_gen_id }} {
@@ -66,25 +93,22 @@ Auto-source product images from context_product:
 
   .ai-custom-product-shape-layer-{{ ai_gen_id }} {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 4;
-    pointer-events: none;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 4; pointer-events: none;
     transition: opacity 0.3s ease;
   }
   .ai-custom-product-shape-layer-{{ ai_gen_id }} img { width:100%; height:100%; object-fit:contain; }
 
   .ai-custom-product-overlay-layer-{{ ai_gen_id }} {
-    position: absolute; top:0; left:0; width:100%; height:100%; z-index:2; pointer-events:none;
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    z-index:2; pointer-events:none;
   }
   .ai-custom-product-overlay-layer-{{ ai_gen_id }} img {
     width:100%; height:100%; object-fit:contain;
     {% if shape_image_url_500 or block.settings.shape_image %}
       {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
-      -webkit-mask-image:url('{{ _shape_url_for_mask }}');
-      mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}'); mask-image:url('{{ _shape_url_for_mask }}');
       -webkit-mask-size:contain; mask-size:contain;
       -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
       -webkit-mask-position:center; mask-position:center;
@@ -93,11 +117,11 @@ Auto-source product images from context_product:
 
   /* USER IMAGE LAYER (masked) */
   .ai-custom-product-user-layer-{{ ai_gen_id }} {
-    position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; overflow:hidden;
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    z-index:1; overflow:hidden;
     {% if shape_image_url_500 or block.settings.shape_image %}
       {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
-      -webkit-mask-image:url('{{ _shape_url_for_mask }}');
-      mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}'); mask-image:url('{{ _shape_url_for_mask }}');
       -webkit-mask-size:contain; mask-size:contain;
       -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
       -webkit-mask-position:center; mask-position:center;
@@ -109,7 +133,7 @@ Auto-source product images from context_product:
   .ai-custom-product-user-image-wrapper-{{ ai_gen_id }}.dragging { outline:2px solid {{ block.settings.button_color }}; outline-offset:2px; }
   .ai-custom-product-user-image-{{ ai_gen_id }} { width:100%; height:100%; object-fit:cover; display:block; }
 
-  .ai-custom-product-resize-handles-{{ ai_gen_id }} { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity .3s ease; }
+  .ai-custom-product-resize-handles-{{ ai_gen_id }} { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .3s ease; }
   .ai-custom-product-user-image-wrapper-{{ ai_gen_id }}:hover .ai-custom-product-resize-handles-{{ ai_gen_id }} { opacity:1; }
   .ai-custom-product-resize-handle-{{ ai_gen_id }} { position:absolute; width:16px; height:16px; background:{{ block.settings.button_color }}; border:3px solid #fff; border-radius:50%; pointer-events:auto; cursor:pointer; z-index:10; box-shadow:0 2px 4px rgba(0,0,0,.2); }
   .ai-custom-product-resize-handle-{{ ai_gen_id }}.nw{ top:-8px; left:-8px; cursor:nw-resize;}
@@ -117,12 +141,21 @@ Auto-source product images from context_product:
   .ai-custom-product-resize-handle-{{ ai_gen_id }}.sw{ bottom:-8px; left:-8px; cursor:sw-resize;}
   .ai-custom-product-resize-handle-{{ ai_gen_id }}.se{ bottom:-8px; right:-8px; cursor:se-resize;}
 
+  /* When upload disabled, interactions off */
+  .ai-user-disabled-{{ ai_gen_id }} .ai-custom-product-user-image-wrapper-{{ ai_gen_id }} {
+    cursor: default !important;
+    outline: none !important;
+  }
+  .ai-user-disabled-{{ ai_gen_id }} .ai-custom-product-resize-handles-{{ ai_gen_id }},
+  .ai-user-disabled-{{ ai_gen_id }} .ai-custom-product-resize-handle-{{ ai_gen_id }} {
+    display: none !important;
+  }
+
   .ai-custom-product-placeholder-{{ ai_gen_id }} {
     width:100%; height:100%; background:#f8f8f8; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; color:#666; text-align:center; padding:20px;
     {% if shape_image_url_500 or block.settings.shape_image %}
       {% assign _shape_url_for_mask = shape_image_url_500 | default: block.settings.shape_image | image_url: width: 500 %}
-      -webkit-mask-image:url('{{ _shape_url_for_mask }}');
-      mask-image:url('{{ _shape_url_for_mask }}');
+      -webkit-mask-image:url('{{ _shape_url_for_mask }}'); mask-image:url('{{ _shape_url_for_mask }}');
       -webkit-mask-size:contain; mask-size:contain;
       -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
       -webkit-mask-position:center; mask-position:center;
@@ -134,12 +167,11 @@ Auto-source product images from context_product:
   .ai-custom-product-info-{{ ai_gen_id }} { margin-bottom:24px; }
   .ai-custom-product-title-{{ ai_gen_id }} { font-size:{{ block.settings.title_size }}px; color:{{ block.settings.text_color }}; margin:0 0 16px; font-family:{{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }}; font-weight:{{ settings.type_primary_font.weight }}; }
 
-  /* price pieces */
+  /* prices for instant updates */
   .ai-custom-product-price-{{ ai_gen_id }} { font-size:{{ block.settings.price_size }}px; font-weight:600; color:{{ block.settings.price_color }}; margin-bottom:16px; }
   .ai-compare-price-{{ ai_gen_id }} { text-decoration:line-through; color:{{ block.settings.compare_price_color }}; margin-right:8px; font-weight:normal; }
-  .ai-current-price-{{ ai_gen_id }} {}
 
-  /* Button-style radios (LEAVE VARIANTS AS-IS) */
+  /* Variant buttons (ORIGINAL structure) */
   .ai-custom-product-variant-selector-{{ ai_gen_id }} { margin-bottom:20px; }
   .ai-custom-product-variant-label-{{ ai_gen_id }} { display:block; margin-bottom:12px; font-weight:600; color:{{ block.settings.text_color }}; font-size:16px; }
   .ai-custom-product-variant-buttons-{{ ai_gen_id }} { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
@@ -162,18 +194,11 @@ Auto-source product images from context_product:
   .ai-custom-product-upload-text-{{ ai_gen_id }}{ margin-top:12px; color:{{ block.settings.text_color }}; font-size:14px; opacity:.8; }
   .ai-custom-product-file-info-{{ ai_gen_id }}{ margin-top:12px; padding:8px 12px; background:{{ block.settings.success_background }}; color:{{ block.settings.success_color }}; border-radius:4px; font-size:14px; }
 
-  .ai-custom-product-image-controls-{{ ai_gen_id }}{ margin-top:16px; padding:16px; background:{{ block.settings.upload_background }}; border-radius:{{ block.settings.border_radius }}px; border:1px solid {{ block.settings.border_color }}; display:none; }
-  .ai-custom-product-control-group-{{ ai_gen_id }}{ margin-bottom:12px; }
-  .ai-custom-product-control-label-{{ ai_gen_id }}{ display:block; margin-bottom:6px; font-size:14px; font-weight:600; color:{{ block.settings.text_color }}; }
-  .ai-custom-product-control-button-{{ ai_gen_id }}{ padding:8px 16px; margin:0 4px 4px 0; background:{{ block.settings.button_color }}; color:{{ block.settings.button_text_color }}; border:none; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:12px; transition:background-color .3s ease; }
-  .ai-custom-product-control-button-{{ ai_gen_id }}:hover{ background:{{ block.settings.button_hover_color }}; }
-
   .ai-custom-product-actions-{{ ai_gen_id }}{ display:flex; flex-direction:column; gap:12px; }
   .ai-custom-product-clear-button-{{ ai_gen_id }}{ padding:8px 16px; background:transparent; color:{{ block.settings.text_color }}; border:1px solid {{ block.settings.border_color }}; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:14px; transition:all .3s ease; }
   .ai-custom-product-clear-button-{{ ai_gen_id }}:hover{ background:{{ block.settings.border_color }}; }
   .ai-custom-product-add-to-cart-{{ ai_gen_id }}{ padding:16px 32px; background:{{ block.settings.cart_button_color }}; color:{{ block.settings.cart_button_text_color }}; border:none; border-radius:{{ block.settings.button_border_radius }}px; cursor:pointer; font-size:16px; font-weight:600; transition:background-color .3s ease; }
   .ai-custom-product-add-to-cart-{{ ai_gen_id }}:hover{ background:{{ block.settings.cart_button_hover_color }}; }
-  .ai-custom-product-add-to-cart-{{ ai_gen_id }}:disabled{ background:#ccc; cursor:not-allowed; }
 
   .ai-custom-product-form-{{ ai_gen_id }}{ display:none; }
 
@@ -198,22 +223,24 @@ Auto-source product images from context_product:
 
 <product-customizer-{{ ai_gen_id }}
   class="ai-custom-product-{{ ai_gen_id }}"
-  data-enable-upload="{{ block.settings.enable_user_upload }}"
   {{ block.shopify_attributes }}
 >
   <div class="ai-custom-product-container-{{ ai_gen_id }}">
     <div class="ai-custom-product-preview-{{ ai_gen_id }}">
-      <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }}">
-        {% if block.settings.enable_user_upload %}
-          <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="ai-user-layer-{{ ai_gen_id }}">
+      <div class="ai-custom-product-canvas-wrapper-{{ ai_gen_id }} {% unless userImageEnabled %}ai-user-disabled-{{ ai_gen_id }}{% endunless %}">        <!-- USER LAYER: always present -->
+        <div class="ai-custom-product-user-layer-{{ ai_gen_id }}" id="ai-user-layer-{{ ai_gen_id }}">
+          {% if userImageEnabled %}
             <div class="ai-custom-product-placeholder-{{ ai_gen_id }}">
               {{ 'image' | placeholder_svg_tag }}
               <span>{{ block.settings.placeholder_text }}</span>
             </div>
-          </div>
-        {% endif %}
+          {% else %}
+            <!-- Upload disabled: auto-filled with overlay image via JS -->
+          {% endif %}
 
-        {% if overlay_image_url_500 or block.settings.overlay_image %}
+        </div>
+
+        {% if overlayEnabled and has_overlay_image %}
           <div class="ai-custom-product-overlay-layer-{{ ai_gen_id }}" id="ai-overlay-layer-{{ ai_gen_id }}">
             <img
               src="{% if overlay_image_url_500 %}{{ overlay_image_url_500 }}{% else %}{{ block.settings.overlay_image | image_url: width: 500 }}{% endif %}"
@@ -223,7 +250,7 @@ Auto-source product images from context_product:
           </div>
         {% endif %}
 
-        <!-- USER TEXT LAYER SVG -->
+        <!-- USER TEXT LAYER SVG (Text1, Text2, Text3) -->
         <div class="ai-custom-product-text-layer-{{ ai_gen_id }}" id="ai-text-layer-{{ ai_gen_id }}">
           <svg class="ai-text-svg-{{ ai_gen_id }}" id="ai-text-svg-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
@@ -260,7 +287,7 @@ Auto-source product images from context_product:
           </div>
 
           {% if context_product.variants.size > 1 %}
-            <!-- KEEP VARIANTS ORIGINAL (no logic changes) -->
+            <!-- ORIGINAL variant radios -->
             <variant-radios
               class="ai-custom-product-variant-selector-{{ ai_gen_id }}"
               data-section="{{ section.id }}"
@@ -304,61 +331,68 @@ Auto-source product images from context_product:
         </div>
       {% endif %}
 
-      {% if block.settings.enable_user_upload %}
-        <div class="ai-custom-product-upload-section-{{ ai_gen_id }}">
-          <input
-            type="file"
-            id="ai-user-upload-{{ ai_gen_id }}"
-            class="ai-custom-product-upload-input-{{ ai_gen_id }}"
-            accept="image/*"
-          >
-          <label for="ai-user-upload-{{ ai_gen_id }}" class="ai-custom-product-upload-button-{{ ai_gen_id }}">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7,10 12,15 17,10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            {{ block.settings.upload_button_text }}
-          </label>
-          <div class="ai-custom-product-upload-text-{{ ai_gen_id }}">
-            {{ block.settings.upload_help_text }}
-          </div>
-          <div id="ai-file-info-{{ ai_gen_id }}" class="ai-custom-product-file-info-{{ ai_gen_id }}" style="display:none;"></div>
+      {% if userImageEnabled %}
+      <div class="ai-custom-product-upload-section-{{ ai_gen_id }}">
+        <input
+          type="file"
+          id="ai-user-upload-{{ ai_gen_id }}"
+          class="ai-custom-product-upload-input-{{ ai_gen_id }}"
+          accept="image/*"
+        >
+        <label for="ai-user-upload-{{ ai_gen_id }}" class="ai-custom-product-upload-button-{{ ai_gen_id }}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7,10 12,15 17,10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          {{ block.settings.upload_button_text }}
+        </label>
+        <div class="ai-custom-product-upload-text-{{ ai_gen_id }}">
+          {{ block.settings.upload_help_text }}
         </div>
+        <div id="ai-file-info-{{ ai_gen_id }}" class="ai-custom-product-file-info-{{ ai_gen_id }}" style="display:none;"></div>
+      </div>
       {% endif %}
 
-      <div class="ai-custom-product-actions-{{ ai_gen_id }}">
-        {% if block.settings.enable_user_upload %}
-          <button type="button" id="ai-clear-button-{{ ai_gen_id }}" class="ai-custom-product-clear-button-{{ ai_gen_id }}" style="display:none;">
-            {{ block.settings.clear_button_text }}
-          </button>
-        {% endif %}
-
-        {% if context_product %}
-          <button type="button" id="ai-add-to-cart-{{ ai_gen_id }}" class="ai-custom-product-add-to-cart-{{ ai_gen_id }}" disabled>
-            {{ block.settings.cart_button_text }}
-          </button>
-        {% endif %}
-      </div>
-
-      <!-- Shopper-visible text inputs (shown only for enabled texts) -->
+      <!-- Shopper-visible text inputs (content only) -->
       <div class="ai-customer-text-inputs-{{ ai_gen_id }}" style="margin-top:16px;">
-        {% if block.settings.enable_text1 %}
+        {% if t1Enabled %}
           <div style="margin-bottom:10px;">
             <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 1</label>
             <input type="text" id="ai-text1-input-{{ ai_gen_id }}" placeholder="Enter Text 1"
               style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
           </div>
         {% endif %}
-        {% if block.settings.enable_text2 %}
-          <div>
+        {% if t2Enabled %}
+          <div style="margin-bottom:10px;">
             <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 2</label>
             <input type="text" id="ai-text2-input-{{ ai_gen_id }}" placeholder="Enter Text 2"
               style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
           </div>
         {% endif %}
+        {% if t3Enabled %}
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:6px;color:{{ block.settings.text_color }};">Text 3</label>
+            <input type="text" id="ai-text3-input-{{ ai_gen_id }}" placeholder="Enter Text 3"
+              style="width:100%;padding:10px;border:1px solid {{ block.settings.border_color }};border-radius:{{ block.settings.button_border_radius }}px;">
+          </div>
+        {% endif %}
       </div>
 
+      <div class="ai-custom-product-actions-{{ ai_gen_id }}">
+        {% if userImageEnabled %}
+          <button type="button" id="ai-clear-button-{{ ai_gen_id }}" class="ai-custom-product-clear-button-{{ ai_gen_id }}" style="display:none;">
+            {{ block.settings.clear_button_text }}
+          </button>
+        {% endif %}
+
+        {% if context_product %}
+          <!-- Always enabled -->
+          <button type="button" id="ai-add-to-cart-{{ ai_gen_id }}" class="ai-custom-product-add-to-cart-{{ ai_gen_id }}">
+            {{ block.settings.cart_button_text }}
+          </button>
+        {% endif %}
+      </div>
     </div>
   </div>
 
@@ -367,20 +401,19 @@ Auto-source product images from context_product:
       <input type="hidden" name="id" id="ai-variant-id-{{ ai_gen_id }}" value="{{ context_product.selected_or_first_available_variant.id }}">
       <input type="hidden" name="quantity" value="1">
 
-      {% if block.settings.enable_user_upload %}
-        <!-- Attach actual uploaded file to line item when upload is enabled -->
-        <input type="file" name="properties[Custom Image]" id="ai-hidden-file-{{ ai_gen_id }}" style="display:none;">
-        <!-- Extra props: -->
-        <input type="hidden" name="properties[Image Position]" id="ai-image-position-{{ ai_gen_id }}">
-        <input type="hidden" name="properties[Image Scale]" id="ai-image-scale-{{ ai_gen_id }}">
-      {% endif %}
+      <!-- Always present so overlay-as-user works even when upload disabled -->
+      <input type="file" name="properties[Custom Image]" id="ai-hidden-file-{{ ai_gen_id }}" style="display:none;">
+      <input type="hidden" name="properties[Image Position]" id="ai-image-position-{{ ai_gen_id }}">
+      <input type="hidden" name="properties[Image Scale]" id="ai-image-scale-{{ ai_gen_id }}">
 
-      <!-- Save shopper text content (only content; styling is admin-controlled) -->
-      {% if block.settings.enable_text1 %}
+      {% if t1Enabled %}
         <input type="hidden" name="properties[Text1]" id="ai-li-text1-content-{{ ai_gen_id }}">
       {% endif %}
-      {% if block.settings.enable_text2 %}
+      {% if t2Enabled %}
         <input type="hidden" name="properties[Text2]" id="ai-li-text2-content-{{ ai_gen_id }}">
+      {% endif %}
+      {% if t3Enabled %}
+        <input type="hidden" name="properties[Text3]" id="ai-li-text3-content-{{ ai_gen_id }}">
       {% endif %}
     </form>
   {% endif %}
@@ -388,7 +421,7 @@ Auto-source product images from context_product:
 
 <script>
   (function() {
-    /* ===== Core customizer (image upload/drag/resize + Add to Cart) ===== */
+    /* ===== Customizer (image upload/masking/drag/resize + Text sync + Add to Cart) ===== */
     class ProductCustomizer{{ ai_gen_id }} extends HTMLElement {
       constructor() {
         super();
@@ -416,61 +449,64 @@ Auto-source product images from context_product:
       }
 
       connectedCallback() {
-        this.enableUpload = (this.dataset.enableUpload === 'true' || this.dataset.enableUpload === '1');
-
         this.uploadInput = this.querySelector('#ai-user-upload-{{ ai_gen_id }}');
         this.userLayer = this.querySelector('#ai-user-layer-{{ ai_gen_id }}');
         this.shapeLayer = this.querySelector('#ai-shape-layer-{{ ai_gen_id }}');
         this.fileInfo = this.querySelector('#ai-file-info-{{ ai_gen_id }}');
         this.clearButton = this.querySelector('#ai-clear-button-{{ ai_gen_id }}');
         this.addToCartButton = this.querySelector('#ai-add-to-cart-{{ ai_gen_id }}');
-        this.priceElement = this.querySelector('#ai-product-price-{{ ai_gen_id }}');
         this.cartForm = this.querySelector('#ai-cart-form-{{ ai_gen_id }}');
         this.variantIdInput = this.querySelector('#ai-variant-id-{{ ai_gen_id }}');
         this.hiddenFileInput = this.querySelector('#ai-hidden-file-{{ ai_gen_id }}');
         this.imagePositionInput = this.querySelector('#ai-image-position-{{ ai_gen_id }}');
         this.imageScaleInput = this.querySelector('#ai-image-scale-{{ ai_gen_id }}');
-        this.imageControls = this.querySelector('#ai-image-controls-{{ ai_gen_id }}');
-        this.controlButtons = this.querySelectorAll('.ai-custom-product-control-button-{{ ai_gen_id }}');
+        this.overlayImgEl = this.querySelector('#ai-overlay-layer-{{ ai_gen_id }} img');
+        this.userUploadEnabled = {{ userImageEnabled | json }};
 
-        /* Shopper text inputs */
         this.text1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
         this.text2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
+        this.text3Input = document.getElementById('ai-text3-input-{{ ai_gen_id }}');
         this.liText1 = document.getElementById('ai-li-text1-content-{{ ai_gen_id }}');
         this.liText2 = document.getElementById('ai-li-text2-content-{{ ai_gen_id }}');
+        this.liText3 = document.getElementById('ai-li-text3-content-{{ ai_gen_id }}');
 
         this.setupEventListeners();
+        if (this.addToCartButton) this.addToCartButton.disabled = false; // always enabled
+
+        // If user upload is disabled, auto-use overlay image as the "user" image and disable interactions
+        if (!this.userUploadEnabled && this.overlayImgEl && this.overlayImgEl.src) {
+          this.bootstrapOverlayAsUser(this.overlayImgEl.src);
+        }
       }
 
       setupEventListeners() {
-        if (this.uploadInput) {
+        if (this.userUploadEnabled && this.uploadInput) {
           this.uploadInput.addEventListener('change', (e) => this.handleFileUpload(e));
         }
-        if (this.clearButton) {
+        if (this.userUploadEnabled && this.clearButton) {
           this.clearButton.addEventListener('click', (e) => { e.preventDefault(); this.clearUserImage(); });
         }
         if (this.addToCartButton) {
           this.addToCartButton.addEventListener('click', (e) => { e.preventDefault(); this.addToCart(); });
         }
-        this.controlButtons.forEach(button => {
-          button.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.handleControlAction(button.getAttribute('data-action'));
-          });
-        });
 
-        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        document.addEventListener('mouseup', () => this.endInteraction());
-        document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive:false });
-        document.addEventListener('touchend', () => this.endInteraction());
+        // Only attach interaction listeners if upload is enabled
+        if (this.userUploadEnabled) {
+          document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+          document.addEventListener('mouseup', () => this.endInteraction());
+          document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive:false });
+          document.addEventListener('touchend', () => this.endInteraction());
+        }
 
         /* keep text content synced to hidden LIs */
         if (this.text1Input && this.liText1) this.text1Input.addEventListener('input', ()=>{ this.liText1.value = this.text1Input.value || ''; });
         if (this.text2Input && this.liText2) this.text2Input.addEventListener('input', ()=>{ this.liText2.value = this.text2Input.value || ''; });
+        if (this.text3Input && this.liText3) this.text3Input.addEventListener('input', ()=>{ this.liText3.value = this.text3Input.value || ''; });
       }
 
       handleFileUpload(event) {
-        const file = event.target.files[0]; if (!file) return;
+        if (!this.userUploadEnabled) return;
+        const file = event.target.files?.[0]; if (!file) return;
         if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
 
         this.userImageFile = file;
@@ -482,26 +518,55 @@ Auto-source product images from context_product:
           this.updateFormInputs();
 
           if (this.clearButton) this.clearButton.style.display = 'block';
-          if (this.addToCartButton) this.addToCartButton.disabled = false;
-          if (this.imageControls) this.imageControls.style.display = 'block';
-
           if (this.shapeLayer) this.shapeLayer.style.opacity = '0';
         };
         reader.readAsDataURL(file);
       }
 
+      async bootstrapOverlayAsUser(srcUrl) {
+        try {
+          const res = await fetch(srcUrl, { mode: 'cors' });
+          const blob = await res.blob();
+          const fileName = 'overlay-as-user.png';
+          const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+
+          this.userImageFile = file;
+          this.userImage = URL.createObjectURL(file);
+
+          // Render a non-interactive user image: full container, no handles, no drag
+          this.updatePreview(/*nonInteractive*/ true);
+          this.updateFormInputs();
+
+          // Hide the visual overlay layer to avoid double-rendering
+          const overlayLayer = this.querySelector('#ai-overlay-layer-{{ ai_gen_id }}');
+          if (overlayLayer) overlayLayer.style.display = 'none';
+
+          // Keep shape at configured opacity
+          if (this.shapeLayer) {
+            this.shapeLayer.style.opacity = '{{ block.settings.shape_overlay_opacity | divided_by: 100.0 }}';
+          }
+        } catch (e) {
+          console.error('Failed to bootstrap overlay as user image', e);
+        }
+      }
+
       updateFormInputs() {
-        if (this.hiddenFileInput && this.userImageFile) {
-          const dt = new DataTransfer(); dt.items.add(this.userImageFile); this.hiddenFileInput.files = dt.files;
+        if (this.hiddenFileInput) {
+          if (this.userImageFile) {
+            const dt = new DataTransfer(); dt.items.add(this.userImageFile); this.hiddenFileInput.files = dt.files;
+          } else {
+            this.hiddenFileInput.value = '';
+          }
         }
         if (this.imagePositionInput) this.imagePositionInput.value = `${this.imageX},${this.imageY}`;
         if (this.imageScaleInput) this.imageScaleInput.value = `${this.imageWidth}x${this.imageHeight}`;
 
         if (this.liText1 && this.text1Input) this.liText1.value = this.text1Input.value || '';
         if (this.liText2 && this.text2Input) this.liText2.value = this.text2Input.value || '';
+        if (this.liText3 && this.text3Input) this.liText3.value = this.text3Input.value || '';
       }
 
-      updatePreview() {
+      updatePreview(nonInteractive = false) {
         if (!this.userImage || !this.userLayer) return;
 
         const container = document.createElement('div');
@@ -513,27 +578,37 @@ Auto-source product images from context_product:
         const img = document.createElement('img');
         img.src = this.userImage; img.className = 'ai-custom-product-user-image-{{ ai_gen_id }}';
 
-        const handles = document.createElement('div'); handles.className = 'ai-custom-product-resize-handles-{{ ai_gen_id }}';
-        ['nw','ne','sw','se'].forEach(pos => {
-          const h = document.createElement('div'); h.className = `ai-custom-product-resize-handle-{{ ai_gen_id }} ${pos}`;
-          h.addEventListener('mousedown', (e)=>this.startResize(e,pos));
-          h.addEventListener('touchstart', (e)=>this.startResize(e,pos), { passive:false });
-          handles.appendChild(h);
-        });
+        // Only add handles & interaction if upload is enabled AND not forced nonInteractive
+        if (this.userUploadEnabled && !nonInteractive) {
+          const handles = document.createElement('div'); handles.className = 'ai-custom-product-resize-handles-{{ ai_gen_id }}';
+          ['nw','ne','sw','se'].forEach(pos => {
+            const h = document.createElement('div'); h.className = `ai-custom-product-resize-handle-{{ ai_gen_id }} ${pos}`;
+            h.addEventListener('mousedown', (e)=>this.startResize(e,pos));
+            h.addEventListener('touchstart', (e)=>this.startResize(e,pos), { passive:false });
+            handles.appendChild(h);
+          });
 
-        wrapper.addEventListener('mousedown', (e)=>{ if(!e.target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) this.startDrag(e); });
-        wrapper.addEventListener('touchstart', (e) => {
-          if (e.touches && e.touches.length === 2) {
-            this.startPinch(e);
-          } else if (!e.target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) {
-            this.startDrag(e);
-          }
-        }, { passive: false });
+          wrapper.addEventListener('mousedown', (e)=>{ if(!e.target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) this.startDrag(e); });
+          wrapper.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches.length === 2) { this.startPinch(e); }
+            else if (!e.target.classList.contains('ai-custom-product-resize-handle-{{ ai_gen_id }}')) { this.startDrag(e); }
+          }, { passive: false });
 
-        img.onload = () => this.setDefaultImageSize();
+          wrapper.appendChild(img); wrapper.appendChild(handles);
+        } else {
+          // Non-interactive: no handles, no pointer behaviour
+          wrapper.style.cursor = 'default';
+          wrapper.appendChild(img);
+        }
 
-        wrapper.appendChild(img); wrapper.appendChild(handles); container.appendChild(wrapper);
-        this.userLayer.innerHTML = ''; this.userLayer.appendChild(container);
+        img.onload = () => {
+          if (this.userUploadEnabled && !nonInteractive) { this.setDefaultImageSize(); }
+          else { this.fillContainer(); } // non-interactive: fill the mask cleanly
+        };
+
+        container.appendChild(wrapper);
+        this.userLayer.innerHTML = '';
+        this.userLayer.appendChild(container);
 
         this.userImageWrapper = wrapper; this.userImageElement = img;
       }
@@ -569,6 +644,7 @@ Auto-source product images from context_product:
       }
 
       startDrag(e) {
+        if (!this.userUploadEnabled) return;
         e.preventDefault(); e.stopPropagation(); this.isDragging = true;
         this.userImageWrapper.classList.add('dragging');
         const cx = e.type==='touchstart'? e.touches[0].clientX : e.clientX;
@@ -577,6 +653,7 @@ Auto-source product images from context_product:
       }
 
       startPinch(e) {
+        if (!this.userUploadEnabled) return;
         e.preventDefault();
         this.isPinching = true;
         this.imageStartWidth  = this.imageWidth;
@@ -595,6 +672,7 @@ Auto-source product images from context_product:
       }
 
       pinchMove(t1, t2) {
+        if (!this.userUploadEnabled) return;
         const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
         let scale = dist / this.pinchStartDistance;
 
@@ -613,6 +691,7 @@ Auto-source product images from context_product:
       }
 
       startResize(e, dir) {
+        if (!this.userUploadEnabled) return;
         e.preventDefault(); e.stopPropagation(); this.isResizing = true; this.resizeDirection = dir;
         const cx = e.type==='touchstart'? e.touches[0].clientX : e.clientX;
         const cy = e.type==='touchstart'? e.touches[0].clientY : e.clientY;
@@ -621,18 +700,17 @@ Auto-source product images from context_product:
         this.imageStartWidth = this.imageWidth; this.imageStartHeight = this.imageHeight;
       }
 
-      handleMouseMove(e){ this.handleMove(e.clientX, e.clientY); }
+      handleMouseMove(e){ if (!this.userUploadEnabled) return; this.handleMove(e.clientX, e.clientY); }
       handleTouchMove(e) {
+        if (!this.userUploadEnabled) return;
         if (!(this.isDragging || this.isResizing || this.isPinching)) return;
         e.preventDefault();
-        if (this.isPinching && e.touches.length >= 2) {
-          this.pinchMove(e.touches[0], e.touches[1]);
-          return;
-        }
+        if (this.isPinching && e.touches.length >= 2) { this.pinchMove(e.touches[0], e.touches[1]); return; }
         this.handleMove(e.touches[0].clientX, e.touches[0].clientY);
       }
 
       handleMove(clientX, clientY){
+        if (!this.userUploadEnabled) return;
         if (this.isDragging){
           const dx = clientX - this.dragStartX, dy = clientY - this.dragStartY;
           this.imageX = this.imageStartX + dx; this.imageY = this.imageStartY + dy; this.updateImageTransform();
@@ -650,6 +728,7 @@ Auto-source product images from context_product:
       }
 
       endInteraction() {
+        if (!this.userUploadEnabled) return;
         if (this.isDragging || this.isResizing || this.isPinching) this.updateFormInputs();
         this.isDragging = false;
         this.isResizing = false;
@@ -658,17 +737,10 @@ Auto-source product images from context_product:
         if (this.userImageWrapper) this.userImageWrapper.classList.remove('dragging');
       }
 
-      handleControlAction(action){
-        if (!this.userImageWrapper) return;
-        if (action==='center'){ const w=this.userLayer.offsetWidth, h=this.userLayer.offsetHeight; this.imageX=(w-this.imageWidth)/2; this.imageY=(h-this.imageHeight)/2; this.updateImageTransform(); this.updateFormInputs(); }
-        if (action==='fit') this.fitImageToContainer();
-        if (action==='fill') this.fillContainer();
-        if (action==='reset') this.setDefaultImageSize();
-      }
-
       showFileInfo(name){ if (this.fileInfo){ this.fileInfo.textContent = `Selected: ${name}`; this.fileInfo.style.display='block'; } }
 
       clearUserImage(){
+        if (!this.userUploadEnabled) return;
         this.userImage = null; this.userImageFile = null; this.userImageWrapper = null; this.userImageElement = null;
         this.imageX=0; this.imageY=0; this.imageWidth=200; this.imageHeight=200;
         if (this.uploadInput) this.uploadInput.value='';
@@ -680,27 +752,20 @@ Auto-source product images from context_product:
         }
         if (this.fileInfo) this.fileInfo.style.display='none';
         if (this.clearButton) this.clearButton.style.display='none';
-        if (this.addToCartButton) this.addToCartButton.disabled = true;
-        if (this.imageControls) this.imageControls.style.display='none';
         if (this.shapeLayer) this.shapeLayer.style.opacity = '{{ block.settings.shape_overlay_opacity | divided_by: 100.0 }}';
       }
 
       addToCart(){
-        /* Require image only if admin enabled upload */
-        if (this.enableUpload && !this.userImage){ alert('Please upload an image first.'); return; }
         if (!this.currentVariantId){ alert('Please select a variant.'); return; }
         if (!this.cartForm){ alert('Form not found.'); return; }
-
-        if (this.liText1 && this.text1Input) this.liText1.value = this.text1Input.value || '';
-        if (this.liText2 && this.text2Input) this.liText2.value = this.text2Input.value || '';
-
+        this.updateFormInputs();
         this.addToCartButton.disabled = true; this.addToCartButton.textContent = 'Adding...';
         this.cartForm.submit();
       }
     }
     customElements.define('product-customizer-{{ ai_gen_id }}', ProductCustomizer{{ ai_gen_id }});
 
-    /* ===== Variants (UNCHANGED) ===== */
+    /* ===== VariantSelects/VariantRadios (ORIGINAL from your snippet) ===== */
     (function(){
       class VariantSelects{{ ai_gen_id }} extends HTMLElement {
         constructor(){
@@ -746,36 +811,35 @@ Auto-source product images from context_product:
           const forms = document.querySelectorAll(`#product-form-{{ section.id }}, #product-form-installment-{{ section.id }}`);
           forms.forEach(form => { const input = form.querySelector('input[name="id"]'); if (input){ input.value = this.currentVariant.id; input.dispatchEvent(new Event('change', { bubbles:true })); } });
         }
-updateVariantStatuses(){
-  const groups   = Array.from(this.querySelectorAll('fieldset'));
-  const variants = this.getVariantData();
-  if (!variants || !variants.length) return;
+        updateVariantStatuses(){
+          const groups = Array.from(this.querySelectorAll('fieldset'));
+          const variants = this.getVariantData();
+          if (!variants || !variants.length) return;
 
-  const selected = groups.map(fs => {
-    const sel = fs.querySelector('input[type="radio"]:checked');
-    return sel ? sel.value : null;
-  });
+          const selected = groups.map(fs => {
+            const sel = fs.querySelector('input[type="radio"]:checked');
+            return sel ? sel.value : null;
+          });
 
-  groups.forEach((group, gi) => {
-    const inputs = Array.from(group.querySelectorAll('input[type="radio"]'));
-    const feasibleSet = new Set(
-      variants.filter(v => v.available).filter(v => {
-        for (let j = 0; j < groups.length; j++) {
-          const need = selected[j];
-          if (need && v.options[j] !== need) return false;
+          groups.forEach((group, gi) => {
+            const inputs = Array.from(group.querySelectorAll('input[type="radio"]'));
+            const feasibleSet = new Set(
+              variants.filter(v => v.available).filter(v => {
+                for (let j = 0; j < groups.length; j++) {
+                  const need = selected[j];
+                  if (need && v.options[j] !== need) return false;
+                }
+                return true;
+              }).map(v => v.options[gi])
+            );
+            const hasFeasible = feasibleSet.size > 0;
+            inputs.forEach(input => {
+              const here = input.value;
+              const enable = (hasFeasible ? feasibleSet.has(here) : true) || input.checked;
+              input.disabled = !enable;
+            });
+          });
         }
-        return true;
-      }).map(v => v.options[gi])
-    );
-    const hasFeasible = feasibleSet.size > 0;
-    inputs.forEach(input => {
-      const here = input.value;
-      const enable = (hasFeasible ? feasibleSet.has(here) : true) || input.checked;
-      input.disabled = !enable;
-    });
-  });
-}
-
         setUnavailable(){
           const priceEl = document.querySelector('.ai-current-price-{{ ai_gen_id }}');
           const compareEl = document.querySelector('.ai-compare-price-{{ ai_gen_id }}');
@@ -790,60 +854,86 @@ updateVariantStatuses(){
   })();
 </script>
 
-{%- assign _t1_font = block.settings.text1_font | default: 'Roboto' -%}
-{%- assign _t2_font = block.settings.text2_font | default: 'Roboto' -%}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-{% if block.settings.enable_text1 %}
-<link id="ai-font-1-{{ ai_gen_id }}" rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ _t1_font | replace: ' ', '+' }}:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+{% if t1Enabled %}
+<link id="ai-font-1-{{ ai_gen_id }}" rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family={{ _t1_font | strip | replace: ' ', '+' }}:wght@400;700&display=swap">
 {% endif %}
-{% if block.settings.enable_text2 and _t2_font != _t1_font %}
-<link id="ai-font-2-{{ ai_gen_id }}" rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ _t2_font | replace: ' ', '+' }}:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+{% if t2Enabled and _t2_font != _t1_font %}
+<link id="ai-font-2-{{ ai_gen_id }}" rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family={{ _t2_font | strip | replace: ' ', '+' }}:wght@400;700&display=swap">
+{% endif %}
+{% if t3Enabled and _t3_font != _t1_font and _t3_font != _t2_font %}
+<link id="ai-font-3-{{ ai_gen_id }}" rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family={{ _t3_font | strip | replace: ' ', '+' }}:wght@400;700&display=swap">
 {% endif %}
 
+
 <script>
-/* === Admin-driven two-text renderer (each text can be toggled by admin) === */
+/* === Admin-driven three-text renderer with Alignment (Left/Center/Right) === */
 (function(){
   const svg = document.getElementById('ai-text-svg-{{ ai_gen_id }}');
   if (!svg) return;
 
-  const text1Enabled = {{ block.settings.enable_text1 | json }};
-  const text2Enabled = {{ block.settings.enable_text2 | json }};
+  const t1Enabled = {{ t1Enabled | json }};
+  const t2Enabled = {{ t2Enabled | json }};
+  const t3Enabled = {{ t3Enabled | json }};
+
 
   const t1Input = document.getElementById('ai-text1-input-{{ ai_gen_id }}');
   const t2Input = document.getElementById('ai-text2-input-{{ ai_gen_id }}');
+  const t3Input = document.getElementById('ai-text3-input-{{ ai_gen_id }}');
 
   const liT1 = document.getElementById('ai-li-text1-content-{{ ai_gen_id }}');
   const liT2 = document.getElementById('ai-li-text2-content-{{ ai_gen_id }}');
+  const liT3 = document.getElementById('ai-li-text3-content-{{ ai_gen_id }}');
 
   const ADMIN = {
-    t1: {
-      enabled: text1Enabled,
-      font: `{{ block.settings.text1_font | default: 'Roboto' }}`,
-      size: {{ block.settings.text1_size | default: 36 }},
-      bold: {{ block.settings.text1_bold | default: false }},
-      italic: {{ block.settings.text1_italic | default: false }},
-      x: {{ block.settings.text1_x | default: 50 }},
-      y: {{ block.settings.text1_y | default: 20 }},
-      rot: {{ block.settings.text1_rotate | default: 0 }},
-      curve: {{ block.settings.text1_curve | default: 0 }},
-      origin: `{{ block.settings.text1_origin | default: 'center' }}`,
-      color: `{{ block.settings.text1_color | default: '#111111' }}`
-    },
-    t2: {
-      enabled: text2Enabled,
-      font: `{{ block.settings.text2_font | default: 'Roboto' }}`,
-      size: {{ block.settings.text2_size | default: 28 }},
-      bold: {{ block.settings.text2_bold | default: false }},
-      italic: {{ block.settings.text2_italic | default: false }},
-      x: {{ block.settings.text2_x | default: 50 }},
-      y: {{ block.settings.text2_y | default: 80 }},
-      rot: {{ block.settings.text2_rotate | default: 0 }},
-      curve: {{ block.settings.text2_curve | default: 0 }},
-      origin: `{{ block.settings.text2_origin | default: 'center' }}`,
-      color: `{{ block.settings.text2_color | default: '#111111' }}`
-    }
-  };
+  t1: {
+    enabled: {{ t1Enabled | json }},
+    font: `{{ cd.text1_font | default: block.settings.text1_font | default: 'Roboto' | escape }}`,
+    size: {{ cd.text1_size | default: block.settings.text1_size | default: 36 | json }},
+    bold: {{ block.settings.text1_bold | default: false | json }},
+    italic: {{ block.settings.text1_italic | default: false | json }},
+    x: {{ cd.text1_x | default: block.settings.text1_x | default: 50 | json }},
+    y: {{ cd.text1_y | default: block.settings.text1_y | default: 20 | json }},
+    rot: {{ cd.text1_rotate | default: block.settings.text1_rotate | default: 0 | json }},
+    curve: {{ cd.text1_curve | default: block.settings.text1_curve | default: 0 | json }},
+    origin: `{{ cd.text1_origin | default: block.settings.text1_origin | default: 'center' | escape }}`,
+    align:  `{{ cd.text1_align  | default: block.settings.text1_align  | default: 'center' | escape }}`,
+    color:  `{{ cd.text1_color  | default: block.settings.text1_color  | default: '#111111' | escape }}`
+  },
+  t2: {
+    enabled: {{ t2Enabled | json }},
+    font: `{{ cd.text2_font | default: block.settings.text2_font | default: 'Roboto' | escape }}`,
+    size: {{ cd.text2_size | default: block.settings.text2_size | default: 28 | json }},
+    bold: {{ block.settings.text2_bold | default: false | json }},
+    italic: {{ block.settings.text2_italic | default: false | json }},
+    x: {{ cd.text2_x | default: block.settings.text2_x | default: 50 | json }},
+    y: {{ cd.text2_y | default: block.settings.text2_y | default: 80 | json }},
+    rot: {{ cd.text2_rotate | default: block.settings.text2_rotate | default: 0 | json }},
+    curve: {{ cd.text2_curve | default: block.settings.text2_curve | default: 0 | json }},
+    origin: `{{ cd.text2_origin | default: block.settings.text2_origin | default: 'center' | escape }}`,
+    align:  `{{ cd.text2_align  | default: block.settings.text2_align  | default: 'center' | escape }}`,
+    color:  `{{ cd.text2_color  | default: block.settings.text2_color  | default: '#111111' | escape }}`
+  },
+  t3: {
+    enabled: {{ t3Enabled | json }},
+    font: `{{ cd.text3_font | default: block.settings.text3_font | default: 'Roboto' | escape }}`,
+    size: {{ cd.text3_size | default: block.settings.text3_size | default: 24 | json }},
+    bold: {{ block.settings.text3_bold | default: false | json }},
+    italic: {{ block.settings.text3_italic | default: false | json }},
+    x: {{ cd.text3_x | default: block.settings.text3_x | default: 50 | json }},
+    y: {{ cd.text3_y | default: block.settings.text3_y | default: 50 | json }},
+    rot: {{ cd.text3_rotate | default: block.settings.text3_rotate | default: 0 | json }},
+    curve: {{ cd.text3_curve | default: block.settings.text3_curve | default: 0 | json }},
+    origin: `{{ cd.text3_origin | default: block.settings.text3_origin | default: 'center' | escape }}`,
+    align:  `{{ cd.text3_align  | default: block.settings.text3_align  | default: 'center' | escape }}`,
+    color:  `{{ cd.text3_color  | default: block.settings.text3_color  | default: '#111111' | escape }}`
+  }
+};
+
 
   function makeUnit(id){
     const g = document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -866,6 +956,7 @@ updateVariantStatuses(){
 
   const u1 = makeUnit('t1');
   const u2 = makeUnit('t2');
+  const u3 = makeUnit('t3');
 
   function pathFor(admin){
     const w = svg.clientWidth || 500, h = svg.clientHeight || 500;
@@ -886,7 +977,9 @@ updateVariantStatuses(){
     if (!admin.enabled) { unit.g.style.display = 'none'; return; }
 
     unit.path.setAttribute('d', pathFor(admin));
-    const anchor = admin.origin === 'left' ? 'start' : (admin.origin === 'right' ? 'end' : 'middle');
+
+    // Alignment (Left/Center/Right)
+    const anchor = admin.align === 'left' ? 'start' : (admin.align === 'right' ? 'end' : 'middle');
     unit.textPath.setAttribute('startOffset', anchor==='start' ? '0%' : (anchor==='end' ? '100%' : '50%'));
     unit.textPath.setAttribute('text-anchor', anchor);
 
@@ -896,6 +989,7 @@ updateVariantStatuses(){
     unit.textEl.setAttribute('font-weight', admin.bold ? 700 : 400);
     unit.textEl.setAttribute('font-style', admin.italic ? 'italic' : 'normal');
     unit.textEl.setAttribute('fill', admin.color);
+    // Rotate around percentage position
     unit.g.setAttribute('transform', `rotate(${admin.rot} ${admin.x}% ${admin.y}%)`);
 
     unit.g.style.display = (text && text.trim()) ? 'block' : 'none';
@@ -904,16 +998,19 @@ updateVariantStatuses(){
   function syncLI(){
     if (liT1) liT1.value = t1Input?.value || '';
     if (liT2) liT2.value = t2Input?.value || '';
+    if (liT3) liT3.value = t3Input?.value || '';
   }
 
   function render(){
     applyAdmin(u1, ADMIN.t1, t1Input?.value || '');
     applyAdmin(u2, ADMIN.t2, t2Input?.value || '');
+    applyAdmin(u3, ADMIN.t3, t3Input?.value || '');
     syncLI();
   }
 
   if (t1Input) t1Input.addEventListener('input', render);
   if (t2Input) t2Input.addEventListener('input', render);
+  if (t3Input) t3Input.addEventListener('input', render);
 
   render();
   window.addEventListener('resize', render);
@@ -928,15 +1025,6 @@ updateVariantStatuses(){
     { "type": "header", "content": "Product" },
     { "type": "product", "id": "product", "label": "Product" },
 
-    { "type": "header", "content": "Fallback content" },
-    { "type": "text", "id": "title", "label": "Fallback title", "default": "Customize Your Product" },
-    { "type": "richtext", "id": "description", "label": "Fallback description", "default": "<p>Upload your image and see it shaped by our custom design template.</p>" },
-
-    { "type": "header", "content": "Feature toggles (Admin)" },
-    { "type": "checkbox", "id": "enable_user_upload", "label": "Enable user image upload layer", "default": true },
-    { "type": "checkbox", "id": "enable_text1", "label": "Enable Text 1 layer", "default": true },
-    { "type": "checkbox", "id": "enable_text2", "label": "Enable Text 2 layer", "default": true },
-
     { "type": "header", "content": "Shape mask layer" },
     { "type": "image_picker", "id": "shape_image", "label": "Shape mask image" },
     { "type": "range", "id": "shape_overlay_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Shape overlay opacity", "default": 20 },
@@ -945,7 +1033,10 @@ updateVariantStatuses(){
     { "type": "image_picker", "id": "overlay_image", "label": "Admin overlay image" },
     { "type": "range", "id": "overlay_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Overlay opacity", "default": 80 },
 
-    { "type": "header", "content": "Upload settings" },
+    { "type": "header", "content": "User image layer" },
+    { "type": "checkbox", "id": "enable_user_image", "label": "Enable user image upload & layer", "default": true },
+
+    { "type": "header", "content": "Upload UI text" },
     { "type": "text", "id": "placeholder_text", "label": "Placeholder text", "default": "Upload your image here" },
     { "type": "text", "id": "upload_button_text", "label": "Upload button text", "default": "Choose Image" },
     { "type": "text", "id": "upload_help_text", "label": "Upload help text", "default": "Your image will be shaped by the template above" },
@@ -955,18 +1046,15 @@ updateVariantStatuses(){
     { "type": "header", "content": "Style" },
     { "type": "range", "id": "section_padding", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Section padding", "default": 40 },
     { "type": "range", "id": "border_radius", "min": 0, "max": 40, "step": 2, "unit": "px", "label": "Border radius", "default": 12 },
-    { "type": "range", "id": "button_border_radius", "min": 0, "max": 20, "step": 1, "unit": "px", "label": "Button border radius", "default": 6 },
 
-    { "type": "header", "content": "Typography" },
+    { "type": "header", "content": "Typography & colors" },
     { "type": "range", "id": "title_size", "min": 16, "max": 48, "step": 2, "unit": "px", "label": "Title size", "default": 32 },
-    { "type": "range", "id": "text_size", "min": 12, "max": 24, "step": 1, "unit": "px", "label": "Text size", "default": 16 },
     { "type": "range", "id": "price_size", "min": 16, "max": 36, "step": 2, "unit": "px", "label": "Price size", "default": 24 },
 
-    { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background color", "default": "#ffffff" },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
     { "type": "color", "id": "price_color", "label": "Price color", "default": "#000000" },
-    { "type": "color", "id": "compare_price_color", "label": "Compare price color", "default": "#999999" },
+    { "type": "color", "id": "compare_price_color", "label": "Compare at color", "default": "#999999" },
     { "type": "color", "id": "canvas_background", "label": "Canvas background", "default": "#f8f8f8" },
     { "type": "color", "id": "border_color", "label": "Border color", "default": "#e0e0e0" },
     { "type": "color", "id": "upload_background", "label": "Upload area background", "default": "#fafafa" },
@@ -979,9 +1067,6 @@ updateVariantStatuses(){
     { "type": "color", "id": "cart_button_hover_color", "label": "Add to cart hover color", "default": "#218838" },
     { "type": "color", "id": "cart_button_text_color", "label": "Add to cart text color", "default": "#ffffff" },
 
-    { "type": "color", "id": "success_background", "label": "Success background", "default": "#d4edda" },
-    { "type": "color", "id": "success_color", "label": "Success text color", "default": "#155724" },
-
     { "type": "header", "content": "Variant buttons" },
     { "type": "color", "id": "variant_background", "label": "Variant background", "default": "#ffffff" },
     { "type": "color", "id": "variant_text_color", "label": "Variant text color", "default": "#333333" },
@@ -992,38 +1077,61 @@ updateVariantStatuses(){
     { "type": "color", "id": "variant_selected_text", "label": "Selected variant text", "default": "#ffffff" },
     { "type": "color", "id": "variant_selected_border", "label": "Selected variant border", "default": "#007bff" },
 
-    { "type": "header", "content": "Text 1 (Admin settings)" },
-    { "type": "text", "id": "text1_font", "label": "Font family (Google Fonts name)", "default": "Roboto" },
+    { "type": "header", "content": "Text 1 (Admin)" },
+    { "type": "checkbox", "id": "enable_text1", "label": "Enable Text 1", "default": true },
+    { "type": "text", "id": "text1_font", "label": "Font family (Google Fonts)", "default": "Roboto" },
     { "type": "range", "id": "text1_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
     { "type": "checkbox", "id": "text1_bold", "label": "Bold", "default": false },
     { "type": "checkbox", "id": "text1_italic", "label": "Italic", "default": false },
-    { "type": "color", "id": "text1_color", "label": "Text 1 color", "default": "#111111" },
-    { "type": "range", "id": "text1_x", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
-    { "type": "range", "id": "text1_y", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 20 },
+    { "type": "range", "id": "text1_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
+    { "type": "range", "id": "text1_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 20 },
     { "type": "range", "id": "text1_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
     { "type": "range", "id": "text1_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
     { "type": "select", "id": "text1_origin", "label": "Bend origin", "default": "center", "options": [
-      { "value": "left", "label": "Left" },
-      { "value": "center", "label": "Center" },
-      { "value": "right", "label": "Right" }
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
     ]},
+    { "type": "select", "id": "text1_align", "label": "Alignment", "default": "center", "options": [
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
+    ]},
+    { "type": "color", "id": "text1_color", "label": "Text 1 color", "default": "#111111" },
 
-    { "type": "header", "content": "Text 2 (Admin settings)" },
-    { "type": "text", "id": "text2_font", "label": "Font family (Google Fonts name)", "default": "Roboto" },
+    { "type": "header", "content": "Text 2 (Admin)" },
+    { "type": "checkbox", "id": "enable_text2", "label": "Enable Text 2", "default": true },
+    { "type": "text", "id": "text2_font", "label": "Font family (Google Fonts)", "default": "Roboto" },
     { "type": "range", "id": "text2_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
     { "type": "checkbox", "id": "text2_bold", "label": "Bold", "default": false },
     { "type": "checkbox", "id": "text2_italic", "label": "Italic", "default": false },
-    { "type": "color", "id": "text2_color", "label": "Text 2 color", "default": "#111111" },
-    { "type": "range", "id": "text2_x", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
-    { "type": "range", "id": "text2_y", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 80 },
+    { "type": "range", "id": "text2_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
+    { "type": "range", "id": "text2_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 80 },
     { "type": "range", "id": "text2_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
     { "type": "range", "id": "text2_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
     { "type": "select", "id": "text2_origin", "label": "Bend origin", "default": "center", "options": [
-      { "value": "left", "label": "Left" },
-      { "value": "center", "label": "Center" },
-      { "value": "right", "label": "Right" }
-    ]}
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
+    ]},
+    { "type": "select", "id": "text2_align", "label": "Alignment", "default": "center", "options": [
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
+    ]},
+    { "type": "color", "id": "text2_color", "label": "Text 2 color", "default": "#111111" },
+
+    { "type": "header", "content": "Text 3 (Admin)" },
+    { "type": "checkbox", "id": "enable_text3", "label": "Enable Text 3", "default": true },
+    { "type": "text", "id": "text3_font", "label": "Font family (Google Fonts)", "default": "Roboto" },
+    { "type": "range", "id": "text3_size", "min": 10, "max": 200, "step": 10, "unit": "px", "label": "Size", "default": 20 },
+    { "type": "checkbox", "id": "text3_bold", "label": "Bold", "default": false },
+    { "type": "checkbox", "id": "text3_italic", "label": "Italic", "default": false },
+    { "type": "range", "id": "text3_x", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "X position (%)", "default": 50 },
+    { "type": "range", "id": "text3_y", "min": 1, "max": 100, "step": 1, "unit": "%", "label": "Y position (%)", "default": 50 },
+    { "type": "range", "id": "text3_rotate", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Rotation (°)", "default": 0 },
+    { "type": "range", "id": "text3_curve", "min": -180, "max": 180, "step": 10, "unit": "°", "label": "Curve angle (°)", "default": 0 },
+    { "type": "select", "id": "text3_origin", "label": "Bend origin", "default": "center", "options": [
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
+    ]},
+    { "type": "select", "id": "text3_align", "label": "Alignment", "default": "center", "options": [
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
+    ]},
+    { "type": "color", "id": "text3_color", "label": "Text 3 color", "default": "#111111" }
   ],
   "presets": [{ "name": "Custom product designer" }]
 }
 {% endschema %}
+}
