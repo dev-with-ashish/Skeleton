@@ -1,71 +1,3 @@
-{% doc %}
-  @prompt
-    Brand
-    UV Printing
-    Applications
-    Pricing
-    Locations
-    Gallery
-    FAQ
-    Call Get a Fast Quote
-    UV Printing Near Me
-    Instant-cure UV printing on acrylic, metal, glass, wood & more. Same-day options, pro finish, local pickup.
-    
-    Get a Fast Quote See Pricing
-    ★★★★★ 4.9/5 • 1,200+ local orders • Pickup in [City]
-    Flatbed UV printing on acrylic
-    Popular UV Services
-    Flatbed UV Printing Acrylic Photo Prints Metal Prints Signage & Boards Same-Day UV
-    We Print on
-    Acrylic (PMMA) Aluminum Glass Wood
-    How UV Printing Works
-    Deposit: Micro-droplet inkjet placement
-    Pinning: Gels dots for sharp edges
-    Cure: UV light instantly hardens ink
-    Learn more
-    Finishes & Special Effects
-    Spot UV Highlights Clear Gloss/Matte Raised/Tactile Layers
-    Sample Pricing
-    Material	Size	From
-    Acrylic	A4	₹XXX
-    Metal (ACP)	A3	₹XXX
-    Glass	A2	₹XXX
-    Full Pricing →
-    Recent Work
-    View Gallery
-    What Customers Say
-    Read more reviews
-    Get a Fast Quote
-    Name
-     
-    Phone / WhatsApp
-     
-    Email
-     
-    Choose material
-     
-    Size (e.g., 12x18 in)
-     
-    Quantity
-     
-    dd/mm/yyyy
-     No file chosen
-     Same-day needed Submit
-    Visit Us
-    Brand UV Studio
-    Plot X, Industrial Area, [City], [PIN]
-    
-    Call: +91-XXXXXXXXXX
-    
-    Hours: Mon–Sat 10:00–19:00
-    
-    See all locations
-    FAQ
-    How durable are UV prints?
-    Do you print white ink on acrylic/glass?
-    What’s the same-day cutoff?
-    More FAQs → generate a unique attractive template having all these, option to add images instead of stars for services also image for we print on ::: make whole block theme dark and option to add unlimited faqs, change styling of how uv printing work display it like step wise the layout should seems to have steps, add gallery section before faq, add gallery section before faq, change styling of how UV printing works, keep pricing layout same on mobile just make width adjustment according to device width for sample pricing section, just make the sample priceing section responsive best according to you
-{% enddoc %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -571,6 +503,10 @@
     font-weight: 600;
     color: #ffffff;
     transition: background-color 0.3s ease;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
   }
 
   .ai-uv-faq-question-{{ ai_gen_id }}:hover {
@@ -674,7 +610,7 @@
       
       <div class="ai-uv-hero-rating-{{ ai_gen_id }}">
         <span>★★★★★</span>
-        <span>{{ block.settings.rating_text }}</span>
+        <span>{{ block.settings.rating_text | replace: '[City]', block.settings.city_name }}</span>
       </div>
       
       <div class="ai-uv-hero-buttons-{{ ai_gen_id }}">
@@ -685,6 +621,15 @@
           {{ block.settings.secondary_button_text }}
         </a>
       </div>
+
+      <!-- Local SEO paragraph (crawlable copy) -->
+      <p class="ai-uv-hero-subtitle-{{ ai_gen_id }}" style="max-width:800px">
+        Looking for <strong>UV printing near {{ block.settings.city_name }}</strong>? We offer
+        <strong>flatbed UV printing</strong> on acrylic, metal, glass, and wood with <strong>same-day options</strong>
+        and local pickup. From <em>acrylic photo prints</em> and <em>metal signs</em> to <em>custom display boards</em>,
+        our instant-cure inks deliver sharp edges, vibrant color, and a durable, scratch-resistant finish.
+        Get a fast quote or see pricing—serving {{ block.settings.city_name }} and nearby areas.
+      </p>
     </div>
   </section>
 
@@ -707,10 +652,14 @@
           {% if service_title != blank %}
             <div class="ai-uv-service-card-{{ ai_gen_id }}">
               {% if service_image %}
-                <img src="{{ service_image | image_url: width: 160 }}" alt="{{ service_image.alt | escape }}" class="ai-uv-service-image-{{ ai_gen_id }}" width="80" height="80">
+                <img src="{{ service_image | image_url: width: 160 }}"
+                     alt="{{ service_image.alt | escape }}"
+                     class="ai-uv-service-image-{{ ai_gen_id }}"
+                     width="80" height="80"
+                     loading="lazy" decoding="async">
               {% else %}
                 <div class="ai-uv-service-icon-{{ ai_gen_id }}">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
                 </div>
@@ -721,6 +670,16 @@
           {% endif %}
         {% endfor %}
       </div>
+
+      <!-- Internal links for crawl & UX -->
+      <p style="text-align:center;margin-top:28px;color:#cbd5e1">
+        Explore: <a href="/uv-printing" style="color:#93c5fd">UV Printing</a> ·
+        <a href="/applications" style="color:#93c5fd">Applications</a> ·
+        <a href="/pricing" style="color:#93c5fd">Pricing</a> ·
+        <a href="/locations" style="color:#93c5fd">Locations</a> ·
+        <a href="/gallery" style="color:#93c5fd">Gallery</a> ·
+        <a href="/faq" style="color:#93c5fd">FAQ</a>
+      </p>
     </div>
   </section>
 
@@ -741,10 +700,14 @@
           {% if material_name != blank %}
             <div class="ai-uv-material-card-{{ ai_gen_id }}">
               {% if material_image %}
-                <img src="{{ material_image | image_url: width: 120 }}" alt="{{ material_image.alt | escape }}" class="ai-uv-material-image-{{ ai_gen_id }}" width="60" height="60">
+                <img src="{{ material_image | image_url: width: 120 }}"
+                     alt="{{ material_image.alt | escape }}"
+                     class="ai-uv-material-image-{{ ai_gen_id }}"
+                     width="60" height="60"
+                     loading="lazy" decoding="async">
               {% else %}
                 <div class="ai-uv-material-icon-{{ ai_gen_id }}">
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                   </svg>
                 </div>
@@ -816,49 +779,61 @@
     </div>
   </section>
 
-  <!-- Quote Form -->
+  <!-- Quote Form (Shopify contact form + wrapper for styling) -->
   <section class="ai-uv-section-{{ ai_gen_id }}">
     <div class="ai-uv-container-{{ ai_gen_id }}">
       <h2 class="ai-uv-section-title-{{ ai_gen_id }}">{{ block.settings.form_title }}</h2>
-      <form class="ai-uv-form-{{ ai_gen_id }}">
-        <div class="ai-uv-form-grid-{{ ai_gen_id }}">
-          <div class="ai-uv-form-group-{{ ai_gen_id }}">
-            <label class="ai-uv-form-label-{{ ai_gen_id }}">Name</label>
-            <input type="text" class="ai-uv-form-input-{{ ai_gen_id }}" required>
+
+      <div class="ai-uv-form-{{ ai_gen_id }}">
+        {% form 'contact' %}
+          <div class="ai-uv-form-grid-{{ ai_gen_id }}">
+            <div class="ai-uv-form-group-{{ ai_gen_id }}">
+              <label class="ai-uv-form-label-{{ ai_gen_id }}" for="contact-name-{{ ai_gen_id }}">Name</label>
+              <input id="contact-name-{{ ai_gen_id }}" type="text" name="contact[name]" class="ai-uv-form-input-{{ ai_gen_id }}" required>
+            </div>
+            <div class="ai-uv-form-group-{{ ai_gen_id }}">
+              <label class="ai-uv-form-label-{{ ai_gen_id }}" for="contact-phone-{{ ai_gen_id }}">Phone / WhatsApp</label>
+              <input id="contact-phone-{{ ai_gen_id }}" type="tel" name="contact[phone]" class="ai-uv-form-input-{{ ai_gen_id }}" required>
+            </div>
+            <div class="ai-uv-form-group-{{ ai_gen_id }}">
+              <label class="ai-uv-form-label-{{ ai_gen_id }}" for="contact-email-{{ ai_gen_id }}">Email</label>
+              <input id="contact-email-{{ ai_gen_id }}" type="email" name="contact[email]" class="ai-uv-form-input-{{ ai_gen_id }}" required>
+            </div>
+            <div class="ai-uv-form-group-{{ ai_gen_id }}">
+              <label class="ai-uv-form-label-{{ ai_gen_id }}" for="contact-material-{{ ai_gen_id }}">Choose material</label>
+              <select id="contact-material-{{ ai_gen_id }}" name="contact[material]" class="ai-uv-form-select-{{ ai_gen_id }}" required>
+                <option value="">Select material</option>
+                <option value="Acrylic">Acrylic (PMMA)</option>
+                <option value="Aluminum">Aluminum</option>
+                <option value="Glass">Glass</option>
+                <option value="Wood">Wood</option>
+              </select>
+            </div>
+            <div class="ai-uv-form-group-{{ ai_gen_id }}">
+              <label class="ai-uv-form-label-{{ ai_gen_id }}" for="contact-size-{{ ai_gen_id }}">Size</label>
+              <input id="contact-size-{{ ai_gen_id }}" type="text" name="contact[size]" class="ai-uv-form-input-{{ ai_gen_id }}" placeholder="e.g., 12x18 in" required>
+            </div>
+            <div class="ai-uv-form-group-{{ ai_gen_id }}">
+              <label class="ai-uv-form-label-{{ ai_gen_id }}" for="contact-qty-{{ ai_gen_id }}">Quantity</label>
+              <input id="contact-qty-{{ ai_gen_id }}" type="number" min="1" name="contact[quantity]" class="ai-uv-form-input-{{ ai_gen_id }}" required>
+            </div>
           </div>
-          <div class="ai-uv-form-group-{{ ai_gen_id }}">
-            <label class="ai-uv-form-label-{{ ai_gen_id }}">Phone / WhatsApp</label>
-            <input type="tel" class="ai-uv-form-input-{{ ai_gen_id }}" required>
+
+          <div class="ai-uv-form-checkbox-{{ ai_gen_id }}">
+            <input type="checkbox" id="same-day-{{ ai_gen_id }}" name="contact[same_day]">
+            <label for="same-day-{{ ai_gen_id }}" class="ai-uv-form-label-{{ ai_gen_id }}">Same-day needed</label>
           </div>
-          <div class="ai-uv-form-group-{{ ai_gen_id }}">
-            <label class="ai-uv-form-label-{{ ai_gen_id }}">Email</label>
-            <input type="email" class="ai-uv-form-input-{{ ai_gen_id }}" required>
-          </div>
-          <div class="ai-uv-form-group-{{ ai_gen_id }}">
-            <label class="ai-uv-form-label-{{ ai_gen_id }}">Choose material</label>
-            <select class="ai-uv-form-select-{{ ai_gen_id }}" required>
-              <option value="">Select material</option>
-              <option value="acrylic">Acrylic (PMMA)</option>
-              <option value="aluminum">Aluminum</option>
-              <option value="glass">Glass</option>
-              <option value="wood">Wood</option>
-            </select>
-          </div>
-          <div class="ai-uv-form-group-{{ ai_gen_id }}">
-            <label class="ai-uv-form-label-{{ ai_gen_id }}">Size</label>
-            <input type="text" class="ai-uv-form-input-{{ ai_gen_id }}" placeholder="e.g., 12x18 in" required>
-          </div>
-          <div class="ai-uv-form-group-{{ ai_gen_id }}">
-            <label class="ai-uv-form-label-{{ ai_gen_id }}">Quantity</label>
-            <input type="number" class="ai-uv-form-input-{{ ai_gen_id }}" min="1" required>
-          </div>
-        </div>
-        <div class="ai-uv-form-checkbox-{{ ai_gen_id }}">
-          <input type="checkbox" id="same-day-{{ ai_gen_id }}">
-          <label for="same-day-{{ ai_gen_id }}" class="ai-uv-form-label-{{ ai_gen_id }}">Same-day needed</label>
-        </div>
-        <button type="submit" class="ai-uv-form-submit-{{ ai_gen_id }}">Submit</button>
-      </form>
+
+          <input type="hidden" name="contact[page]" value="UV Printing Near Me">
+          <button type="submit" class="ai-uv-form-submit-{{ ai_gen_id }}">Submit</button>
+
+          {% if form.posted_successfully? %}
+            <p style="margin-top:12px;color:#a7f3d0;">Thanks! We’ll reach out shortly.</p>
+          {% elsif form.errors %}
+            <p style="margin-top:12px;color:#fecaca;">Please fix the errors and try again.</p>
+          {% endif %}
+        {% endform %}
+      </div>
     </div>
   </section>
 
@@ -869,7 +844,7 @@
       <div class="ai-uv-contact-grid-{{ ai_gen_id }}">
         <div class="ai-uv-contact-card-{{ ai_gen_id }}">
           <div class="ai-uv-contact-icon-{{ ai_gen_id }}">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/>
             </svg>
           </div>
@@ -881,7 +856,7 @@
         </div>
         <div class="ai-uv-contact-card-{{ ai_gen_id }}">
           <div class="ai-uv-contact-icon-{{ ai_gen_id }}">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
             </svg>
           </div>
@@ -913,10 +888,13 @@
           {% if gallery_image or gallery_title != blank %}
             <div class="ai-uv-gallery-item-{{ ai_gen_id }}">
               {% if gallery_image %}
-                <img src="{{ gallery_image | image_url: width: 600 }}" alt="{{ gallery_image.alt | escape }}" class="ai-uv-gallery-image-{{ ai_gen_id }}">
+                <img src="{{ gallery_image | image_url: width: 600 }}"
+                     alt="{{ gallery_image.alt | escape }}"
+                     class="ai-uv-gallery-image-{{ ai_gen_id }}"
+                     loading="lazy" decoding="async">
               {% else %}
                 <div class="ai-uv-gallery-placeholder-{{ ai_gen_id }}">
-                  <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M9,2V7.38L10.5,8.88L15.12,4.26L19.74,8.88L22,6.62L17.38,2H9M15.12,19.74L19.74,15.12L22,17.38V9H17.38L22,4.38L19.74,2.12L15.12,6.74L10.5,2.12L8.24,4.38L12.86,9H2V17.38L4.26,19.74L8.88,15.12L13.5,19.74L15.12,19.74Z"/>
                   </svg>
                 </div>
@@ -951,12 +929,12 @@
             {% assign answer = faq_parts[1] | strip %}
             {% if question != blank and answer != blank %}
               <div class="ai-uv-faq-item-{{ ai_gen_id }}">
-                <div class="ai-uv-faq-question-{{ ai_gen_id }}" onclick="toggleFAQ{{ ai_gen_id }}(this)">
+                <button class="ai-uv-faq-question-{{ ai_gen_id }}" type="button" aria-expanded="false" onclick="toggleFAQ{{ ai_gen_id }}(this)">
                   <span>{{ question }}</span>
-                  <svg class="ai-uv-faq-icon-{{ ai_gen_id }}" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <svg class="ai-uv-faq-icon-{{ ai_gen_id }}" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
                   </svg>
-                </div>
+                </button>
                 <div class="ai-uv-faq-answer-{{ ai_gen_id }}">{{ answer }}</div>
               </div>
             {% endif %}
@@ -965,13 +943,42 @@
       </div>
     </div>
   </section>
+
+  <!-- LocalBusiness JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": {{ block.settings.business_name | json }},
+    "image": {{ block.settings.gallery_1_image | default: block.settings.material_1_image | image_url: width: 600 | json }},
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": {{ block.settings.business_address | json }},
+      "addressLocality": {{ block.settings.city_name | json }},
+      "addressCountry": "IN"
+    },
+    "telephone": {{ block.settings.business_phone | json }},
+    "openingHours": {{ block.settings.business_hours | json }},
+    "url": {{ shop.url | json }},
+    "areaServed": {{ block.settings.city_name | json }},
+    "makesOffer": {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Flatbed UV Printing",
+        "areaServed": {{ block.settings.city_name | json }}
+      }
+    }
+  }
+  </script>
 </div>
 
 <script>
-  function toggleFAQ{{ ai_gen_id }}(element) {
-    const answer = element.nextElementSibling;
-    const icon = element.querySelector('.ai-uv-faq-icon-{{ ai_gen_id }}');
-    
+  function toggleFAQ{{ ai_gen_id }}(btn) {
+    const answer = btn.parentElement.querySelector('.ai-uv-faq-answer-{{ ai_gen_id }}');
+    const icon = btn.querySelector('.ai-uv-faq-icon-{{ ai_gen_id }}');
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', (!expanded).toString());
     answer.classList.toggle('active');
     icon.classList.toggle('active');
   }
@@ -996,6 +1003,12 @@
       "id": "hero_subtitle",
       "label": "Hero subtitle",
       "default": "Instant-cure UV printing on acrylic, metal, glass, wood & more. Same-day options, pro finish, local pickup."
+    },
+    {
+      "type": "text",
+      "id": "city_name",
+      "label": "Primary city name",
+      "default": "Noida"
     },
     {
       "type": "text",
