@@ -9,6 +9,93 @@
  */
 {
   "sections": {
+    "custom_section_bjNd46": {
+      "type": "custom-section",
+      "blocks": {
+        "ai_gen_block_c9d097f_LWDxqR": {
+          "type": "ai_gen_block_c9d097f",
+          "settings": {
+            "hero_title": "UV Printing Near Me",
+            "hero_subtitle": "Instant-cure UV printing on acrylic, metal, glass, wood & more. Same-day options, pro finish, local pickup.",
+            "rating_text": "4.9/5 • 1,200+ local orders • Pickup in [City]",
+            "primary_button_text": "Get a Fast Quote",
+            "primary_button_link": "",
+            "secondary_button_text": "See Pricing",
+            "secondary_button_link": "",
+            "services_title": "Popular UV Services",
+            "service_1_title": "Flatbed UV Printing",
+            "service_1_description": "High-quality flatbed UV printing on various materials",
+            "service_2_title": "Acrylic Photo Prints",
+            "service_2_description": "Crystal clear photo prints on premium acrylic",
+            "service_3_title": "Metal Prints",
+            "service_3_description": "Durable metal prints with vibrant colors",
+            "service_4_title": "Signage & Boards",
+            "service_4_description": "Professional signage and display boards",
+            "service_5_title": "Same-Day UV",
+            "service_5_description": "Rush orders completed the same day",
+            "materials_title": "We Print On",
+            "material_1_name": "Acrylic (PMMA)",
+            "material_2_name": "Aluminum",
+            "material_3_name": "Glass",
+            "material_4_name": "Wood",
+            "process_title": "How UV Printing Works",
+            "process_step_1_title": "Deposit",
+            "process_step_1_description": "Micro-droplet inkjet placement ensures precise color application",
+            "process_step_2_title": "Pinning",
+            "process_step_2_description": "Gels dots for sharp edges and prevents ink bleeding",
+            "process_step_3_title": "Cure",
+            "process_step_3_description": "UV light instantly hardens ink for durable, scratch-resistant finish",
+            "pricing_title": "Sample Pricing",
+            "pricing_1_material": "Acrylic",
+            "pricing_1_size": "A4",
+            "pricing_1_price": "₹XXX",
+            "pricing_2_material": "Metal (ACP)",
+            "pricing_2_size": "A3",
+            "pricing_2_price": "₹XXX",
+            "pricing_3_material": "Glass",
+            "pricing_3_size": "A2",
+            "pricing_3_price": "₹XXX",
+            "form_title": "Get a Fast Quote",
+            "contact_title": "Visit Us",
+            "business_name": "Brand UV Studio",
+            "business_address": "Plot X, Industrial Area, [City], [PIN]",
+            "business_phone": "+91-XXXXXXXXXX",
+            "business_hours": "Hours: Mon–Sat 10:00–19:00",
+            "gallery_title": "Recent Work",
+            "gallery_1_title": "Acrylic Photo Print",
+            "gallery_1_description": "High-quality photo print on premium acrylic material",
+            "gallery_2_title": "Metal Signage",
+            "gallery_2_description": "Durable metal signage with vibrant UV printing",
+            "gallery_3_title": "Glass Art",
+            "gallery_3_description": "Beautiful glass art with UV printed designs",
+            "gallery_4_title": "Wood Panel",
+            "gallery_4_description": "Custom wood panel with detailed UV printing",
+            "gallery_5_title": "Display Board",
+            "gallery_5_description": "Professional display board for business use",
+            "gallery_6_title": "Custom Design",
+            "gallery_6_description": "Unique custom design printed on acrylic",
+            "faq_title": "Frequently Asked Questions",
+            "faq_content": "How durable are UV prints?|UV prints are extremely durable and can last for years without fading, even in outdoor conditions.||Do you print white ink on acrylic/glass?|Yes, we can print white ink as a base layer or design element on transparent materials like acrylic and glass.||What's the same-day cutoff?|Orders placed before 2 PM can typically be completed the same day, subject to complexity and current workload."
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_c9d097f_LWDxqR"
+      ],
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "dark",
+        "padding_top": 40,
+        "padding_right": 0,
+        "padding_bottom": 40,
+        "padding_left": 0,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
+    },
     "custom_section_DyN8jA": {
       "type": "custom-section",
       "blocks": {
@@ -26,7 +113,7 @@
             "text_shadow_x": 2,
             "text_shadow_y": 2,
             "text_shadow_blur": 4,
-            "text_shadow_color": "#00000050",
+            "text_shadow_color": "#0000004f",
             "input_label_2": "Enter second line",
             "input_placeholder_2": "Second line text...",
             "preview_text_2": "Title",
@@ -197,6 +284,7 @@
     }
   },
   "order": [
+    "custom_section_bjNd46",
     "custom_section_DyN8jA",
     "custom_section_kwEPTd",
     "custom_section_jrRpCM"
