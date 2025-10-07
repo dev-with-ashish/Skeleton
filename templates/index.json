@@ -22,7 +22,7 @@
             "primary_button_text": "Get a Fast Quote",
             "primary_button_link": "#ai-uv-form",
             "secondary_button_text": "See Pricing",
-            "secondary_button_link": "",
+            "secondary_button_link": "#ai-uv-price",
             "services_title": "Popular UV Services",
             "service_1_title": "Flatbed UV Printing",
             "service_1_description": "High-quality flatbed UV printing on various materials",
