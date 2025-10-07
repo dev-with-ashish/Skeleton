@@ -20,7 +20,7 @@
             "city_name": "Noida",
             "rating_text": "5/5   1,200+ local orders   Pickup in [City]",
             "primary_button_text": "Get a Fast Quote",
-            "primary_button_link": "/ai-uv-form",
+            "primary_button_link": "#ai-uv-form",
             "secondary_button_text": "See Pricing",
             "secondary_button_link": "",
             "services_title": "Popular UV Services",
