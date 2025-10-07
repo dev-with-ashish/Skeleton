@@ -220,6 +220,15 @@
   <section class="ai-uv-hero-{{ ai_gen_id }}">
     <div class="ai-uv-container-{{ ai_gen_id }}">
       <h1 class="ai-uv-hero-title-{{ ai_gen_id }}">{{ block.settings.hero_title }}</h1>
+
+      <!-- Render the stored hero subtitle -->
+      <p class="ai-uv-hero-subtitle-{{ ai_gen_id }}">{{ block.settings.hero_subtitle }}</p>
+
+      <!-- Extra H2 for local intent -->
+      <h2 style="font-size:1.35rem;margin:14px 0 0;color:#e2e8f0;font-weight:700;">
+        Fast flatbed UV printing in {{ block.settings.city_name }} — same-day available
+      </h2>
+
       <p class="ai-uv-hero-seo-{{ ai_gen_id }}">
         Looking for <strong>UV printing near {{ block.settings.city_name }}</strong>? We offer
         <strong>flatbed UV printing</strong> on acrylic, metal, glass, and wood with <strong>same-day options</strong>
@@ -246,6 +255,7 @@
           <a href="/applications" style="color:#93c5fd">UV Applications</a> ·
           <a href="/pricing" style="color:#93c5fd">UV Printing Pricing</a> ·
           <a href="/locations" style="color:#93c5fd">{{ block.settings.city_name }} Location</a> ·
+          <a href="/contact" style="color:#93c5fd">Contact &amp; Map – {{ block.settings.city_name }}</a> ·
           <a href="/gallery" style="color:#93c5fd">Recent UV Work</a> ·
           <a href="/faq" style="color:#93c5fd">UV Printing FAQ</a>
         </p>
@@ -275,7 +285,7 @@
                   src="{{ service_image | image_url: width: 160 }}"
                   srcset="{{ service_image | image_url: width: 80 }} 80w, {{ service_image | image_url: width: 120 }} 120w, {{ service_image | image_url: width: 160 }} 160w"
                   sizes="80px"
-                  alt="{{ service_image.alt | escape }}"
+                  alt="{{ service_image.alt | default: service_title | escape }}"
                   class="ai-uv-service-image-{{ ai_gen_id }}"
                   width="80" height="80"
                   loading="lazy" decoding="async">
@@ -312,7 +322,7 @@
                   src="{{ material_image | image_url: width: 120 }}"
                   srcset="{{ material_image | image_url: width: 80 }} 80w, {{ material_image | image_url: width: 120 }} 120w, {{ material_image | image_url: width: 160 }} 160w"
                   sizes="60px"
-                  alt="{{ material_image.alt | escape }}"
+                  alt="{{ material_image.alt | default: material_name | escape }}"
                   class="ai-uv-material-image-{{ ai_gen_id }}"
                   width="60" height="60"
                   loading="lazy" decoding="async">
@@ -441,7 +451,7 @@
     </div>
   </section>
 
-    <!-- Contact Information -->
+  <!-- Contact Information -->
   <section class="ai-uv-section-{{ ai_gen_id }}">
     <div class="ai-uv-container-{{ ai_gen_id }}">
       <h2 class="ai-uv-section-title-{{ ai_gen_id }}">{{ block.settings.contact_title }}</h2>
@@ -474,7 +484,6 @@
     </div>
   </section>
 
-
   <!-- Gallery -->
   <section class="ai-uv-section-{{ ai_gen_id }}">
     <div class="ai-uv-container-{{ ai_gen_id }}">
@@ -496,7 +505,7 @@
                   src="{{ gallery_image | image_url: width: 600 }}"
                   srcset="{{ gallery_image | image_url: width: 400 }} 400w, {{ gallery_image | image_url: width: 600 }} 600w, {{ gallery_image | image_url: width: 900 }} 900w"
                   sizes="(max-width: 768px) 100vw, 600px"
-                  alt="{{ gallery_image.alt | escape }}"
+                  alt="{{ gallery_image.alt | default: gallery_title | escape }}"
                   class="ai-uv-gallery-image-{{ ai_gen_id }}"
                   loading="lazy" decoding="async">
               {% else %}
@@ -562,7 +571,7 @@
     "@id": {{ shop.url | append: "/#localbusiness" | json }},
     "name": {{ block.settings.business_name | json }},
     "image": {{ block.settings.gallery_1_image | default: block.settings.material_1_image | image_url: width: 800 | json }},
-    "url": {{ shop.surl | json }},
+    "url": {{ shop.url | json }},
     "telephone": {{ block.settings.business_phone | json }},
     "priceRange": "₹₹",
     "address": {
@@ -578,6 +587,12 @@
       "closes": "19:00"
     }],
     "areaServed": {{ block.settings.city_name | json }},
+    "hasMap": "https://www.google.com/maps/search/?api=1&query={{ block.settings.business_address | url_encode }}",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": {{ block.settings.lat | default: "0" }},
+      "longitude": {{ block.settings.lng | default: "0" }}
+    },
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
@@ -703,6 +718,8 @@
     { "type": "textarea", "id": "business_address", "label": "Business address", "default": "Plot X, Industrial Area, [City], [PIN]" },
     { "type": "text", "id": "business_phone", "label": "Business phone", "default": "+91-XXXXXXXXXX" },
     { "type": "text", "id": "business_hours", "label": "Business hours", "default": "Hours: Mon–Sat 10:00–19:00" },
+    { "type": "text", "id": "lat", "label": "Latitude (optional)", "default": "#" },
+    { "type": "text", "id": "lng", "label": "Longitude (optional)", "default": "#" },
 
     { "type": "header", "content": "Gallery" },
     { "type": "text", "id": "gallery_title", "label": "Gallery section title", "default": "Recent Work" },
@@ -727,7 +744,7 @@
 
     { "type": "header", "content": "FAQ" },
     { "type": "text", "id": "faq_title", "label": "FAQ section title", "default": "Frequently Asked Questions" },
-    { "type": "textarea", "id": "faq_content", "label": "FAQ content", "info": "Format: Question|Answer||Question|Answer (use | to separate question from answer, use || to separate different FAQ pairs)", "default": "How durable are UV prints?|UV prints are extremely durable and can last for years without fading, even in outdoor conditions.||Do you print white ink on acrylic/glass?|Yes, we can print white ink as a base layer or design element on transparent materials like acrylic and glass.||What's the same-day cutoff?|Orders placed before 2 PM can typically be completed the same day, subject to complexity and current workload." }
+    { "type": "textarea", "id": "faq_content", "label": "FAQ content", "info": "Format: Question|Answer||Question|Answer (use | to separate question from answer, use || to separate different FAQ pairs)", "default": "How durable are UV prints?|UV prints are extremely durable and can last for years without fading, even in outdoor conditions.||Do you print white ink on acrylic/glass?|Yes, we can print white ink as a base layer or design element on transparent materials like acrylic and glass.||What's the same-day cutoff?|Orders placed before 2 PM can typically be completed the same day, subject to complexity and current workload.||Do you offer UV printing near me in [City]?|Yes—our studio in [City] provides local pickup and same-day UV printing on acrylic, metal, glass, and wood." }
   ],
   "presets": [{ "name": "UV printing service" }]
 }
