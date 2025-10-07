@@ -17,6 +17,7 @@
           "settings": {
             "hero_title": "UV Printing Near Me",
             "hero_subtitle": "Instant-cure UV printing on acrylic, metal, glass, wood & more. Same-day options, pro finish, local pickup.",
+            "city_name": "Noida",
             "rating_text": "4.9/5 • 1,200+ local orders • Pickup in [City]",
             "primary_button_text": "Get a Fast Quote",
             "primary_button_link": "",
@@ -25,6 +26,7 @@
             "services_title": "Popular UV Services",
             "service_1_title": "Flatbed UV Printing",
             "service_1_description": "High-quality flatbed UV printing on various materials",
+            "service_1_image": "shopify://shop_images/xauy8pi7kjmhltay9hz9_2-enhanced_117ef982-3699-4a3d-aa30-4f9b096e1ba6.png",
             "service_2_title": "Acrylic Photo Prints",
             "service_2_description": "Crystal clear photo prints on premium acrylic",
             "service_3_title": "Metal Prints",
@@ -35,6 +37,7 @@
             "service_5_description": "Rush orders completed the same day",
             "materials_title": "We Print On",
             "material_1_name": "Acrylic (PMMA)",
+            "material_1_image": "shopify://shop_images/Formula1.png",
             "material_2_name": "Aluminum",
             "material_3_name": "Glass",
             "material_4_name": "Wood",
