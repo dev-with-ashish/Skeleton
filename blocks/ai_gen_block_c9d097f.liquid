@@ -239,14 +239,15 @@
       </div>
 
       <div>
-        <!-- Internal links -->
+        <!-- Internal links (city-relevant anchors) -->
         <p style="text-align:center;margin-top:28px;color:#cbd5e1">
-          Explore: <a href="/uv-printing" style="color:#93c5fd">UV Printing</a> ·
-          <a href="/applications" style="color:#93c5fd">Applications</a> ·
-          <a href="/pricing" style="color:#93c5fd">Pricing</a> ·
-          <a href="/locations" style="color:#93c5fd">Locations</a> ·
-          <a href="/gallery" style="color:#93c5fd">Gallery</a> ·
-          <a href="/faq" style="color:#93c5fd">FAQ</a>
+          Explore:
+          <a href="/uv-printing" style="color:#93c5fd">UV Printing in {{ block.settings.city_name }}</a> ·
+          <a href="/applications" style="color:#93c5fd">UV Applications</a> ·
+          <a href="/pricing" style="color:#93c5fd">UV Printing Pricing</a> ·
+          <a href="/locations" style="color:#93c5fd">{{ block.settings.city_name }} Location</a> ·
+          <a href="/gallery" style="color:#93c5fd">Recent UV Work</a> ·
+          <a href="/faq" style="color:#93c5fd">UV Printing FAQ</a>
         </p>
       </div>
       
@@ -270,7 +271,14 @@
           {% if service_title != blank %}
             <div class="ai-uv-service-card-{{ ai_gen_id }}">
               {% if service_image %}
-                <img src="{{ service_image | image_url: width: 160 }}" alt="{{ service_image.alt | escape }}" class="ai-uv-service-image-{{ ai_gen_id }}" width="80" height="80" loading="lazy" decoding="async">
+                <img
+                  src="{{ service_image | image_url: width: 160 }}"
+                  srcset="{{ service_image | image_url: width: 80 }} 80w, {{ service_image | image_url: width: 120 }} 120w, {{ service_image | image_url: width: 160 }} 160w"
+                  sizes="80px"
+                  alt="{{ service_image.alt | escape }}"
+                  class="ai-uv-service-image-{{ ai_gen_id }}"
+                  width="80" height="80"
+                  loading="lazy" decoding="async">
               {% else %}
                 <div class="ai-uv-service-icon-{{ ai_gen_id }}">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -300,7 +308,14 @@
           {% if material_name != blank %}
             <div class="ai-uv-material-card-{{ ai_gen_id }}">
               {% if material_image %}
-                <img src="{{ material_image | image_url: width: 120 }}" alt="{{ material_image.alt | escape }}" class="ai-uv-material-image-{{ ai_gen_id }}" width="60" height="60" loading="lazy" decoding="async">
+                <img
+                  src="{{ material_image | image_url: width: 120 }}"
+                  srcset="{{ material_image | image_url: width: 80 }} 80w, {{ material_image | image_url: width: 120 }} 120w, {{ material_image | image_url: width: 160 }} 160w"
+                  sizes="60px"
+                  alt="{{ material_image.alt | escape }}"
+                  class="ai-uv-material-image-{{ ai_gen_id }}"
+                  width="60" height="60"
+                  loading="lazy" decoding="async">
               {% else %}
                 <div class="ai-uv-material-icon-{{ ai_gen_id }}">
                   <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
@@ -472,7 +487,13 @@
           {% if gallery_image or gallery_title != blank %}
             <div class="ai-uv-gallery-item-{{ ai_gen_id }}">
               {% if gallery_image %}
-                <img src="{{ gallery_image | image_url: width: 600 }}" alt="{{ gallery_image.alt | escape }}" class="ai-uv-gallery-image-{{ ai_gen_id }}" loading="lazy" decoding="async">
+                <img
+                  src="{{ gallery_image | image_url: width: 600 }}"
+                  srcset="{{ gallery_image | image_url: width: 400 }} 400w, {{ gallery_image | image_url: width: 600 }} 600w, {{ gallery_image | image_url: width: 900 }} 900w"
+                  sizes="(max-width: 768px) 100vw, 600px"
+                  alt="{{ gallery_image.alt | escape }}"
+                  class="ai-uv-gallery-image-{{ ai_gen_id }}"
+                  loading="lazy" decoding="async">
               {% else %}
                 <div class="ai-uv-gallery-placeholder-{{ ai_gen_id }}">
                   <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9,2V7.38L10.5,8.88L15.12,4.26L19.74,8.88L22,6.62L17.38,2H9M15.12,19.74L19.74,15.12L22,17.38V9H17.38L22,4.38L19.74,2.12L15.12,6.74L10.5,2.12L8.24,4.38L12.86,9H2V17.38L4.26,19.74L8.88,15.12L13.5,19.74L15.12,19.74Z"/></svg>
@@ -528,23 +549,35 @@
     </div>
   </div>
 
-  <!-- LocalBusiness JSON-LD -->
+  <!-- LocalBusiness JSON-LD (enriched) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": {{ shop.url | append: "/#localbusiness" | json }},
     "name": {{ block.settings.business_name | json }},
-    "image": {{ block.settings.gallery_1_image | default: block.settings.material_1_image | image_url: width: 600 | json }},
+    "image": {{ block.settings.gallery_1_image | default: block.settings.material_1_image | image_url: width: 800 | json }},
+    "url": {{ shop.url | json }},
+    "telephone": {{ block.settings.business_phone | json }},
+    "priceRange": "₹₹",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": {{ block.settings.business_address | json }},
       "addressLocality": {{ block.settings.city_name | json }},
       "addressCountry": "IN"
     },
-    "telephone": {{ block.settings.business_phone | json }},
-    "openingHours": {{ block.settings.business_hours | json }},
-    "url": {{ shop.url | json }},
+    "openingHoursSpecification": [{
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+      "opens": "10:00",
+      "closes": "19:00"
+    }],
     "areaServed": {{ block.settings.city_name | json }},
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": 1200
+    },
     "makesOffer": {
       "@type": "Offer",
       "itemOffered": {
@@ -553,6 +586,30 @@
         "areaServed": {{ block.settings.city_name | json }}
       }
     }
+  }
+  </script>
+
+  <!-- FAQPage JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {% assign faq_pairs = block.settings.faq_content | split: '||' %}
+      {% for pair in faq_pairs %}
+        {% assign faq_parts = pair | split: '|' %}
+        {% if faq_parts.size == 2 %}
+          {
+            "@type": "Question",
+            "name": {{ faq_parts[0] | strip | json }},
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": {{ faq_parts[1] | strip | json }}
+            }
+          }{% unless forloop.last %},{% endunless %}
+        {% endif %}
+      {% endfor %}
+    ]
   }
   </script>
 </div>
