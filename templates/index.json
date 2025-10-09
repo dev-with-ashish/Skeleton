@@ -9,6 +9,21 @@
  */
 {
   "sections": {
+    "custom_section_LYFzCX": {
+      "type": "custom-section",
+      "name": "t:general.custom_section",
+      "settings": {
+        "theme": "light",
+        "padding_top": 40,
+        "padding_right": 40,
+        "padding_bottom": 40,
+        "padding_left": 40,
+        "margin_top": 0,
+        "margin_right": 0,
+        "margin_bottom": 0,
+        "margin_left": 0
+      }
+    },
     "custom_section_bjNd46": {
       "type": "custom-section",
       "blocks": {
@@ -289,6 +304,7 @@
     }
   },
   "order": [
+    "custom_section_LYFzCX",
     "custom_section_bjNd46",
     "custom_section_DyN8jA",
     "custom_section_kwEPTd",
