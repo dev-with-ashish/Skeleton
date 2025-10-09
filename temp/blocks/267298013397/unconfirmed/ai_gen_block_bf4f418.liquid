@@ -1,6 +1,433 @@
+{% doc %}
+  @prompt
+     @type = Product
+    
+     name
+    
+     image (one or more)
+    
+     description
+    
+     offers block with price, priceCurrency, availability, url
+    
+     sku
+    
+     brand
+    
+     aggregateRating
+    
+     review entries
+    
+     offers.priceValidUntil
+    
+     offers.itemCondition
+    
+     additionalProperty for custom specs
+    
+     category
+    
+     gtin, mpn, or other identifiers if available :::: generate this with schema data integrated with shopify schema setting which will get fetched from product meta fields
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-schema-{{ ai_gen_id }} {
+    display: none;
+  }
+{% endstyle %}
+
+<div class="ai-product-schema-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if product %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      {% if product.images.size > 0 %}
+        {% if product.images.size == 1 %}
+          "image": {{ product.featured_image | image_url: width: 1200 | json }},
+        {% else %}
+          "image": [
+            {% for image in product.images %}
+              {{ image | image_url: width: 1200 | json }}{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ],
+        {% endif %}
+      {% endif %}
+      {% if product.description != blank %}
+        "description": {{ product.description | strip_html | truncate: 5000 | json }},
+      {% endif %}
+      "sku": {{ product.selected_or_first_available_variant.sku | default: product.id | json }},
+      {% if block.settings.brand_metafield != blank and product.metafields[block.settings.brand_metafield] != blank %}
+        "brand": {
+          "@type": "Brand",
+          "name": {{ product.metafields[block.settings.brand_metafield] | json }}
+        },
+      {% elsif block.settings.default_brand != blank %}
+        "brand": {
+          "@type": "Brand",
+          "name": {{ block.settings.default_brand | json }}
+        },
+      {% endif %}
+      {% if product.metafields[block.settings.category_metafield] != blank %}
+        "category": {{ product.metafields[block.settings.category_metafield] | json }},
+      {% elsif block.settings.default_category != blank %}
+        "category": {{ block.settings.default_category | json }},
+      {% endif %}
+      {% if product.metafields[block.settings.gtin_metafield] != blank %}
+        "gtin": {{ product.metafields[block.settings.gtin_metafield] | json }},
+      {% endif %}
+      {% if product.metafields[block.settings.mpn_metafield] != blank %}
+        "mpn": {{ product.metafields[block.settings.mpn_metafield] | json }},
+      {% endif %}
+      {% if product.metafields[block.settings.condition_metafield] != blank %}
+        {% assign condition_value = product.metafields[block.settings.condition_metafield] %}
+      {% else %}
+        {% assign condition_value = block.settings.default_condition %}
+      {% endif %}
+      "offers": {
+        "@type": "Offer",
+        "url": {{ shop.url | append: product.url | json }},
+        "priceCurrency": {{ cart.currency.iso_code | json }},
+        "price": {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | json }},
+        {% if product.selected_or_first_available_variant.available %}
+          "availability": "https://schema.org/InStock",
+        {% else %}
+          "availability": "https://schema.org/OutOfStock",
+        {% endif %}
+        {% if block.settings.price_valid_until != blank %}
+          "priceValidUntil": {{ block.settings.price_valid_until | json }},
+        {% endif %}
+        {% if condition_value != blank %}
+          {% case condition_value %}
+            {% when 'new' %}
+              "itemCondition": "https://schema.org/NewCondition"
+            {% when 'used' %}
+              "itemCondition": "https://schema.org/UsedCondition"
+            {% when 'refurbished' %}
+              "itemCondition": "https://schema.org/RefurbishedCondition"
+            {% when 'damaged' %}
+              "itemCondition": "https://schema.org/DamagedCondition"
+            {% else %}
+              "itemCondition": "https://schema.org/NewCondition"
+          {% endcase %}
+        {% else %}
+          "itemCondition": "https://schema.org/NewCondition"
+        {% endif %}
+      },
+      {% if product.metafields[block.settings.rating_value_metafield] != blank and product.metafields[block.settings.rating_count_metafield] != blank %}
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": {{ product.metafields[block.settings.rating_value_metafield] | json }},
+          "reviewCount": {{ product.metafields[block.settings.rating_count_metafield] | json }},
+          "bestRating": {{ block.settings.best_rating | json }},
+          "worstRating": {{ block.settings.worst_rating | json }}
+        },
+      {% endif %}
+      {% if product.metafields[block.settings.reviews_metafield] != blank %}
+        {% assign reviews_data = product.metafields[block.settings.reviews_metafield] %}
+        {% if reviews_data.size > 0 %}
+          "review": [
+            {% for review in reviews_data limit: block.settings.max_reviews %}
+              {
+                "@type": "Review",
+                "reviewRating": {
+                  "@type": "Rating",
+                  "ratingValue": {{ review.rating | default: 5 | json }},
+                  "bestRating": {{ block.settings.best_rating | json }},
+                  "worstRating": {{ block.settings.worst_rating | json }}
+                },
+                "author": {
+                  "@type": "Person",
+                  "name": {{ review.author | default: "Anonymous" | json }}
+                },
+                {% if review.date %}
+                  "datePublished": {{ review.date | json }},
+                {% endif %}
+                "reviewBody": {{ review.body | default: review.text | json }}
+              }{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ],
+        {% endif %}
+      {% endif %}
+      {% assign additional_properties = '' %}
+      {% if block.settings.spec_1_name != blank and product.metafields[block.settings.spec_1_metafield] != blank %}
+        {% capture spec_1 %}
+          {
+            "@type": "PropertyValue",
+            "name": {{ block.settings.spec_1_name | json }},
+            "value": {{ product.metafields[block.settings.spec_1_metafield] | json }}
+          }
+        {% endcapture %}
+        {% assign additional_properties = additional_properties | append: spec_1 %}
+      {% endif %}
+      {% if block.settings.spec_2_name != blank and product.metafields[block.settings.spec_2_metafield] != blank %}
+        {% unless additional_properties == blank %}
+          {% assign additional_properties = additional_properties | append: ',' %}
+        {% endunless %}
+        {% capture spec_2 %}
+          {
+            "@type": "PropertyValue",
+            "name": {{ block.settings.spec_2_name | json }},
+            "value": {{ product.metafields[block.settings.spec_2_metafield] | json }}
+          }
+        {% endcapture %}
+        {% assign additional_properties = additional_properties | append: spec_2 %}
+      {% endif %}
+      {% if block.settings.spec_3_name != blank and product.metafields[block.settings.spec_3_metafield] != blank %}
+        {% unless additional_properties == blank %}
+          {% assign additional_properties = additional_properties | append: ',' %}
+        {% endunless %}
+        {% capture spec_3 %}
+          {
+            "@type": "PropertyValue",
+            "name": {{ block.settings.spec_3_name | json }},
+            "value": {{ product.metafields[block.settings.spec_3_metafield] | json }}
+          }
+        {% endcapture %}
+        {% assign additional_properties = additional_properties | append: spec_3 %}
+      {% endif %}
+      {% if block.settings.spec_4_name != blank and product.metafields[block.settings.spec_4_metafield] != blank %}
+        {% unless additional_properties == blank %}
+          {% assign additional_properties = additional_properties | append: ',' %}
+        {% endunless %}
+        {% capture spec_4 %}
+          {
+            "@type": "PropertyValue",
+            "name": {{ block.settings.spec_4_name | json }},
+            "value": {{ product.metafields[block.settings.spec_4_metafield] | json }}
+          }
+        {% endcapture %}
+        {% assign additional_properties = additional_properties | append: spec_4 %}
+      {% endif %}
+      {% if block.settings.spec_5_name != blank and product.metafields[block.settings.spec_5_metafield] != blank %}
+        {% unless additional_properties == blank %}
+          {% assign additional_properties = additional_properties | append: ',' %}
+        {% endunless %}
+        {% capture spec_5 %}
+          {
+            "@type": "PropertyValue",
+            "name": {{ block.settings.spec_5_name | json }},
+            "value": {{ product.metafields[block.settings.spec_5_metafield] | json }}
+          }
+        {% endcapture %}
+        {% assign additional_properties = additional_properties | append: spec_5 %}
+      {% endif %}
+      {% unless additional_properties == blank %}
+        "additionalProperty": [
+          {{ additional_properties }}
+        ]
+      {% endunless %}
+    }
+    </script>
+  {% endif %}
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Product schema markup",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Brand settings"
+    },
+    {
+      "type": "text",
+      "id": "brand_metafield",
+      "label": "Brand metafield key",
+      "info": "Format: namespace.key (e.g., custom.brand)"
+    },
+    {
+      "type": "text",
+      "id": "default_brand",
+      "label": "Default brand name",
+      "info": "Used when brand metafield is empty"
+    },
+    {
+      "type": "header",
+      "content": "Category settings"
+    },
+    {
+      "type": "text",
+      "id": "category_metafield",
+      "label": "Category metafield key",
+      "info": "Format: namespace.key (e.g., custom.category)"
+    },
+    {
+      "type": "text",
+      "id": "default_category",
+      "label": "Default category",
+      "info": "Used when category metafield is empty"
+    },
+    {
+      "type": "header",
+      "content": "Product identifiers"
+    },
+    {
+      "type": "text",
+      "id": "gtin_metafield",
+      "label": "GTIN metafield key",
+      "info": "Global Trade Item Number (UPC, EAN, etc.)"
+    },
+    {
+      "type": "text",
+      "id": "mpn_metafield",
+      "label": "MPN metafield key",
+      "info": "Manufacturer Part Number"
+    },
+    {
+      "type": "header",
+      "content": "Offer settings"
+    },
+    {
+      "type": "text",
+      "id": "price_valid_until",
+      "label": "Price valid until date",
+      "info": "Format: YYYY-MM-DD (e.g., 2024-12-31)"
+    },
+    {
+      "type": "text",
+      "id": "condition_metafield",
+      "label": "Condition metafield key",
+      "info": "Should contain: new, used, refurbished, or damaged"
+    },
+    {
+      "type": "select",
+      "id": "default_condition",
+      "label": "Default condition",
+      "options": [
+        {
+          "value": "new",
+          "label": "New"
+        },
+        {
+          "value": "used",
+          "label": "Used"
+        },
+        {
+          "value": "refurbished",
+          "label": "Refurbished"
+        },
+        {
+          "value": "damaged",
+          "label": "Damaged"
+        }
+      ],
+      "default": "new"
+    },
+    {
+      "type": "header",
+      "content": "Rating settings"
+    },
+    {
+      "type": "text",
+      "id": "rating_value_metafield",
+      "label": "Rating value metafield key",
+      "info": "Average rating (e.g., 4.5)"
+    },
+    {
+      "type": "text",
+      "id": "rating_count_metafield",
+      "label": "Rating count metafield key",
+      "info": "Total number of reviews"
+    },
+    {
+      "type": "range",
+      "id": "best_rating",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Best rating",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "worst_rating",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Worst rating",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Reviews settings"
+    },
+    {
+      "type": "text",
+      "id": "reviews_metafield",
+      "label": "Reviews metafield key",
+      "info": "Should contain array of review objects"
+    },
+    {
+      "type": "range",
+      "id": "max_reviews",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "label": "Maximum reviews to include",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Custom specifications"
+    },
+    {
+      "type": "text",
+      "id": "spec_1_name",
+      "label": "Specification 1 name"
+    },
+    {
+      "type": "text",
+      "id": "spec_1_metafield",
+      "label": "Specification 1 metafield key"
+    },
+    {
+      "type": "text",
+      "id": "spec_2_name",
+      "label": "Specification 2 name"
+    },
+    {
+      "type": "text",
+      "id": "spec_2_metafield",
+      "label": "Specification 2 metafield key"
+    },
+    {
+      "type": "text",
+      "id": "spec_3_name",
+      "label": "Specification 3 name"
+    },
+    {
+      "type": "text",
+      "id": "spec_3_metafield",
+      "label": "Specification 3 metafield key"
+    },
+    {
+      "type": "text",
+      "id": "spec_4_name",
+      "label": "Specification 4 name"
+    },
+    {
+      "type": "text",
+      "id": "spec_4_metafield",
+      "label": "Specification 4 metafield key"
+    },
+    {
+      "type": "text",
+      "id": "spec_5_name",
+      "label": "Specification 5 name"
+    },
+    {
+      "type": "text",
+      "id": "spec_5_metafield",
+      "label": "Specification 5 metafield key"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product schema markup"
+    }
+  ]
+}
 {% endschema %}
