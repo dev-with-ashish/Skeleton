@@ -1,6 +1,1191 @@
+{% doc %}
+  @prompt
+    this dark themed block will be above the product buy now and add to cart button displaying some information to make the customer trust 1. COD Available 2. Open Box Delivery 3. InStore Pickup :: each of this info will open a popup automaticaly when user will be on it demonstrating all three one by one through animation create everything by yourself, option to adjust animation timings option to add image or graphics for each feature of all the three points, make the graphics more interactive demonstrate each step
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-trust-features-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    margin: {{ block.settings.margin }}px 0;
+  }
+
+  .ai-trust-features-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: {{ block.settings.gap }}px;
+    max-width: 100%;
+  }
+
+  .ai-trust-feature-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: {{ block.settings.item_padding }}px;
+    border-radius: {{ block.settings.item_border_radius }}px;
+    background-color: {{ block.settings.item_background_color }};
+    border: 1px solid {{ block.settings.item_border_color }};
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .ai-trust-feature-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.item_hover_background_color }};
+    border-color: {{ block.settings.item_hover_border_color }};
+    transform: translateY(-2px);
+  }
+
+  .ai-trust-feature-icon-{{ ai_gen_id }} {
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-trust-feature-icon-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ai-trust-feature-icon-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    fill: {{ block.settings.icon_color }};
+    transition: all 0.3s ease;
+  }
+
+  .ai-trust-feature-title-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: 600;
+    margin: 0;
+    font-family: {{ block.settings.font_family.family }}, {{ block.settings.font_family.fallback_families }};
+  }
+
+  .ai-trust-popup-{{ ai_gen_id }} {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: {{ block.settings.popup_width }}px;
+    background-color: {{ block.settings.popup_background_color }};
+    border: 1px solid {{ block.settings.popup_border_color }};
+    border-radius: {{ block.settings.popup_border_radius }}px;
+    padding: {{ block.settings.popup_padding }}px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-10px);
+    transition: all {{ block.settings.animation_duration }}ms ease;
+    pointer-events: none;
+  }
+
+  .ai-trust-popup-{{ ai_gen_id }}.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  .ai-trust-popup-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid {{ block.settings.popup_background_color }};
+  }
+
+  .ai-trust-popup-content-{{ ai_gen_id }} {
+    text-align: center;
+  }
+
+  .ai-trust-popup-title-{{ ai_gen_id }} {
+    color: {{ block.settings.popup_text_color }};
+    font-size: {{ block.settings.popup_title_font_size }}px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    font-family: {{ block.settings.font_family.family }}, {{ block.settings.font_family.fallback_families }};
+  }
+
+  .ai-trust-popup-description-{{ ai_gen_id }} {
+    color: {{ block.settings.popup_text_color }};
+    font-size: {{ block.settings.popup_text_font_size }}px;
+    line-height: 1.4;
+    margin: 0 0 16px 0;
+    font-family: {{ block.settings.font_family.family }}, {{ block.settings.font_family.fallback_families }};
+  }
+
+  .ai-trust-steps-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .ai-trust-step-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background-color: {{ block.settings.step_background_color }};
+    border-radius: 6px;
+    opacity: 0.3;
+    transition: all {{ block.settings.step_animation_duration }}ms ease;
+    transform: translateX(-10px);
+  }
+
+  .ai-trust-step-{{ ai_gen_id }}.active {
+    opacity: 1;
+    transform: translateX(0);
+    background-color: {{ block.settings.step_active_background_color }};
+  }
+
+  .ai-trust-step-number-{{ ai_gen_id }} {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: {{ block.settings.step_number_color }};
+    color: {{ block.settings.step_number_text_color }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .ai-trust-step-text-{{ ai_gen_id }} {
+    color: {{ block.settings.popup_text_color }};
+    font-size: {{ block.settings.step_text_font_size }}px;
+    line-height: 1.3;
+    font-family: {{ block.settings.font_family.family }}, {{ block.settings.font_family.fallback_families }};
+  }
+
+  .ai-trust-interactive-graphic-{{ ai_gen_id }} {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-trust-interactive-graphic-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    fill: {{ block.settings.popup_icon_color }};
+  }
+
+  .ai-trust-animation-{{ ai_gen_id }} {
+    animation: ai-trust-pulse-{{ ai_gen_id }} {{ block.settings.pulse_duration }}ms ease-in-out infinite;
+  }
+
+  .ai-trust-cod-animation-{{ ai_gen_id }} {
+    animation: ai-trust-cod-flow-{{ ai_gen_id }} {{ block.settings.step_animation_duration | times: 3 }}ms ease-in-out infinite;
+  }
+
+  .ai-trust-openbox-animation-{{ ai_gen_id }} {
+    animation: ai-trust-openbox-reveal-{{ ai_gen_id }} {{ block.settings.step_animation_duration | times: 2 }}ms ease-in-out infinite;
+  }
+
+  .ai-trust-pickup-animation-{{ ai_gen_id }} {
+    animation: ai-trust-pickup-bounce-{{ ai_gen_id }} {{ block.settings.step_animation_duration | times: 2 }}ms ease-in-out infinite;
+  }
+
+  @keyframes ai-trust-pulse-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes ai-trust-cod-flow-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-5px) rotate(5deg);
+    }
+    50% {
+      transform: translateY(0) rotate(0deg);
+    }
+    75% {
+      transform: translateY(5px) rotate(-5deg);
+    }
+  }
+
+  @keyframes ai-trust-openbox-reveal-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: scale(1) rotateY(0deg);
+    }
+    50% {
+      transform: scale(1.1) rotateY(180deg);
+    }
+  }
+
+  @keyframes ai-trust-pickup-bounce-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-8px);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+    75% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .ai-trust-progress-bar-{{ ai_gen_id }} {
+    width: 100%;
+    height: 4px;
+    background-color: {{ block.settings.progress_background_color }};
+    border-radius: 2px;
+    margin: 12px 0;
+    overflow: hidden;
+  }
+
+  .ai-trust-progress-fill-{{ ai_gen_id }} {
+    height: 100%;
+    background-color: {{ block.settings.progress_fill_color }};
+    border-radius: 2px;
+    width: 0%;
+    transition: width {{ block.settings.step_animation_duration }}ms ease;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-trust-features-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: {{ block.settings.gap | times: 0.7 }}px;
+    }
+
+    .ai-trust-popup-{{ ai_gen_id }} {
+      width: calc(100vw - 40px);
+      max-width: {{ block.settings.popup_width }}px;
+      left: 20px;
+      transform: none;
+    }
+
+    .ai-trust-popup-{{ ai_gen_id }}.active {
+      transform: translateY(0);
+    }
+
+    .ai-trust-popup-{{ ai_gen_id }}::before {
+      left: 50%;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-trust-features-container-{{ ai_gen_id }} {
+      gap: {{ block.settings.gap | times: 0.5 }}px;
+    }
+
+    .ai-trust-feature-{{ ai_gen_id }} {
+      padding: {{ block.settings.item_padding | times: 0.7 }}px;
+    }
+
+    .ai-trust-interactive-graphic-{{ ai_gen_id }} {
+      width: 60px;
+      height: 60px;
+    }
+  }
+{% endstyle %}
+
+<trust-features-{{ ai_gen_id }}
+  class="ai-trust-features-{{ ai_gen_id }}"
+  data-animation-duration="{{ block.settings.animation_duration }}"
+  data-step-animation-duration="{{ block.settings.step_animation_duration }}"
+  data-auto-cycle="{{ block.settings.auto_cycle }}"
+  data-cycle-delay="{{ block.settings.cycle_delay }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-trust-features-container-{{ ai_gen_id }}">
+    <div class="ai-trust-feature-{{ ai_gen_id }}" data-feature="cod">
+      <div class="ai-trust-feature-icon-{{ ai_gen_id }}">
+        {% if block.settings.cod_image %}
+          <img
+            src="{{ block.settings.cod_image | image_url: width: 100 }}"
+            alt="COD Available"
+            loading="lazy"
+          >
+        {% else %}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        {% endif %}
+      </div>
+      <h3 class="ai-trust-feature-title-{{ ai_gen_id }}">{{ block.settings.cod_title }}</h3>
+      
+      <div class="ai-trust-popup-{{ ai_gen_id }}" data-popup="cod">
+        <div class="ai-trust-popup-content-{{ ai_gen_id }}">
+          <div class="ai-trust-interactive-graphic-{{ ai_gen_id }}">
+            {% if block.settings.cod_popup_image %}
+              <img
+                src="{{ block.settings.cod_popup_image | image_url: width: 80 }}"
+                alt="COD Available"
+                loading="lazy"
+              >
+            {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+              </svg>
+            {% endif %}
+          </div>
+          <h4 class="ai-trust-popup-title-{{ ai_gen_id }}">{{ block.settings.cod_popup_title }}</h4>
+          <p class="ai-trust-popup-description-{{ ai_gen_id }}">{{ block.settings.cod_popup_description }}</p>
+          
+          <div class="ai-trust-progress-bar-{{ ai_gen_id }}">
+            <div class="ai-trust-progress-fill-{{ ai_gen_id }}" data-progress="cod"></div>
+          </div>
+          
+          <div class="ai-trust-steps-{{ ai_gen_id }}" data-steps="cod">
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="1">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">1</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.cod_step_1 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="2">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">2</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.cod_step_2 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="3">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">3</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.cod_step_3 }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-trust-feature-{{ ai_gen_id }}" data-feature="openbox">
+      <div class="ai-trust-feature-icon-{{ ai_gen_id }}">
+        {% if block.settings.openbox_image %}
+          <img
+            src="{{ block.settings.openbox_image | image_url: width: 100 }}"
+            alt="Open Box Delivery"
+            loading="lazy"
+          >
+        {% else %}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2l3 3h4v14H5V5h4l3-3zm0 2.83L10.83 6H7v11h10V6h-3.83L12 4.83zM12 8l4 4h-3v4h-2v-4H8l4-4z"/>
+          </svg>
+        {% endif %}
+      </div>
+      <h3 class="ai-trust-feature-title-{{ ai_gen_id }}">{{ block.settings.openbox_title }}</h3>
+      
+      <div class="ai-trust-popup-{{ ai_gen_id }}" data-popup="openbox">
+        <div class="ai-trust-popup-content-{{ ai_gen_id }}">
+          <div class="ai-trust-interactive-graphic-{{ ai_gen_id }}">
+            {% if block.settings.openbox_popup_image %}
+              <img
+                src="{{ block.settings.openbox_popup_image | image_url: width: 80 }}"
+                alt="Open Box Delivery"
+                loading="lazy"
+              >
+            {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1zM10 6a2 2 0 0 1 4 0v1h-4V6zm8 13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9h2v1a1 1 0 0 0 2 0V9h4v1a1 1 0 0 0 2 0V9h2v10z"/>
+              </svg>
+            {% endif %}
+          </div>
+          <h4 class="ai-trust-popup-title-{{ ai_gen_id }}">{{ block.settings.openbox_popup_title }}</h4>
+          <p class="ai-trust-popup-description-{{ ai_gen_id }}">{{ block.settings.openbox_popup_description }}</p>
+          
+          <div class="ai-trust-progress-bar-{{ ai_gen_id }}">
+            <div class="ai-trust-progress-fill-{{ ai_gen_id }}" data-progress="openbox"></div>
+          </div>
+          
+          <div class="ai-trust-steps-{{ ai_gen_id }}" data-steps="openbox">
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="1">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">1</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.openbox_step_1 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="2">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">2</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.openbox_step_2 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="3">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">3</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.openbox_step_3 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="4">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">4</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.openbox_step_4 }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-trust-feature-{{ ai_gen_id }}" data-feature="pickup">
+      <div class="ai-trust-feature-icon-{{ ai_gen_id }}">
+        {% if block.settings.pickup_image %}
+          <img
+            src="{{ block.settings.pickup_image | image_url: width: 100 }}"
+            alt="InStore Pickup"
+            loading="lazy"
+          >
+        {% else %}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+        {% endif %}
+      </div>
+      <h3 class="ai-trust-feature-title-{{ ai_gen_id }}">{{ block.settings.pickup_title }}</h3>
+      
+      <div class="ai-trust-popup-{{ ai_gen_id }}" data-popup="pickup">
+        <div class="ai-trust-popup-content-{{ ai_gen_id }}">
+          <div class="ai-trust-interactive-graphic-{{ ai_gen_id }}">
+            {% if block.settings.pickup_popup_image %}
+              <img
+                src="{{ block.settings.pickup_popup_image | image_url: width: 80 }}"
+                alt="InStore Pickup"
+                loading="lazy"
+              >
+            {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19 7h-8v6h8V7zm-2 4h-4V9h4v2zm4-6.5C21 3.12 19.88 2 18.5 2S16 3.12 16 4.5V5H8.5C7.12 5 6 6.12 6 7.5V8H4.5C3.12 8 2 9.12 2 10.5S3.12 13 4.5 13H6v1.5C6 15.88 7.12 17 8.5 17H16v.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V17h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 12 20.5 12H19V7.5c0-1.38-1.12-2.5-2.5-2.5z"/>
+              </svg>
+            {% endif %}
+          </div>
+          <h4 class="ai-trust-popup-title-{{ ai_gen_id }}">{{ block.settings.pickup_popup_title }}</h4>
+          <p class="ai-trust-popup-description-{{ ai_gen_id }}">{{ block.settings.pickup_popup_description }}</p>
+          
+          <div class="ai-trust-progress-bar-{{ ai_gen_id }}">
+            <div class="ai-trust-progress-fill-{{ ai_gen_id }}" data-progress="pickup"></div>
+          </div>
+          
+          <div class="ai-trust-steps-{{ ai_gen_id }}" data-steps="pickup">
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="1">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">1</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.pickup_step_1 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="2">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">2</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.pickup_step_2 }}</div>
+            </div>
+            <div class="ai-trust-step-{{ ai_gen_id }}" data-step="3">
+              <div class="ai-trust-step-number-{{ ai_gen_id }}">3</div>
+              <div class="ai-trust-step-text-{{ ai_gen_id }}">{{ block.settings.pickup_step_3 }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</trust-features-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class TrustFeatures{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentIndex = 0;
+        this.features = [];
+        this.popups = [];
+        this.animationDuration = parseInt(this.dataset.animationDuration) || 300;
+        this.stepAnimationDuration = parseInt(this.dataset.stepAnimationDuration) || 800;
+        this.autoCycle = this.dataset.autoCycle === 'true';
+        this.cycleDelay = parseInt(this.dataset.cycleDelay) || 3000;
+        this.cycleTimeout = null;
+        this.stepTimeout = null;
+        this.isHovered = false;
+        this.currentStepIndex = 0;
+      }
+
+      connectedCallback() {
+        this.features = Array.from(this.querySelectorAll('.ai-trust-feature-{{ ai_gen_id }}'));
+        this.popups = Array.from(this.querySelectorAll('.ai-trust-popup-{{ ai_gen_id }}'));
+        this.setupEventListeners();
+        
+        if (this.autoCycle) {
+          this.startAutoCycle();
+        }
+      }
+
+      disconnectedCallback() {
+        this.stopAutoCycle();
+        this.stopStepAnimation();
+      }
+
+      setupEventListeners() {
+        this.features.forEach((feature, index) => {
+          feature.addEventListener('mouseenter', () => {
+            this.isHovered = true;
+            this.showPopup(index);
+            this.stopAutoCycle();
+          });
+
+          feature.addEventListener('mouseleave', () => {
+            this.isHovered = false;
+            this.hidePopup(index);
+            if (this.autoCycle) {
+              this.startAutoCycle();
+            }
+          });
+
+          feature.addEventListener('click', () => {
+            this.showPopup(index);
+          });
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!this.contains(event.target)) {
+            this.hideAllPopups();
+          }
+        });
+      }
+
+      showPopup(index) {
+        this.hideAllPopups();
+        
+        if (this.popups[index]) {
+          const popup = this.popups[index];
+          const icon = this.features[index].querySelector('.ai-trust-feature-icon-{{ ai_gen_id }}');
+          const graphic = popup.querySelector('.ai-trust-interactive-graphic-{{ ai_gen_id }}');
+          const featureType = this.features[index].dataset.feature;
+          
+          popup.classList.add('active');
+          if (icon) {
+            icon.classList.add('ai-trust-animation-{{ ai_gen_id }}');
+          }
+          if (graphic) {
+            graphic.classList.add(`ai-trust-${featureType}-animation-{{ ai_gen_id }}`);
+          }
+          
+          this.currentIndex = index;
+          this.startStepAnimation(featureType);
+        }
+      }
+
+      hidePopup(index) {
+        if (this.popups[index]) {
+          const popup = this.popups[index];
+          const icon = this.features[index].querySelector('.ai-trust-feature-icon-{{ ai_gen_id }}');
+          const graphic = popup.querySelector('.ai-trust-interactive-graphic-{{ ai_gen_id }}');
+          const featureType = this.features[index].dataset.feature;
+          
+          popup.classList.remove('active');
+          if (icon) {
+            icon.classList.remove('ai-trust-animation-{{ ai_gen_id }}');
+          }
+          if (graphic) {
+            graphic.classList.remove(`ai-trust-${featureType}-animation-{{ ai_gen_id }}`);
+          }
+          
+          this.stopStepAnimation();
+        }
+      }
+
+      hideAllPopups() {
+        this.popups.forEach((popup, index) => {
+          popup.classList.remove('active');
+          const icon = this.features[index].querySelector('.ai-trust-feature-icon-{{ ai_gen_id }}');
+          const graphic = popup.querySelector('.ai-trust-interactive-graphic-{{ ai_gen_id }}');
+          const featureType = this.features[index].dataset.feature;
+          
+          if (icon) {
+            icon.classList.remove('ai-trust-animation-{{ ai_gen_id }}');
+          }
+          if (graphic) {
+            graphic.classList.remove(`ai-trust-${featureType}-animation-{{ ai_gen_id }}`);
+          }
+        });
+        this.stopStepAnimation();
+      }
+
+      startStepAnimation(featureType) {
+        this.stopStepAnimation();
+        this.currentStepIndex = 0;
+        
+        const popup = this.querySelector(`[data-popup="${featureType}"]`);
+        if (!popup) return;
+        
+        const steps = popup.querySelectorAll('.ai-trust-step-{{ ai_gen_id }}');
+        const progressBar = popup.querySelector('[data-progress]');
+        
+        if (steps.length === 0) return;
+        
+        steps.forEach(step => step.classList.remove('active'));
+        if (progressBar) {
+          progressBar.style.width = '0%';
+        }
+        
+        this.animateNextStep(steps, progressBar);
+      }
+
+      animateNextStep(steps, progressBar) {
+        if (this.currentStepIndex >= steps.length) {
+          this.currentStepIndex = 0;
+          steps.forEach(step => step.classList.remove('active'));
+          if (progressBar) {
+            progressBar.style.width = '0%';
+          }
+        }
+        
+        const currentStep = steps[this.currentStepIndex];
+        if (currentStep) {
+          currentStep.classList.add('active');
+          
+          if (progressBar) {
+            const progress = ((this.currentStepIndex + 1) / steps.length) * 100;
+            progressBar.style.width = `${progress}%`;
+          }
+          
+          this.currentStepIndex++;
+          
+          this.stepTimeout = setTimeout(() => {
+            this.animateNextStep(steps, progressBar);
+          }, this.stepAnimationDuration);
+        }
+      }
+
+      stopStepAnimation() {
+        if (this.stepTimeout) {
+          clearTimeout(this.stepTimeout);
+          this.stepTimeout = null;
+        }
+      }
+
+      startAutoCycle() {
+        this.stopAutoCycle();
+        
+        if (!this.autoCycle || this.isHovered) return;
+        
+        this.cycleTimeout = setTimeout(() => {
+          if (!this.isHovered) {
+            this.showPopup(this.currentIndex);
+            
+            setTimeout(() => {
+              if (!this.isHovered) {
+                this.hidePopup(this.currentIndex);
+                this.currentIndex = (this.currentIndex + 1) % this.features.length;
+                this.startAutoCycle();
+              }
+            }, this.cycleDelay);
+          }
+        }, 500);
+      }
+
+      stopAutoCycle() {
+        if (this.cycleTimeout) {
+          clearTimeout(this.cycleTimeout);
+          this.cycleTimeout = null;
+        }
+      }
+    }
+
+    customElements.define('trust-features-{{ ai_gen_id }}', TrustFeatures{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Trust features",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Container padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "margin",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Container margin",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "min": 5,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between items",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Container border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "header",
+      "content": "Item style"
+    },
+    {
+      "type": "range",
+      "id": "item_padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Item padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "item_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Item border radius",
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "item_background_color",
+      "label": "Item background color",
+      "default": "#2a2a2a"
+    },
+    {
+      "type": "color",
+      "id": "item_border_color",
+      "label": "Item border color",
+      "default": "#3a3a3a"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_background_color",
+      "label": "Item hover background color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "item_hover_border_color",
+      "label": "Item hover border color",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "font_family",
+      "label": "Font family",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Popup style"
+    },
+    {
+      "type": "range",
+      "id": "popup_width",
+      "min": 200,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Popup width",
+      "default": 280
+    },
+    {
+      "type": "range",
+      "id": "popup_padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Popup padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "popup_border_radius",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Popup border radius",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "popup_background_color",
+      "label": "Popup background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "popup_border_color",
+      "label": "Popup border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "popup_text_color",
+      "label": "Popup text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "popup_icon_color",
+      "label": "Popup icon color",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "range",
+      "id": "popup_title_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Popup title font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "popup_text_font_size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Popup text font size",
+      "default": 13
+    },
+    {
+      "type": "header",
+      "content": "Step animation"
+    },
+    {
+      "type": "color",
+      "id": "step_background_color",
+      "label": "Step background color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "step_active_background_color",
+      "label": "Active step background color",
+      "default": "#e8f5e8"
+    },
+    {
+      "type": "color",
+      "id": "step_number_color",
+      "label": "Step number background color",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "color",
+      "id": "step_number_text_color",
+      "label": "Step number text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "step_text_font_size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Step text font size",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "progress_background_color",
+      "label": "Progress bar background color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "progress_fill_color",
+      "label": "Progress bar fill color",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "range",
+      "id": "animation_duration",
+      "min": 100,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "label": "Popup animation duration",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "step_animation_duration",
+      "min": 500,
+      "max": 2000,
+      "step": 100,
+      "unit": "ms",
+      "label": "Step animation duration",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "pulse_duration",
+      "min": 500,
+      "max": 2000,
+      "step": 100,
+      "unit": "ms",
+      "label": "Pulse animation duration",
+      "default": 1000
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_cycle",
+      "label": "Auto cycle through features",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "cycle_delay",
+      "min": 1000,
+      "max": 8000,
+      "step": 500,
+      "unit": "ms",
+      "label": "Auto cycle delay",
+      "default": 3000
+    },
+    {
+      "type": "header",
+      "content": "COD Available"
+    },
+    {
+      "type": "text",
+      "id": "cod_title",
+      "label": "COD title",
+      "default": "COD Available"
+    },
+    {
+      "type": "image_picker",
+      "id": "cod_image",
+      "label": "COD icon image"
+    },
+    {
+      "type": "text",
+      "id": "cod_popup_title",
+      "label": "COD popup title",
+      "default": "Cash on Delivery"
+    },
+    {
+      "type": "textarea",
+      "id": "cod_popup_description",
+      "label": "COD popup description",
+      "default": "Pay when you receive your order. No advance payment required."
+    },
+    {
+      "type": "image_picker",
+      "id": "cod_popup_image",
+      "label": "COD popup icon image"
+    },
+    {
+      "type": "text",
+      "id": "cod_step_1",
+      "label": "COD step 1",
+      "default": "Place your order online"
+    },
+    {
+      "type": "text",
+      "id": "cod_step_2",
+      "label": "COD step 2",
+      "default": "Receive delivery at your doorstep"
+    },
+    {
+      "type": "text",
+      "id": "cod_step_3",
+      "label": "COD step 3",
+      "default": "Pay cash to delivery person"
+    },
+    {
+      "type": "header",
+      "content": "Open Box Delivery"
+    },
+    {
+      "type": "text",
+      "id": "openbox_title",
+      "label": "Open box title",
+      "default": "Open Box Delivery"
+    },
+    {
+      "type": "image_picker",
+      "id": "openbox_image",
+      "label": "Open box icon image"
+    },
+    {
+      "type": "text",
+      "id": "openbox_popup_title",
+      "label": "Open box popup title",
+      "default": "Open Box Delivery"
+    },
+    {
+      "type": "textarea",
+      "id": "openbox_popup_description",
+      "label": "Open box popup description",
+      "default": "Check your product before payment. Open and inspect the item at your doorstep."
+    },
+    {
+      "type": "image_picker",
+      "id": "openbox_popup_image",
+      "label": "Open box popup icon image"
+    },
+    {
+      "type": "text",
+      "id": "openbox_step_1",
+      "label": "Open box step 1",
+      "default": "Delivery person arrives with your order"
+    },
+    {
+      "type": "text",
+      "id": "openbox_step_2",
+      "label": "Open box step 2",
+      "default": "Open and inspect the product"
+    },
+    {
+      "type": "text",
+      "id": "openbox_step_3",
+      "label": "Open box step 3",
+      "default": "Check quality and specifications"
+    },
+    {
+      "type": "text",
+      "id": "openbox_step_4",
+      "label": "Open box step 4",
+      "default": "Pay only if satisfied with product"
+    },
+    {
+      "type": "header",
+      "content": "InStore Pickup"
+    },
+    {
+      "type": "text",
+      "id": "pickup_title",
+      "label": "Pickup title",
+      "default": "InStore Pickup"
+    },
+    {
+      "type": "image_picker",
+      "id": "pickup_image",
+      "label": "Pickup icon image"
+    },
+    {
+      "type": "text",
+      "id": "pickup_popup_title",
+      "label": "Pickup popup title",
+      "default": "InStore Pickup"
+    },
+    {
+      "type": "textarea",
+      "id": "pickup_popup_description",
+      "label": "Pickup popup description",
+      "default": "Collect your order from our store. Save on delivery charges and get your product instantly."
+    },
+    {
+      "type": "image_picker",
+      "id": "pickup_popup_image",
+      "label": "Pickup popup icon image"
+    },
+    {
+      "type": "text",
+      "id": "pickup_step_1",
+      "label": "Pickup step 1",
+      "default": "Place order and select pickup option"
+    },
+    {
+      "type": "text",
+      "id": "pickup_step_2",
+      "label": "Pickup step 2",
+      "default": "Receive pickup ready notification"
+    },
+    {
+      "type": "text",
+      "id": "pickup_step_3",
+      "label": "Pickup step 3",
+      "default": "Visit store and collect your order"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust features"
+    }
+  ]
+}
 {% endschema %}
