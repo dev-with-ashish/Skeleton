@@ -1,4 +1,4 @@
-{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+{% assign ai_gen_id = block.id | replace: '_' , '' | downcase %}
 
 {% style %}
   .ai-radha-krishna-collection-{{ ai_gen_id }} {
@@ -351,6 +351,60 @@
       ]
     }
     </script>
+
+    {%- comment -%} Structured ItemList of visible products (auto-updates) {%- endcomment -%}
+    {% assign listed_products = '' %}
+    {% assign pos = 0 %}
+    {% assign MAX_ITEMS = 50 %}
+    {% assign seen_ids = '|' %}
+
+    {%- comment -%} Build a comma-separated list of selected collection handles {%- endcomment -%}
+    {% assign handles = '' %}
+    {% if block.settings.canvas_collection != blank %}
+      {% assign handles = handles | append: block.settings.canvas_collection | append: ',' %}
+    {% endif %}
+    {% if block.settings.acrylic_collection != blank %}
+      {% assign handles = handles | append: block.settings.acrylic_collection | append: ',' %}
+    {% endif %}
+
+    {%- comment -%} Split once, then iterate (avoid pipe in for-tag) {%- endcomment -%}
+    {% assign handle_list = handles | split: ',' %}
+
+    {% for handle in handle_list %}
+      {% if handle != blank and pos < MAX_ITEMS %}
+        {% assign col = collections[handle] %}
+        {% if col %}
+          {% for p in col.products %}
+            {% assign pid = '|' | append: p.id | append: '|' %}
+            {% unless seen_ids contains pid %}
+              {% assign pos = pos | plus: 1 %}
+              {% assign listed_products = listed_products
+                | append: '{"@type":"ListItem","position":'
+                | append: pos
+                | append: ',"name":'
+                | append: p.title | json
+                | append: ',"url":'
+                | append: p.url | absolute_url | json
+                | append: '},'
+              %}
+              {% assign seen_ids = seen_ids | append: p.id | append: '|' %}
+              {% if pos >= MAX_ITEMS %}{% break %}{% endif %}
+            {% endunless %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+    {% if listed_products != '' %}
+      {% assign listed_products = listed_products | replace_last: '},', '}' %}
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [ {{ listed_products }} ]
+      }
+      </script>
+    {% endif %}
 
     <!-- FAQPage (only if visible and at least 1 Q&A) -->
     {% assign faqs_json = '' %}
