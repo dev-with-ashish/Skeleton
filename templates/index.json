@@ -9,6 +9,61 @@
  */
 {
   "sections": {
+    "17627648803a530d61": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_e6cf3c4_GTFGcY": {
+          "type": "ai_gen_block_e6cf3c4",
+          "settings": {
+            "products_to_show": 15,
+            "view_all_text": "View all",
+            "enable_schema": true,
+            "show_collection_1": true,
+            "collection_1": "jumba",
+            "show_collection_2": true,
+            "collection_2": "",
+            "show_collection_3": false,
+            "collection_3": "",
+            "show_collection_4": false,
+            "collection_4": "",
+            "show_collection_5": false,
+            "collection_5": "",
+            "container_width": 1400,
+            "horizontal_padding": 20,
+            "section_padding_top": 50,
+            "section_padding_bottom": 50,
+            "collection_spacing": 60,
+            "header_spacing": 20,
+            "product_width": 250,
+            "product_width_mobile": 160,
+            "product_gap": 20,
+            "image_border_radius": 8,
+            "background_color": "#1a1a1a",
+            "title_color": "#ffffff",
+            "product_title_color": "#ffffff",
+            "product_price_color": "#cccccc",
+            "image_bg_color": "#2a2a2a",
+            "scrollbar_color": "#555555",
+            "button_bg_color": "#ffffff",
+            "button_text_color": "#000000",
+            "button_hover_bg_color": "#e0e0e0",
+            "button_hover_text_color": "#000000",
+            "button_padding_vertical": 10,
+            "button_padding_horizontal": 20,
+            "button_border_radius": 4,
+            "button_font_size": 14,
+            "title_size": 28,
+            "product_title_size": 14,
+            "product_price_size": 14
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_e6cf3c4_GTFGcY"
+      ],
+      "settings": {}
+    },
     "17603326189cbb3554": {
       "type": "_blocks",
       "blocks": {
@@ -123,6 +178,7 @@
     }
   },
   "order": [
+    "17627648803a530d61",
     "17603326189cbb3554"
   ]
 }
