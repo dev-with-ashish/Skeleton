@@ -1,6 +1,1475 @@
+{% doc %}
+  @prompt
+    Create an SEO-optimized homepage layout with a clear silo structure:
+    
+    H1: Premium Wall Art & Professional UV Printing Services
+    
+    Hero: USP + two CTAs (Shop Wall Art / Printing Services)
+    
+    Silo 1 (H2): Shop Premium Wall Art Collections
+    
+    Metal Posters (link)
+    
+    Canvas Prints (link)
+    
+    Acrylic Posters (link)
+    
+    Short SEO intro under each
+    
+    H2: Trending & Best Selling Wall Art (product grid/slider)
+    
+    Silo 2 (H2): Professional Printing Services in Noida
+    
+    UV Printing (link)
+    
+    Eco Solvent (link)
+    
+    Flex Printing (link)
+    
+    Button: Custom Job Enquiry
+    
+    H2: Why Choose Aarohi PixelPrint (USPs)
+    
+    H2: Loved by 1000+ Customers (reviews/social proof)
+    
+    H2: Visit Our Printing Studio in Noida (address + map + contact)
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-seo-homepage-{{ ai_gen_id }} {
+    width: 100%;
+  }
+
+  .ai-seo-homepage__section-{{ ai_gen_id }} {
+    padding: {{ block.settings.section_padding }}px {{ block.settings.horizontal_padding }}px;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+  }
+
+  .ai-seo-homepage__hero-{{ ai_gen_id }} {
+    background-color: {{ block.settings.hero_bg_color }};
+    text-align: center;
+    padding: {{ block.settings.hero_padding }}px {{ block.settings.horizontal_padding }}px;
+  }
+
+  .ai-seo-homepage__h1-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h1_size }}px;
+    color: {{ block.settings.h1_color }};
+    margin: 0 0 {{ block.settings.h1_margin }}px;
+    line-height: 1.2;
+  }
+
+  .ai-seo-homepage__usp-{{ ai_gen_id }} {
+    font-size: {{ block.settings.usp_size }}px;
+    color: {{ block.settings.usp_color }};
+    margin: 0 0 {{ block.settings.usp_margin }}px;
+    line-height: 1.5;
+  }
+
+  .ai-seo-homepage__cta-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.cta_gap }}px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .ai-seo-homepage__cta-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: {{ block.settings.cta_padding_v }}px {{ block.settings.cta_padding_h }}px;
+    background-color: {{ block.settings.cta_bg_color }};
+    color: {{ block.settings.cta_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.cta_border_radius }}px;
+    font-size: {{ block.settings.cta_font_size }}px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .ai-seo-homepage__cta-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.cta_hover_bg }};
+    color: {{ block.settings.cta_hover_text }};
+  }
+
+  .ai-seo-homepage__cta--secondary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.cta_secondary_bg }};
+    color: {{ block.settings.cta_secondary_text }};
+  }
+
+  .ai-seo-homepage__cta--secondary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.cta_secondary_hover_bg }};
+    color: {{ block.settings.cta_secondary_hover_text }};
+  }
+
+  .ai-seo-homepage__h2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h2_size }}px;
+    color: {{ block.settings.h2_color }};
+    margin: 0 0 {{ block.settings.h2_margin }}px;
+    line-height: 1.3;
+  }
+
+  .ai-seo-homepage__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: {{ block.settings.grid_gap }}px;
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-seo-homepage__card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_bg_color }};
+    border: 1px solid {{ block.settings.card_border_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: {{ block.settings.card_padding }}px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .ai-seo-homepage__card-{{ ai_gen_id }}:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+  }
+
+  .ai-seo-homepage__card-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_title_size }}px;
+    color: {{ block.settings.card_title_color }};
+    margin: 0 0 {{ block.settings.card_title_margin }}px;
+    font-weight: 600;
+  }
+
+  .ai-seo-homepage__card-link-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color }};
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .ai-seo-homepage__card-link-{{ ai_gen_id }}:hover {
+    text-decoration: underline;
+  }
+
+  .ai-seo-homepage__card-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_text_size }}px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.6;
+    margin: 0 0 {{ block.settings.card_text_margin }}px;
+  }
+
+  .ai-seo-homepage__products-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: {{ block.settings.product_gap }}px;
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-seo-homepage__product-card-{{ ai_gen_id }} {
+    text-align: center;
+  }
+
+  .ai-seo-homepage__product-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    border-radius: {{ block.settings.product_image_radius }}px;
+    margin-bottom: 12px;
+  }
+
+  .ai-seo-homepage__product-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    color: {{ block.settings.h2_color }};
+    margin: 0 0 8px;
+  }
+
+  .ai-seo-homepage__product-price-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    color: {{ block.settings.link_color }};
+  }
+
+  .ai-seo-homepage__usps-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: {{ block.settings.usp_gap }}px;
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-seo-homepage__usp-item-{{ ai_gen_id }} {
+    text-align: center;
+    padding: {{ block.settings.usp_item_padding }}px;
+  }
+
+  .ai-seo-homepage__usp-icon-{{ ai_gen_id }} {
+    font-size: {{ block.settings.usp_icon_size }}px;
+    margin-bottom: 12px;
+  }
+
+  .ai-seo-homepage__usp-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.usp_title_size }}px;
+    color: {{ block.settings.h2_color }};
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+
+  .ai-seo-homepage__usp-desc-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.5;
+  }
+
+  .ai-seo-homepage__reviews-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: {{ block.settings.review_gap }}px;
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-seo-homepage__review-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_bg_color }};
+    border: 1px solid {{ block.settings.card_border_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: {{ block.settings.card_padding }}px;
+  }
+
+  .ai-seo-homepage__review-stars-{{ ai_gen_id }} {
+    color: {{ block.settings.star_color }};
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .ai-seo-homepage__review-text-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.6;
+    margin: 0 0 12px;
+    font-style: italic;
+  }
+
+  .ai-seo-homepage__review-author-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.h2_color }};
+    font-weight: 600;
+  }
+
+  .ai-seo-homepage__contact-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ block.settings.contact_gap }}px;
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-seo-homepage__contact-info-{{ ai_gen_id }} {
+    font-size: 16px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.8;
+  }
+
+  .ai-seo-homepage__contact-info-{{ ai_gen_id }} strong {
+    color: {{ block.settings.h2_color }};
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .ai-seo-homepage__map-{{ ai_gen_id }} {
+    width: 100%;
+    height: 300px;
+    border-radius: {{ block.settings.card_border_radius }}px;
+    border: 1px solid {{ block.settings.card_border_color }};
+  }
+
+  .ai-seo-homepage__button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: {{ block.settings.button_padding_v }}px {{ block.settings.button_padding_h }}px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ai-seo-homepage__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg }};
+    color: {{ block.settings.button_hover_text }};
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-seo-homepage__h1-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.h1_size }}px * 0.7);
+    }
+
+    .ai-seo-homepage__h2-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.h2_size }}px * 0.8);
+    }
+
+    .ai-seo-homepage__grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-seo-homepage__contact-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-seo-homepage__cta-wrapper-{{ ai_gen_id }} {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ai-seo-homepage__cta-{{ ai_gen_id }} {
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-seo-homepage-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <section class="ai-seo-homepage__hero-{{ ai_gen_id }}">
+    <h1 class="ai-seo-homepage__h1-{{ ai_gen_id }}">{{ block.settings.h1_text }}</h1>
+    {% if block.settings.hero_usp != blank %}
+      <p class="ai-seo-homepage__usp-{{ ai_gen_id }}">{{ block.settings.hero_usp }}</p>
+    {% endif %}
+    <div class="ai-seo-homepage__cta-wrapper-{{ ai_gen_id }}">
+      {% if block.settings.cta1_text != blank %}
+        <a href="{{ block.settings.cta1_link }}" class="ai-seo-homepage__cta-{{ ai_gen_id }}">
+          {{ block.settings.cta1_text }}
+        </a>
+      {% endif %}
+      {% if block.settings.cta2_text != blank %}
+        <a href="{{ block.settings.cta2_link }}" class="ai-seo-homepage__cta-{{ ai_gen_id }} ai-seo-homepage__cta--secondary-{{ ai_gen_id }}">
+          {{ block.settings.cta2_text }}
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ai-seo-homepage__section-{{ ai_gen_id }}">
+    <h2 class="ai-seo-homepage__h2-{{ ai_gen_id }}">{{ block.settings.silo1_h2 }}</h2>
+    <div class="ai-seo-homepage__grid-{{ ai_gen_id }}">
+      {% if block.settings.silo1_item1_title != blank %}
+        <div class="ai-seo-homepage__card-{{ ai_gen_id }}">
+          <h3 class="ai-seo-homepage__card-title-{{ ai_gen_id }}">
+            <a href="{{ block.settings.silo1_item1_link }}" class="ai-seo-homepage__card-link-{{ ai_gen_id }}">
+              {{ block.settings.silo1_item1_title }}
+            </a>
+          </h3>
+          {% if block.settings.silo1_item1_desc != blank %}
+            <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">{{ block.settings.silo1_item1_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.silo1_item2_title != blank %}
+        <div class="ai-seo-homepage__card-{{ ai_gen_id }}">
+          <h3 class="ai-seo-homepage__card-title-{{ ai_gen_id }}">
+            <a href="{{ block.settings.silo1_item2_link }}" class="ai-seo-homepage__card-link-{{ ai_gen_id }}">
+              {{ block.settings.silo1_item2_title }}
+            </a>
+          </h3>
+          {% if block.settings.silo1_item2_desc != blank %}
+            <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">{{ block.settings.silo1_item2_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.silo1_item3_title != blank %}
+        <div class="ai-seo-homepage__card-{{ ai_gen_id }}">
+          <h3 class="ai-seo-homepage__card-title-{{ ai_gen_id }}">
+            <a href="{{ block.settings.silo1_item3_link }}" class="ai-seo-homepage__card-link-{{ ai_gen_id }}">
+              {{ block.settings.silo1_item3_title }}
+            </a>
+          </h3>
+          {% if block.settings.silo1_item3_desc != blank %}
+            <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">{{ block.settings.silo1_item3_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ai-seo-homepage__section-{{ ai_gen_id }}">
+    <h2 class="ai-seo-homepage__h2-{{ ai_gen_id }}">{{ block.settings.products_h2 }}</h2>
+    <div class="ai-seo-homepage__products-{{ ai_gen_id }}">
+      {% if block.settings.product_list != blank %}
+        {% for product in block.settings.product_list %}
+          <div class="ai-seo-homepage__product-card-{{ ai_gen_id }}">
+            <a href="{{ product.url }}">
+              {% if product.featured_image %}
+                <img 
+                  src="{{ product.featured_image | image_url: width: 400 }}" 
+                  alt="{{ product.featured_image.alt | escape }}"
+                  class="ai-seo-homepage__product-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% endif %}
+              <h3 class="ai-seo-homepage__product-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+              <div class="ai-seo-homepage__product-price-{{ ai_gen_id }}">{{ product.price | money }}</div>
+            </a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">Select products to display here</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ai-seo-homepage__section-{{ ai_gen_id }}">
+    <h2 class="ai-seo-homepage__h2-{{ ai_gen_id }}">{{ block.settings.silo2_h2 }}</h2>
+    <div class="ai-seo-homepage__grid-{{ ai_gen_id }}">
+      {% if block.settings.silo2_item1_title != blank %}
+        <div class="ai-seo-homepage__card-{{ ai_gen_id }}">
+          <h3 class="ai-seo-homepage__card-title-{{ ai_gen_id }}">
+            <a href="{{ block.settings.silo2_item1_link }}" class="ai-seo-homepage__card-link-{{ ai_gen_id }}">
+              {{ block.settings.silo2_item1_title }}
+            </a>
+          </h3>
+          {% if block.settings.silo2_item1_desc != blank %}
+            <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">{{ block.settings.silo2_item1_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.silo2_item2_title != blank %}
+        <div class="ai-seo-homepage__card-{{ ai_gen_id }}">
+          <h3 class="ai-seo-homepage__card-title-{{ ai_gen_id }}">
+            <a href="{{ block.settings.silo2_item2_link }}" class="ai-seo-homepage__card-link-{{ ai_gen_id }}">
+              {{ block.settings.silo2_item2_title }}
+            </a>
+          </h3>
+          {% if block.settings.silo2_item2_desc != blank %}
+            <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">{{ block.settings.silo2_item2_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.silo2_item3_title != blank %}
+        <div class="ai-seo-homepage__card-{{ ai_gen_id }}">
+          <h3 class="ai-seo-homepage__card-title-{{ ai_gen_id }}">
+            <a href="{{ block.settings.silo2_item3_link }}" class="ai-seo-homepage__card-link-{{ ai_gen_id }}">
+              {{ block.settings.silo2_item3_title }}
+            </a>
+          </h3>
+          {% if block.settings.silo2_item3_desc != blank %}
+            <p class="ai-seo-homepage__card-text-{{ ai_gen_id }}">{{ block.settings.silo2_item3_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    {% if block.settings.enquiry_button_text != blank %}
+      <div style="text-align: center; margin-top: {{ block.settings.grid_gap }}px;">
+        <a href="{{ block.settings.enquiry_button_link }}" class="ai-seo-homepage__button-{{ ai_gen_id }}">
+          {{ block.settings.enquiry_button_text }}
+        </a>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="ai-seo-homepage__section-{{ ai_gen_id }}">
+    <h2 class="ai-seo-homepage__h2-{{ ai_gen_id }}">{{ block.settings.usps_h2 }}</h2>
+    <div class="ai-seo-homepage__usps-{{ ai_gen_id }}">
+      {% if block.settings.usp1_title != blank %}
+        <div class="ai-seo-homepage__usp-item-{{ ai_gen_id }}">
+          {% if block.settings.usp1_icon != blank %}
+            <div class="ai-seo-homepage__usp-icon-{{ ai_gen_id }}">{{ block.settings.usp1_icon }}</div>
+          {% endif %}
+          <h3 class="ai-seo-homepage__usp-title-{{ ai_gen_id }}">{{ block.settings.usp1_title }}</h3>
+          {% if block.settings.usp1_desc != blank %}
+            <p class="ai-seo-homepage__usp-desc-{{ ai_gen_id }}">{{ block.settings.usp1_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.usp2_title != blank %}
+        <div class="ai-seo-homepage__usp-item-{{ ai_gen_id }}">
+          {% if block.settings.usp2_icon != blank %}
+            <div class="ai-seo-homepage__usp-icon-{{ ai_gen_id }}">{{ block.settings.usp2_icon }}</div>
+          {% endif %}
+          <h3 class="ai-seo-homepage__usp-title-{{ ai_gen_id }}">{{ block.settings.usp2_title }}</h3>
+          {% if block.settings.usp2_desc != blank %}
+            <p class="ai-seo-homepage__usp-desc-{{ ai_gen_id }}">{{ block.settings.usp2_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.usp3_title != blank %}
+        <div class="ai-seo-homepage__usp-item-{{ ai_gen_id }}">
+          {% if block.settings.usp3_icon != blank %}
+            <div class="ai-seo-homepage__usp-icon-{{ ai_gen_id }}">{{ block.settings.usp3_icon }}</div>
+          {% endif %}
+          <h3 class="ai-seo-homepage__usp-title-{{ ai_gen_id }}">{{ block.settings.usp3_title }}</h3>
+          {% if block.settings.usp3_desc != blank %}
+            <p class="ai-seo-homepage__usp-desc-{{ ai_gen_id }}">{{ block.settings.usp3_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.usp4_title != blank %}
+        <div class="ai-seo-homepage__usp-item-{{ ai_gen_id }}">
+          {% if block.settings.usp4_icon != blank %}
+            <div class="ai-seo-homepage__usp-icon-{{ ai_gen_id }}">{{ block.settings.usp4_icon }}</div>
+          {% endif %}
+          <h3 class="ai-seo-homepage__usp-title-{{ ai_gen_id }}">{{ block.settings.usp4_title }}</h3>
+          {% if block.settings.usp4_desc != blank %}
+            <p class="ai-seo-homepage__usp-desc-{{ ai_gen_id }}">{{ block.settings.usp4_desc }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ai-seo-homepage__section-{{ ai_gen_id }}">
+    <h2 class="ai-seo-homepage__h2-{{ ai_gen_id }}">{{ block.settings.reviews_h2 }}</h2>
+    <div class="ai-seo-homepage__reviews-{{ ai_gen_id }}">
+      {% if block.settings.review1_text != blank %}
+        <div class="ai-seo-homepage__review-card-{{ ai_gen_id }}">
+          <div class="ai-seo-homepage__review-stars-{{ ai_gen_id }}">★★★★★</div>
+          <p class="ai-seo-homepage__review-text-{{ ai_gen_id }}">{{ block.settings.review1_text }}</p>
+          {% if block.settings.review1_author != blank %}
+            <div class="ai-seo-homepage__review-author-{{ ai_gen_id }}">{{ block.settings.review1_author }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.review2_text != blank %}
+        <div class="ai-seo-homepage__review-card-{{ ai_gen_id }}">
+          <div class="ai-seo-homepage__review-stars-{{ ai_gen_id }}">★★★★★</div>
+          <p class="ai-seo-homepage__review-text-{{ ai_gen_id }}">{{ block.settings.review2_text }}</p>
+          {% if block.settings.review2_author != blank %}
+            <div class="ai-seo-homepage__review-author-{{ ai_gen_id }}">{{ block.settings.review2_author }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if block.settings.review3_text != blank %}
+        <div class="ai-seo-homepage__review-card-{{ ai_gen_id }}">
+          <div class="ai-seo-homepage__review-stars-{{ ai_gen_id }}">★★★★★</div>
+          <p class="ai-seo-homepage__review-text-{{ ai_gen_id }}">{{ block.settings.review3_text }}</p>
+          {% if block.settings.review3_author != blank %}
+            <div class="ai-seo-homepage__review-author-{{ ai_gen_id }}">{{ block.settings.review3_author }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ai-seo-homepage__section-{{ ai_gen_id }}">
+    <h2 class="ai-seo-homepage__h2-{{ ai_gen_id }}">{{ block.settings.contact_h2 }}</h2>
+    <div class="ai-seo-homepage__contact-{{ ai_gen_id }}">
+      <div class="ai-seo-homepage__contact-info-{{ ai_gen_id }}">
+        {% if block.settings.contact_address != blank %}
+          <div>
+            <strong>Address:</strong>
+            {{ block.settings.contact_address }}
+          </div>
+        {% endif %}
+        {% if block.settings.contact_phone != blank %}
+          <div>
+            <strong>Phone:</strong>
+            <a href="tel:{{ block.settings.contact_phone }}" style="color: {{ block.settings.link_color }};">{{ block.settings.contact_phone }}</a>
+          </div>
+        {% endif %}
+        {% if block.settings.contact_email != blank %}
+          <div>
+            <strong>Email:</strong>
+            <a href="mailto:{{ block.settings.contact_email }}" style="color: {{ block.settings.link_color }};">{{ block.settings.contact_email }}</a>
+          </div>
+        {% endif %}
+        {% if block.settings.contact_hours != blank %}
+          <div>
+            <strong>Hours:</strong>
+            {{ block.settings.contact_hours }}
+          </div>
+        {% endif %}
+      </div>
+      {% if block.settings.map_embed != blank %}
+        <div>
+          {{ block.settings.map_embed }}
+        </div>
+      {% else %}
+        <div class="ai-seo-homepage__map-{{ ai_gen_id }}" style="display: flex; align-items: center; justify-content: center; background-color: #f4f4f4; color: #999;">
+          Add Google Maps embed code
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "SEO homepage layout",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero section"
+    },
+    {
+      "type": "text",
+      "id": "h1_text",
+      "label": "H1 heading",
+      "default": "Premium Wall Art & Professional UV Printing Services"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_usp",
+      "label": "USP text",
+      "default": "Transform your space with stunning wall art or get professional printing services in Noida"
+    },
+    {
+      "type": "text",
+      "id": "cta1_text",
+      "label": "CTA 1 text",
+      "default": "Shop Wall Art"
+    },
+    {
+      "type": "url",
+      "id": "cta1_link",
+      "label": "CTA 1 link"
+    },
+    {
+      "type": "text",
+      "id": "cta2_text",
+      "label": "CTA 2 text",
+      "default": "Printing Services"
+    },
+    {
+      "type": "url",
+      "id": "cta2_link",
+      "label": "CTA 2 link"
+    },
+    {
+      "type": "header",
+      "content": "Silo 1 - Wall art collections"
+    },
+    {
+      "type": "text",
+      "id": "silo1_h2",
+      "label": "Section heading",
+      "default": "Shop Premium Wall Art Collections"
+    },
+    {
+      "type": "text",
+      "id": "silo1_item1_title",
+      "label": "Item 1 title",
+      "default": "Metal Posters"
+    },
+    {
+      "type": "url",
+      "id": "silo1_item1_link",
+      "label": "Item 1 link"
+    },
+    {
+      "type": "textarea",
+      "id": "silo1_item1_desc",
+      "label": "Item 1 description",
+      "default": "Durable metal prints with vibrant colors and modern aesthetic"
+    },
+    {
+      "type": "text",
+      "id": "silo1_item2_title",
+      "label": "Item 2 title",
+      "default": "Canvas Prints"
+    },
+    {
+      "type": "url",
+      "id": "silo1_item2_link",
+      "label": "Item 2 link"
+    },
+    {
+      "type": "textarea",
+      "id": "silo1_item2_desc",
+      "label": "Item 2 description",
+      "default": "Classic canvas art prints for timeless elegance"
+    },
+    {
+      "type": "text",
+      "id": "silo1_item3_title",
+      "label": "Item 3 title",
+      "default": "Acrylic Posters"
+    },
+    {
+      "type": "url",
+      "id": "silo1_item3_link",
+      "label": "Item 3 link"
+    },
+    {
+      "type": "textarea",
+      "id": "silo1_item3_desc",
+      "label": "Item 3 description",
+      "default": "Premium acrylic prints with stunning depth and clarity"
+    },
+    {
+      "type": "header",
+      "content": "Trending products"
+    },
+    {
+      "type": "text",
+      "id": "products_h2",
+      "label": "Section heading",
+      "default": "Trending & Best Selling Wall Art"
+    },
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Products",
+      "limit": 8
+    },
+    {
+      "type": "header",
+      "content": "Silo 2 - Printing services"
+    },
+    {
+      "type": "text",
+      "id": "silo2_h2",
+      "label": "Section heading",
+      "default": "Professional Printing Services in Noida"
+    },
+    {
+      "type": "text",
+      "id": "silo2_item1_title",
+      "label": "Item 1 title",
+      "default": "UV Printing"
+    },
+    {
+      "type": "url",
+      "id": "silo2_item1_link",
+      "label": "Item 1 link"
+    },
+    {
+      "type": "textarea",
+      "id": "silo2_item1_desc",
+      "label": "Item 1 description",
+      "default": "High-quality UV printing for various materials and surfaces"
+    },
+    {
+      "type": "text",
+      "id": "silo2_item2_title",
+      "label": "Item 2 title",
+      "default": "Eco Solvent Printing"
+    },
+    {
+      "type": "url",
+      "id": "silo2_item2_link",
+      "label": "Item 2 link"
+    },
+    {
+      "type": "textarea",
+      "id": "silo2_item2_desc",
+      "label": "Item 2 description",
+      "default": "Eco-friendly printing solutions for indoor and outdoor use"
+    },
+    {
+      "type": "text",
+      "id": "silo2_item3_title",
+      "label": "Item 3 title",
+      "default": "Flex Printing"
+    },
+    {
+      "type": "url",
+      "id": "silo2_item3_link",
+      "label": "Item 3 link"
+    },
+    {
+      "type": "textarea",
+      "id": "silo2_item3_desc",
+      "label": "Item 3 description",
+      "default": "Large format flex printing for banners and signage"
+    },
+    {
+      "type": "text",
+      "id": "enquiry_button_text",
+      "label": "Enquiry button text",
+      "default": "Custom Job Enquiry"
+    },
+    {
+      "type": "url",
+      "id": "enquiry_button_link",
+      "label": "Enquiry button link"
+    },
+    {
+      "type": "header",
+      "content": "USPs section"
+    },
+    {
+      "type": "text",
+      "id": "usps_h2",
+      "label": "Section heading",
+      "default": "Why Choose Aarohi PixelPrint"
+    },
+    {
+      "type": "text",
+      "id": "usp1_icon",
+      "label": "USP 1 icon",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "usp1_title",
+      "label": "USP 1 title",
+      "default": "Premium Quality"
+    },
+    {
+      "type": "textarea",
+      "id": "usp1_desc",
+      "label": "USP 1 description",
+      "default": "Industry-leading printing technology"
+    },
+    {
+      "type": "text",
+      "id": "usp2_icon",
+      "label": "USP 2 icon",
+      "default": "⚡"
+    },
+    {
+      "type": "text",
+      "id": "usp2_title",
+      "label": "USP 2 title",
+      "default": "Fast Turnaround"
+    },
+    {
+      "type": "textarea",
+      "id": "usp2_desc",
+      "label": "USP 2 description",
+      "default": "Quick delivery without compromising quality"
+    },
+    {
+      "type": "text",
+      "id": "usp3_icon",
+      "label": "USP 3 icon",
+      "default": "💰"
+    },
+    {
+      "type": "text",
+      "id": "usp3_title",
+      "label": "USP 3 title",
+      "default": "Best Prices"
+    },
+    {
+      "type": "textarea",
+      "id": "usp3_desc",
+      "label": "USP 3 description",
+      "default": "Competitive pricing for all services"
+    },
+    {
+      "type": "text",
+      "id": "usp4_icon",
+      "label": "USP 4 icon",
+      "default": "🎨"
+    },
+    {
+      "type": "text",
+      "id": "usp4_title",
+      "label": "USP 4 title",
+      "default": "Custom Solutions"
+    },
+    {
+      "type": "textarea",
+      "id": "usp4_desc",
+      "label": "USP 4 description",
+      "default": "Tailored printing solutions for your needs"
+    },
+    {
+      "type": "header",
+      "content": "Reviews section"
+    },
+    {
+      "type": "text",
+      "id": "reviews_h2",
+      "label": "Section heading",
+      "default": "Loved by 1000+ Customers"
+    },
+    {
+      "type": "textarea",
+      "id": "review1_text",
+      "label": "Review 1 text",
+      "default": "Excellent quality prints and fast service. Highly recommended!"
+    },
+    {
+      "type": "text",
+      "id": "review1_author",
+      "label": "Review 1 author",
+      "default": "Rajesh Kumar"
+    },
+    {
+      "type": "textarea",
+      "id": "review2_text",
+      "label": "Review 2 text",
+      "default": "Best printing services in Noida. Professional team and great results."
+    },
+    {
+      "type": "text",
+      "id": "review2_author",
+      "label": "Review 2 author",
+      "default": "Priya Sharma"
+    },
+    {
+      "type": "textarea",
+      "id": "review3_text",
+      "label": "Review 3 text",
+      "default": "Amazing wall art collection. Transformed my living room completely!"
+    },
+    {
+      "type": "text",
+      "id": "review3_author",
+      "label": "Review 3 author",
+      "default": "Amit Verma"
+    },
+    {
+      "type": "header",
+      "content": "Contact section"
+    },
+    {
+      "type": "text",
+      "id": "contact_h2",
+      "label": "Section heading",
+      "default": "Visit Our Printing Studio in Noida"
+    },
+    {
+      "type": "textarea",
+      "id": "contact_address",
+      "label": "Address",
+      "default": "Sector 62, Noida, Uttar Pradesh 201301"
+    },
+    {
+      "type": "text",
+      "id": "contact_phone",
+      "label": "Phone"
+    },
+    {
+      "type": "text",
+      "id": "contact_email",
+      "label": "Email"
+    },
+    {
+      "type": "text",
+      "id": "contact_hours",
+      "label": "Business hours",
+      "default": "Mon-Sat: 10 AM - 7 PM"
+    },
+    {
+      "type": "html",
+      "id": "map_embed",
+      "label": "Google Maps embed code"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 800,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "horizontal_padding",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Section spacing",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Grid gap",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Hero style"
+    },
+    {
+      "type": "color",
+      "id": "hero_bg_color",
+      "label": "Background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "range",
+      "id": "hero_padding",
+      "min": 40,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "h1_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "H1 size",
+      "default": 42
+    },
+    {
+      "type": "color",
+      "id": "h1_color",
+      "label": "H1 color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "range",
+      "id": "h1_margin",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "H1 margin",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "usp_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "USP text size",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "usp_color",
+      "label": "USP text color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "usp_margin",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "USP margin",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "CTA buttons"
+    },
+    {
+      "type": "range",
+      "id": "cta_gap",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between CTAs",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "cta_padding_v",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "cta_padding_h",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "cta_font_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "cta_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "cta_bg_color",
+      "label": "Primary background",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "Primary text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_hover_bg",
+      "label": "Primary hover background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "cta_hover_text",
+      "label": "Primary hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_bg",
+      "label": "Secondary background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_text",
+      "label": "Secondary text",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_hover_bg",
+      "label": "Secondary hover background",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_hover_text",
+      "label": "Secondary hover text",
+      "default": "#000f9f"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "h2_size",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "H2 size",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "h2_color",
+      "label": "H2 color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "range",
+      "id": "h2_margin",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "H2 margin",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "min": 15,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding",
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 16,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Title color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "range",
+      "id": "card_title_margin",
+      "min": 5,
+      "max": 20,
+      "step": 5,
+      "unit": "px",
+      "label": "Title margin",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "card_text_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Text color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "card_text_margin",
+      "min": 5,
+      "max": 20,
+      "step": 5,
+      "unit": "px",
+      "label": "Text margin",
+      "default": 10
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "range",
+      "id": "product_gap",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "product_image_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "USPs"
+    },
+    {
+      "type": "range",
+      "id": "usp_gap",
+      "min": 15,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "usp_item_padding",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Item padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "usp_icon_size",
+      "min": 24,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "usp_title_size",
+      "min": 14,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Reviews"
+    },
+    {
+      "type": "range",
+      "id": "review_gap",
+      "min": 15,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap",
+      "default": 25
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#ffc107"
+    },
+    {
+      "type": "header",
+      "content": "Contact"
+    },
+    {
+      "type": "range",
+      "id": "contact_gap",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_v",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "button_padding_h",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg",
+      "label": "Hover background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text",
+      "label": "Hover text",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "SEO homepage layout"
+    }
+  ]
+}
 {% endschema %}
