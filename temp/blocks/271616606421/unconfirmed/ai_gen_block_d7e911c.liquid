@@ -1,6 +1,1228 @@
+{% doc %}
+  @prompt
+    Create an SEO-optimized homepage layout with a clear silo structure:
+    
+    H1: Premium Wall Art & Professional UV Printing Services
+    
+    Hero: USP + two CTAs (Shop Wall Art / Printing Services)
+    
+    Silo 1 (H2): Shop Premium Wall Art Collections
+    
+    Metal Posters (link)
+    
+    Canvas Prints (link)
+    
+    Acrylic Posters (link)
+    
+    Short SEO intro under each
+    
+    H2: Trending & Best Selling Wall Art (product grid/slider)
+    
+    Silo 2 (H2): Professional Printing Services in Noida
+    
+    UV Printing (link)
+    
+    Eco Solvent (link)
+    
+    Flex Printing (link)
+    
+    Button: Custom Job Enquiry
+    
+    H2: Why Choose Aarohi PixelPrint (USPs)
+    
+    H2: Loved by 1000+ Customers (reviews/social proof)
+    
+    H2: Visit Our Printing Studio in Noida (address + map + contact), add google schema json-ld data to tell everything we have on this page, add hero bg 5 changing bgs changing in background
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-seo-homepage-{{ai_gen_id}} {
+    width: 100%;
+  }
+
+  .ai-seo-homepage-{{ai_gen_id}} * {
+    box-sizing: border-box;
+  }
+
+  .ai-seo-hero-{{ai_gen_id}} {
+    position: relative;
+    color: {{ block.settings.hero_text_color }};
+    padding: 80px 20px;
+    text-align: center;
+    overflow: hidden;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-seo-hero-bg-{{ai_gen_id}} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .ai-seo-hero-bg-image-{{ai_gen_id}} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+
+  .ai-seo-hero-bg-image-{{ai_gen_id}}.active {
+    opacity: 1;
+  }
+
+  .ai-seo-hero-overlay-{{ai_gen_id}} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: {{ block.settings.hero_overlay_color }};
+    opacity: {{ block.settings.hero_overlay_opacity }};
+    z-index: 1;
+  }
+
+  .ai-seo-hero-content-{{ai_gen_id}} {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  .ai-seo-hero-{{ai_gen_id}} h1 {
+    font-size: 48px;
+    margin: 0 0 20px;
+    line-height: 1.2;
+  }
+
+  .ai-seo-hero-{{ai_gen_id}} p {
+    font-size: 20px;
+    margin: 0 0 30px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ai-seo-hero-ctas-{{ai_gen_id}} {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .ai-seo-cta-{{ai_gen_id}} {
+    display: inline-block;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .ai-seo-cta-primary-{{ai_gen_id}} {
+    background-color: {{ block.settings.cta_primary_bg }};
+    color: {{ block.settings.cta_primary_text }};
+  }
+
+  .ai-seo-cta-primary-{{ai_gen_id}}:hover {
+    background-color: {{ block.settings.cta_primary_hover }};
+  }
+
+  .ai-seo-cta-secondary-{{ai_gen_id}} {
+    background-color: {{ block.settings.cta_secondary_bg }};
+    color: {{ block.settings.cta_secondary_text }};
+  }
+
+  .ai-seo-cta-secondary-{{ai_gen_id}}:hover {
+    background-color: {{ block.settings.cta_secondary_hover }};
+  }
+
+  .ai-seo-section-{{ai_gen_id}} {
+    padding: 60px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-seo-section-{{ai_gen_id}} h2 {
+    font-size: 36px;
+    margin: 0 0 30px;
+    text-align: center;
+  }
+
+  .ai-seo-grid-{{ai_gen_id}} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+
+  .ai-seo-card-{{ai_gen_id}} {
+    background-color: {{ block.settings.card_bg_color }};
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .ai-seo-card-{{ai_gen_id}}:hover {
+    transform: translateY(-5px);
+  }
+
+  .ai-seo-card-{{ai_gen_id}} h3 {
+    font-size: 24px;
+    margin: 0 0 15px;
+  }
+
+  .ai-seo-card-{{ai_gen_id}} p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 15px;
+  }
+
+  .ai-seo-card-{{ai_gen_id}} a {
+    color: {{ block.settings.link_color }};
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .ai-seo-card-{{ai_gen_id}} a:hover {
+    text-decoration: underline;
+  }
+
+  .ai-seo-usps-{{ai_gen_id}} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .ai-seo-usp-{{ai_gen_id}} {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .ai-seo-usp-{{ai_gen_id}} h4 {
+    font-size: 20px;
+    margin: 0 0 10px;
+  }
+
+  .ai-seo-reviews-{{ai_gen_id}} {
+    background-color: {{ block.settings.reviews_bg_color }};
+    padding: 40px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .ai-seo-contact-{{ai_gen_id}} {
+    background-color: {{ block.settings.contact_bg_color }};
+    padding: 40px;
+    border-radius: 8px;
+  }
+
+  .ai-seo-contact-info-{{ai_gen_id}} {
+    margin-bottom: 20px;
+  }
+
+  .ai-seo-contact-info-{{ai_gen_id}} p {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+
+  .ai-seo-enquiry-btn-{{ai_gen_id}} {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: {{ block.settings.enquiry_btn_bg }};
+    color: {{ block.settings.enquiry_btn_text_color }};
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    margin-top: 20px;
+  }
+
+  .ai-seo-enquiry-btn-{{ai_gen_id}}:hover {
+    background-color: {{ block.settings.enquiry_btn_hover }};
+  }
+
+  @media (max-width: 768px) {
+    .ai-seo-hero-{{ai_gen_id}} {
+      min-height: 400px;
+      padding: 60px 20px;
+    }
+
+    .ai-seo-hero-{{ai_gen_id}} h1 {
+      font-size: 32px;
+    }
+
+    .ai-seo-hero-{{ai_gen_id}} p {
+      font-size: 18px;
+    }
+
+    .ai-seo-section-{{ai_gen_id}} h2 {
+      font-size: 28px;
+    }
+
+    .ai-seo-grid-{{ai_gen_id}} {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-seo-homepage-{{ai_gen_id}}" {{ block.shopify_attributes }}>
+  <section class="ai-seo-hero-{{ai_gen_id}}">
+    <div class="ai-seo-hero-bg-{{ai_gen_id}}">
+      {% if block.settings.hero_bg_1 %}
+        <img
+          src="{{ block.settings.hero_bg_1 | image_url: width: 2000 }}"
+          alt="Hero background 1"
+          class="ai-seo-hero-bg-image-{{ai_gen_id}} active"
+          loading="eager"
+          width="{{ block.settings.hero_bg_1.width }}"
+          height="{{ block.settings.hero_bg_1.height }}"
+        >
+      {% endif %}
+      {% if block.settings.hero_bg_2 %}
+        <img
+          src="{{ block.settings.hero_bg_2 | image_url: width: 2000 }}"
+          alt="Hero background 2"
+          class="ai-seo-hero-bg-image-{{ai_gen_id}}"
+          loading="lazy"
+          width="{{ block.settings.hero_bg_2.width }}"
+          height="{{ block.settings.hero_bg_2.height }}"
+        >
+      {% endif %}
+      {% if block.settings.hero_bg_3 %}
+        <img
+          src="{{ block.settings.hero_bg_3 | image_url: width: 2000 }}"
+          alt="Hero background 3"
+          class="ai-seo-hero-bg-image-{{ai_gen_id}}"
+          loading="lazy"
+          width="{{ block.settings.hero_bg_3.width }}"
+          height="{{ block.settings.hero_bg_3.height }}"
+        >
+      {% endif %}
+      {% if block.settings.hero_bg_4 %}
+        <img
+          src="{{ block.settings.hero_bg_4 | image_url: width: 2000 }}"
+          alt="Hero background 4"
+          class="ai-seo-hero-bg-image-{{ai_gen_id}}"
+          loading="lazy"
+          width="{{ block.settings.hero_bg_4.width }}"
+          height="{{ block.settings.hero_bg_4.height }}"
+        >
+      {% endif %}
+      {% if block.settings.hero_bg_5 %}
+        <img
+          src="{{ block.settings.hero_bg_5 | image_url: width: 2000 }}"
+          alt="Hero background 5"
+          class="ai-seo-hero-bg-image-{{ai_gen_id}}"
+          loading="lazy"
+          width="{{ block.settings.hero_bg_5.width }}"
+          height="{{ block.settings.hero_bg_5.height }}"
+        >
+      {% endif %}
+    </div>
+    <div class="ai-seo-hero-overlay-{{ai_gen_id}}"></div>
+    <div class="ai-seo-hero-content-{{ai_gen_id}}">
+      <h1>{{ block.settings.h1_title }}</h1>
+      <p>{{ block.settings.hero_usp }}</p>
+      <div class="ai-seo-hero-ctas-{{ai_gen_id}}">
+        <a href="{{ block.settings.cta1_url }}" class="ai-seo-cta-{{ai_gen_id}} ai-seo-cta-primary-{{ai_gen_id}}">
+          {{ block.settings.cta1_text }}
+        </a>
+        <a href="{{ block.settings.cta2_url }}" class="ai-seo-cta-{{ai_gen_id}} ai-seo-cta-secondary-{{ai_gen_id}}">
+          {{ block.settings.cta2_text }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ai-seo-section-{{ai_gen_id}}">
+    <h2>{{ block.settings.silo1_h2 }}</h2>
+    <div class="ai-seo-grid-{{ai_gen_id}}">
+      <div class="ai-seo-card-{{ai_gen_id}}">
+        <h3>{{ block.settings.product1_title }}</h3>
+        <p>{{ block.settings.product1_desc }}</p>
+        <a href="{{ block.settings.product1_url }}">{{ block.settings.product1_link_text }}</a>
+      </div>
+      <div class="ai-seo-card-{{ai_gen_id}}">
+        <h3>{{ block.settings.product2_title }}</h3>
+        <p>{{ block.settings.product2_desc }}</p>
+        <a href="{{ block.settings.product2_url }}">{{ block.settings.product2_link_text }}</a>
+      </div>
+      <div class="ai-seo-card-{{ai_gen_id}}">
+        <h3>{{ block.settings.product3_title }}</h3>
+        <p>{{ block.settings.product3_desc }}</p>
+        <a href="{{ block.settings.product3_url }}">{{ block.settings.product3_link_text }}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ai-seo-section-{{ai_gen_id}}">
+    <h2>{{ block.settings.trending_h2 }}</h2>
+    <p style="text-align: center;">{{ block.settings.trending_desc }}</p>
+  </section>
+
+  <section class="ai-seo-section-{{ai_gen_id}}">
+    <h2>{{ block.settings.silo2_h2 }}</h2>
+    <div class="ai-seo-grid-{{ai_gen_id}}">
+      <div class="ai-seo-card-{{ai_gen_id}}">
+        <h3>{{ block.settings.service1_title }}</h3>
+        <p>{{ block.settings.service1_desc }}</p>
+        <a href="{{ block.settings.service1_url }}">{{ block.settings.service1_link_text }}</a>
+      </div>
+      <div class="ai-seo-card-{{ai_gen_id}}">
+        <h3>{{ block.settings.service2_title }}</h3>
+        <p>{{ block.settings.service2_desc }}</p>
+        <a href="{{ block.settings.service2_url }}">{{ block.settings.service2_link_text }}</a>
+      </div>
+      <div class="ai-seo-card-{{ai_gen_id}}">
+        <h3>{{ block.settings.service3_title }}</h3>
+        <p>{{ block.settings.service3_desc }}</p>
+        <a href="{{ block.settings.service3_url }}">{{ block.settings.service3_link_text }}</a>
+      </div>
+    </div>
+    <div style="text-align: center;">
+      <a href="{{ block.settings.enquiry_url }}" class="ai-seo-enquiry-btn-{{ai_gen_id}}">
+        {{ block.settings.enquiry_button_label }}
+      </a>
+    </div>
+  </section>
+
+  <section class="ai-seo-section-{{ai_gen_id}}">
+    <h2>{{ block.settings.usps_h2 }}</h2>
+    <div class="ai-seo-usps-{{ai_gen_id}}">
+      <div class="ai-seo-usp-{{ai_gen_id}}">
+        <h4>{{ block.settings.usp1_title }}</h4>
+        <p>{{ block.settings.usp1_desc }}</p>
+      </div>
+      <div class="ai-seo-usp-{{ai_gen_id}}">
+        <h4>{{ block.settings.usp2_title }}</h4>
+        <p>{{ block.settings.usp2_desc }}</p>
+      </div>
+      <div class="ai-seo-usp-{{ai_gen_id}}">
+        <h4>{{ block.settings.usp3_title }}</h4>
+        <p>{{ block.settings.usp3_desc }}</p>
+      </div>
+      <div class="ai-seo-usp-{{ai_gen_id}}">
+        <h4>{{ block.settings.usp4_title }}</h4>
+        <p>{{ block.settings.usp4_desc }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ai-seo-section-{{ai_gen_id}}">
+    <div class="ai-seo-reviews-{{ai_gen_id}}">
+      <h2>{{ block.settings.reviews_h2 }}</h2>
+      <p>{{ block.settings.reviews_text }}</p>
+    </div>
+  </section>
+
+  <section class="ai-seo-section-{{ai_gen_id}}">
+    <div class="ai-seo-contact-{{ai_gen_id}}">
+      <h2>{{ block.settings.contact_h2 }}</h2>
+      <div class="ai-seo-contact-info-{{ai_gen_id}}">
+        <p><strong>Address:</strong> {{ block.settings.address }}</p>
+        <p><strong>Phone:</strong> {{ block.settings.phone }}</p>
+        <p><strong>Email:</strong> {{ block.settings.email }}</p>
+        <p><strong>Hours:</strong> {{ block.settings.hours }}</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function() {
+    class HeroBackgroundSlider{{ai_gen_id}} extends HTMLElement {
+      constructor() {
+        super();
+        this.images = this.querySelectorAll('.ai-seo-hero-bg-image-{{ai_gen_id}}');
+        this.currentIndex = 0;
+        this.interval = {{ block.settings.slide_interval | times: 1000 }};
+      }
+
+      connectedCallback() {
+        if (this.images.length > 1) {
+          this.startSlideshow();
+        }
+      }
+
+      startSlideshow() {
+        setInterval(() => {
+          this.images[this.currentIndex].classList.remove('active');
+          this.currentIndex = (this.currentIndex + 1) % this.images.length;
+          this.images[this.currentIndex].classList.add('active');
+        }, this.interval);
+      }
+
+      disconnectedCallback() {
+        if (this.intervalId) {
+          clearInterval(this.intervalId);
+        }
+      }
+    }
+
+    customElements.define('hero-background-slider-{{ai_gen_id}}', HeroBackgroundSlider{{ai_gen_id}});
+
+    const heroSection = document.querySelector('.ai-seo-hero-{{ai_gen_id}}');
+    if (heroSection) {
+      const wrapper = document.createElement('hero-background-slider-{{ai_gen_id}}');
+      const bgContainer = heroSection.querySelector('.ai-seo-hero-bg-{{ai_gen_id}}');
+      if (bgContainer) {
+        bgContainer.parentNode.insertBefore(wrapper, bgContainer);
+        wrapper.appendChild(bgContainer);
+      }
+    }
+  })();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "{{ block.settings.business_name }}",
+      "url": "{{ shop.url }}",
+      "logo": "{{ block.settings.logo_url }}",
+      "description": "{{ block.settings.business_description }}",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "{{ block.settings.phone }}",
+        "contactType": "Customer Service",
+        "areaServed": "IN",
+        "availableLanguage": ["English", "Hindi"]
+      },
+      "sameAs": [
+        "{{ block.settings.facebook_url }}",
+        "{{ block.settings.instagram_url }}",
+        "{{ block.settings.linkedin_url }}"
+      ]
+    },
+    {
+      "@type": "LocalBusiness",
+      "name": "{{ block.settings.business_name }}",
+      "image": "{{ block.settings.logo_url }}",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ block.settings.street_address }}",
+        "addressLocality": "{{ block.settings.city }}",
+        "addressRegion": "{{ block.settings.state }}",
+        "postalCode": "{{ block.settings.postal_code }}",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "{{ block.settings.latitude }}",
+        "longitude": "{{ block.settings.longitude }}"
+      },
+      "url": "{{ shop.url }}",
+      "telephone": "{{ block.settings.phone }}",
+      "email": "{{ block.settings.email }}",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "opens": "{{ block.settings.opening_time }}",
+        "closes": "{{ block.settings.closing_time }}"
+      },
+      "priceRange": "{{ block.settings.price_range }}",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{{ block.settings.rating_value }}",
+        "reviewCount": "{{ block.settings.review_count }}"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "{{ block.settings.h1_title }}",
+      "description": "{{ block.settings.hero_usp }}",
+      "url": "{{ shop.url }}",
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "{{ block.settings.product1_title }}",
+            "url": "{{ block.settings.product1_url }}"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ block.settings.product2_title }}",
+            "url": "{{ block.settings.product2_url }}"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ block.settings.product3_title }}",
+            "url": "{{ block.settings.product3_url }}"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "Service",
+      "serviceType": "UV Printing Services",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "{{ block.settings.business_name }}"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Noida"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Printing Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "{{ block.settings.service1_title }}",
+              "description": "{{ block.settings.service1_desc }}"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "{{ block.settings.service2_title }}",
+              "description": "{{ block.settings.service2_desc }}"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "{{ block.settings.service3_title }}",
+              "description": "{{ block.settings.service3_desc }}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ shop.url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ block.settings.silo1_h2 }}",
+          "item": "{{ block.settings.product1_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ block.settings.silo2_h2 }}",
+          "item": "{{ block.settings.service1_url }}"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "SEO homepage slideshow",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero section"
+    },
+    {
+      "type": "text",
+      "id": "h1_title",
+      "label": "H1 title",
+      "default": "Premium Wall Art & Professional UV Printing Services"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_usp",
+      "label": "Hero USP text",
+      "default": "Transform your space with stunning wall art or get professional printing services in Noida"
+    },
+    {
+      "type": "text",
+      "id": "cta1_text",
+      "label": "CTA 1 text",
+      "default": "Shop Wall Art"
+    },
+    {
+      "type": "url",
+      "id": "cta1_url",
+      "label": "CTA 1 link"
+    },
+    {
+      "type": "text",
+      "id": "cta2_text",
+      "label": "CTA 2 text",
+      "default": "Printing Services"
+    },
+    {
+      "type": "url",
+      "id": "cta2_url",
+      "label": "CTA 2 link"
+    },
+    {
+      "type": "header",
+      "content": "Hero backgrounds"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_1",
+      "label": "Background image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_2",
+      "label": "Background image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_3",
+      "label": "Background image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_4",
+      "label": "Background image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_5",
+      "label": "Background image 5"
+    },
+    {
+      "type": "range",
+      "id": "slide_interval",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Slide interval",
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "hero_overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "hero_overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Overlay opacity",
+      "default": 0.4
+    },
+    {
+      "type": "color",
+      "id": "hero_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Silo 1 - Wall art"
+    },
+    {
+      "type": "text",
+      "id": "silo1_h2",
+      "label": "H2 heading",
+      "default": "Shop Premium Wall Art Collections"
+    },
+    {
+      "type": "text",
+      "id": "product1_title",
+      "label": "Product 1 title",
+      "default": "Metal Posters"
+    },
+    {
+      "type": "textarea",
+      "id": "product1_desc",
+      "label": "Product 1 description",
+      "default": "Durable metal prints with vibrant colors and modern aesthetic"
+    },
+    {
+      "type": "url",
+      "id": "product1_url",
+      "label": "Product 1 link"
+    },
+    {
+      "type": "text",
+      "id": "product1_link_text",
+      "label": "Product 1 link text",
+      "default": "Shop Metal Posters"
+    },
+    {
+      "type": "text",
+      "id": "product2_title",
+      "label": "Product 2 title",
+      "default": "Canvas Prints"
+    },
+    {
+      "type": "textarea",
+      "id": "product2_desc",
+      "label": "Product 2 description",
+      "default": "Classic canvas art prints for timeless elegance"
+    },
+    {
+      "type": "url",
+      "id": "product2_url",
+      "label": "Product 2 link"
+    },
+    {
+      "type": "text",
+      "id": "product2_link_text",
+      "label": "Product 2 link text",
+      "default": "Shop Canvas Prints"
+    },
+    {
+      "type": "text",
+      "id": "product3_title",
+      "label": "Product 3 title",
+      "default": "Acrylic Posters"
+    },
+    {
+      "type": "textarea",
+      "id": "product3_desc",
+      "label": "Product 3 description",
+      "default": "Premium acrylic prints with stunning depth and clarity"
+    },
+    {
+      "type": "url",
+      "id": "product3_url",
+      "label": "Product 3 link"
+    },
+    {
+      "type": "text",
+      "id": "product3_link_text",
+      "label": "Product 3 link text",
+      "default": "Shop Acrylic Posters"
+    },
+    {
+      "type": "header",
+      "content": "Trending products"
+    },
+    {
+      "type": "text",
+      "id": "trending_h2",
+      "label": "H2 heading",
+      "default": "Trending & Best Selling Wall Art"
+    },
+    {
+      "type": "textarea",
+      "id": "trending_desc",
+      "label": "Description",
+      "default": "Discover our most popular wall art pieces loved by customers"
+    },
+    {
+      "type": "header",
+      "content": "Silo 2 - Printing services"
+    },
+    {
+      "type": "text",
+      "id": "silo2_h2",
+      "label": "H2 heading",
+      "default": "Professional Printing Services in Noida"
+    },
+    {
+      "type": "text",
+      "id": "service1_title",
+      "label": "Service 1 title",
+      "default": "UV Printing"
+    },
+    {
+      "type": "textarea",
+      "id": "service1_desc",
+      "label": "Service 1 description",
+      "default": "High-quality UV printing for various materials and surfaces"
+    },
+    {
+      "type": "url",
+      "id": "service1_url",
+      "label": "Service 1 link"
+    },
+    {
+      "type": "text",
+      "id": "service1_link_text",
+      "label": "Service 1 link text",
+      "default": "Learn More"
+    },
+    {
+      "type": "text",
+      "id": "service2_title",
+      "label": "Service 2 title",
+      "default": "Eco Solvent Printing"
+    },
+    {
+      "type": "textarea",
+      "id": "service2_desc",
+      "label": "Service 2 description",
+      "default": "Eco-friendly printing solutions for indoor and outdoor use"
+    },
+    {
+      "type": "url",
+      "id": "service2_url",
+      "label": "Service 2 link"
+    },
+    {
+      "type": "text",
+      "id": "service2_link_text",
+      "label": "Service 2 link text",
+      "default": "Learn More"
+    },
+    {
+      "type": "text",
+      "id": "service3_title",
+      "label": "Service 3 title",
+      "default": "Flex Printing"
+    },
+    {
+      "type": "textarea",
+      "id": "service3_desc",
+      "label": "Service 3 description",
+      "default": "Large format flex printing for banners and signage"
+    },
+    {
+      "type": "url",
+      "id": "service3_url",
+      "label": "Service 3 link"
+    },
+    {
+      "type": "text",
+      "id": "service3_link_text",
+      "label": "Service 3 link text",
+      "default": "Learn More"
+    },
+    {
+      "type": "text",
+      "id": "enquiry_button_label",
+      "label": "Enquiry button text",
+      "default": "Custom Job Enquiry"
+    },
+    {
+      "type": "url",
+      "id": "enquiry_url",
+      "label": "Enquiry link"
+    },
+    {
+      "type": "header",
+      "content": "USPs section"
+    },
+    {
+      "type": "text",
+      "id": "usps_h2",
+      "label": "H2 heading",
+      "default": "Why Choose Aarohi PixelPrint"
+    },
+    {
+      "type": "text",
+      "id": "usp1_title",
+      "label": "USP 1 title",
+      "default": "Premium Quality"
+    },
+    {
+      "type": "textarea",
+      "id": "usp1_desc",
+      "label": "USP 1 description",
+      "default": "Industry-leading print quality and materials"
+    },
+    {
+      "type": "text",
+      "id": "usp2_title",
+      "label": "USP 2 title",
+      "default": "Fast Turnaround"
+    },
+    {
+      "type": "textarea",
+      "id": "usp2_desc",
+      "label": "USP 2 description",
+      "default": "Quick delivery without compromising quality"
+    },
+    {
+      "type": "text",
+      "id": "usp3_title",
+      "label": "USP 3 title",
+      "default": "Expert Team"
+    },
+    {
+      "type": "textarea",
+      "id": "usp3_desc",
+      "label": "USP 3 description",
+      "default": "Experienced professionals dedicated to your project"
+    },
+    {
+      "type": "text",
+      "id": "usp4_title",
+      "label": "USP 4 title",
+      "default": "Competitive Pricing"
+    },
+    {
+      "type": "textarea",
+      "id": "usp4_desc",
+      "label": "USP 4 description",
+      "default": "Best value for premium printing services"
+    },
+    {
+      "type": "header",
+      "content": "Reviews section"
+    },
+    {
+      "type": "text",
+      "id": "reviews_h2",
+      "label": "H2 heading",
+      "default": "Loved by 1000+ Customers"
+    },
+    {
+      "type": "textarea",
+      "id": "reviews_text",
+      "label": "Reviews text",
+      "default": "Join thousands of satisfied customers who trust us for their wall art and printing needs"
+    },
+    {
+      "type": "header",
+      "content": "Contact section"
+    },
+    {
+      "type": "text",
+      "id": "contact_h2",
+      "label": "H2 heading",
+      "default": "Visit Our Printing Studio in Noida"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "Address",
+      "default": "123 Sector 62, Noida, Uttar Pradesh 201301"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone",
+      "default": "+91 98765 43210"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email",
+      "default": "info@aarohipixelprint.com"
+    },
+    {
+      "type": "text",
+      "id": "hours",
+      "label": "Business hours",
+      "default": "Mon-Sat: 10:00 AM - 7:00 PM"
+    },
+    {
+      "type": "header",
+      "content": "Schema markup data"
+    },
+    {
+      "type": "text",
+      "id": "business_name",
+      "label": "Business name",
+      "default": "Aarohi PixelPrint"
+    },
+    {
+      "type": "textarea",
+      "id": "business_description",
+      "label": "Business description",
+      "default": "Premium wall art and professional printing services in Noida"
+    },
+    {
+      "type": "text",
+      "id": "logo_url",
+      "label": "Logo URL"
+    },
+    {
+      "type": "text",
+      "id": "street_address",
+      "label": "Street address",
+      "default": "123 Sector 62"
+    },
+    {
+      "type": "text",
+      "id": "city",
+      "label": "City",
+      "default": "Noida"
+    },
+    {
+      "type": "text",
+      "id": "state",
+      "label": "State",
+      "default": "Uttar Pradesh"
+    },
+    {
+      "type": "text",
+      "id": "postal_code",
+      "label": "Postal code",
+      "default": "201301"
+    },
+    {
+      "type": "text",
+      "id": "latitude",
+      "label": "Latitude",
+      "default": "28.6139"
+    },
+    {
+      "type": "text",
+      "id": "longitude",
+      "label": "Longitude",
+      "default": "77.2090"
+    },
+    {
+      "type": "text",
+      "id": "opening_time",
+      "label": "Opening time",
+      "default": "10:00"
+    },
+    {
+      "type": "text",
+      "id": "closing_time",
+      "label": "Closing time",
+      "default": "19:00"
+    },
+    {
+      "type": "text",
+      "id": "price_range",
+      "label": "Price range",
+      "default": "₹₹"
+    },
+    {
+      "type": "text",
+      "id": "rating_value",
+      "label": "Rating value",
+      "default": "4.8"
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Review count",
+      "default": "1000"
+    },
+    {
+      "type": "text",
+      "id": "facebook_url",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "text",
+      "id": "instagram_url",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "text",
+      "id": "linkedin_url",
+      "label": "LinkedIn URL"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#0066cc"
+    },
+    {
+      "type": "color",
+      "id": "cta_primary_bg",
+      "label": "Primary CTA background",
+      "default": "#0066cc"
+    },
+    {
+      "type": "color",
+      "id": "cta_primary_text",
+      "label": "Primary CTA text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_primary_hover",
+      "label": "Primary CTA hover",
+      "default": "#0052a3"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_bg",
+      "label": "Secondary CTA background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_text",
+      "label": "Secondary CTA text",
+      "default": "#0066cc"
+    },
+    {
+      "type": "color",
+      "id": "cta_secondary_hover",
+      "label": "Secondary CTA hover",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "reviews_bg_color",
+      "label": "Reviews background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "contact_bg_color",
+      "label": "Contact background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "enquiry_btn_bg",
+      "label": "Enquiry button background",
+      "default": "#28a745"
+    },
+    {
+      "type": "color",
+      "id": "enquiry_btn_text_color",
+      "label": "Enquiry button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "enquiry_btn_hover",
+      "label": "Enquiry button hover",
+      "default": "#218838"
+    }
+  ],
+  "presets": [
+    {
+      "name": "SEO homepage slideshow"
+    }
+  ]
+}
 {% endschema %}
