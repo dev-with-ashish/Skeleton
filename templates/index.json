@@ -9,8 +9,87 @@
  */
 {
   "sections": {
-    "17633648004305bb34": {
+    "176336770617deda0d": {
       "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_dc4de9f_Rmxdjc": {
+          "type": "ai_gen_block_dc4de9f",
+          "settings": {
+            "hero_title": "Premium Wall Art & Professional UV Printing Services",
+            "hero_subtitle": "Shop premium wall art or book same-day UV printing services.",
+            "hero_bg_color": "#f5f5f5",
+            "hero_text_color": "#000000",
+            "cta1_text": "Shop By Category",
+            "cta2_text": "Book Services",
+            "cta_primary_bg": "#000000",
+            "cta_primary_text": "#ffffff",
+            "cta_secondary_bg": "#ffffff",
+            "cta_secondary_text": "#000000",
+            "wallart_title": "Paintings & Posters by Category",
+            "canvas_tab_label": "Canvas Paintings",
+            "canvas_content_type": "collection",
+            "canvas_collection": "",
+            "canvas_page": "",
+            "metal_tab_label": "Metal Posters",
+            "metal_content_type": "collection",
+            "metal_collection": "",
+            "metal_page": "",
+            "acrylic_tab_label": "Acrylic Posters",
+            "acrylic_content_type": "collection",
+            "acrylic_collection": "",
+            "acrylic_page": "",
+            "uv_tab_label": "UV Printed Frames",
+            "uv_content_type": "collection",
+            "uv_collection": "",
+            "uv_page": "",
+            "services_title": "Printing Services by Category",
+            "uvflatbed_tab_label": "UV Flatbed Printing",
+            "uvflatbed_page": "",
+            "ecosolvent_tab_label": "Eco-Solvent Printing",
+            "ecosolvent_page": "",
+            "latex_tab_label": "Latex Printing",
+            "latex_page": "",
+            "signage_tab_label": "Signage Printing",
+            "signage_page": "",
+            "clients_title": "Our Clients",
+            "clients_bg_color": "#ffffff",
+            "testimonials_title": "Let Our Customers Speak for Us",
+            "testimonials_bg_color": "#f9f9f9",
+            "testimonial_card_bg": "#ffffff",
+            "testimonial_text_color": "#333333",
+            "testimonial_name_color": "#000000",
+            "star_color": "#FFB800",
+            "quote_color": "#000000",
+            "testimonial_1_text": "The quality of the metal posters exceeded my expectations. The colors are vibrant and the finish is perfect. Highly recommend!",
+            "testimonial_1_name": "Sarah Johnson",
+            "testimonial_1_role": "Interior Designer",
+            "testimonial_1_rating": 5,
+            "testimonial_2_text": "Fast turnaround on UV printing services and exceptional customer service. They brought my vision to life perfectly.",
+            "testimonial_2_name": "Michael Chen",
+            "testimonial_2_role": "Business Owner",
+            "testimonial_2_rating": 5,
+            "testimonial_3_text": "Beautiful acrylic posters that look stunning in our office. The team was professional and delivered exactly what we needed.",
+            "testimonial_3_name": "Emily Rodriguez",
+            "testimonial_3_role": "Marketing Director",
+            "testimonial_3_rating": 5,
+            "studio_title": "Our Studio",
+            "studio_bg_color": "#f9f9f9",
+            "studio_address": "123 Main Street\nCity, State 12345",
+            "studio_phone": "+1 (555) 123-4567",
+            "studio_email": "",
+            "studio_directions_url": "",
+            "studio_map_embed": "",
+            "studio_link_color": "#000000",
+            "studio_btn_bg": "#000000",
+            "studio_btn_text": "#ffffff",
+            "section_title_color": "#000000"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_dc4de9f_Rmxdjc"
+      ],
       "settings": {}
     },
     "17627648803a530d61": {
@@ -182,7 +261,7 @@
     }
   },
   "order": [
-    "17633648004305bb34",
+    "176336770617deda0d",
     "17627648803a530d61",
     "17603326189cbb3554"
   ]
