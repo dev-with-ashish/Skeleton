@@ -1,6 +1,1294 @@
+{% doc %}
+  @prompt
+    Build a Tentree-style Shopify homepage.
+    
+    ### HERO
+    • Full-width minimal hero with light parallax.
+    • H1: “Premium Wall Art & Professional UV Printing Services”
+    • Subheading: “Shop premium wall art or book same-day UV printing services.”
+    • Two CTAs: Shop By Category → #wallart-tabs , Book Services → #service-tabs
+    
+    ### SILO 1 — WALL ART
+    • H2 with ID="wallart-tabs": “Paintings & Posters by Category”
+    • Below H2 create Tentree-style horizontal TABS (like Women | Men | Accessories):
+       – Canvas Paintings (/collections/canvas-paintings)
+       – Metal Posters (/collections/metal-posters)
+       – Acrylic Posters (/collections/acrylic-posters)
+       – UV Printed Frames (/collections/uv-printed-frames)
+    • Under tabs show a horizontal scroll row of items (banners or featured products) that switch when tabs change. Match the Tentree “New Arrivals” layout: clean, minimal, large spacing, swipeable on mobile.
+    
+    ### SILO 2 — PRINTING SERVICES
+    • H2 with ID="service-tabs": “Printing Services by Category”
+    • Create Tentree-style tabs:
+       – UV Flatbed Printing (/collections/uv-flatbed-printing)
+       – Eco-Solvent Printing (/collections/eco-solvent-printing)
+       – Latex Printing (/collections/latex-printing)
+       – Signage Printing (/collections/signage-printing)
+    • Each tab shows a horizontal scroll section of service banners/cards, same style as above.
+    
+    ### STYLE
+    • Only one H1 on page.
+    • Tabs must visually match Tentree: centered text, underline active tab, smooth fade/slide.
+    • Aesthetic: minimal, clean, modern, rounded edges, soft shadows, airy spacing.
+    
+    ### SCHEMA
+    Add one JSON-LD WebPage + two ItemList entries for the 4 wall art categories and 4 service categories using URLs above.
+    , make the canvas paintings metalposter and ohther h2 navigationable nothing happening when clicked make it work for all, give me option to select collection for paintings and posters and option to select pages for services , under each canvas paintigns metal posters acrylic posters uv printed frames give me option to select collection or pages
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .tentree-homepage-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .tentree-hero-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    min-height: {{ block.settings.hero_height }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: {{ block.settings.hero_bg_color }};
+  }
+
+  .tentree-hero-bg-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .tentree-hero-bg-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-hero-bg-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tentree-hero-bg-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-hero-content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 60px 20px;
+    color: {{ block.settings.hero_text_color }};
+  }
+
+  .tentree-hero-h1-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h1_size }}px;
+    font-weight: 600;
+    margin: 0 0 20px;
+    line-height: 1.2;
+    color: {{ block.settings.hero_text_color }};
+  }
+
+  .tentree-hero-subheading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_size }}px;
+    margin: 0 0 40px;
+    line-height: 1.6;
+    color: {{ block.settings.hero_text_color }};
+    opacity: 0.9;
+  }
+
+  .tentree-hero-ctas-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tentree-hero-cta-{{ ai_gen_id }} {
+    padding: 16px 32px;
+    border-radius: {{ block.settings.button_radius }}px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .tentree-hero-cta-primary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.primary_button_bg }};
+    color: {{ block.settings.primary_button_text }};
+  }
+
+  .tentree-hero-cta-primary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.primary_button_hover }};
+  }
+
+  .tentree-hero-cta-secondary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.secondary_button_bg }};
+    color: {{ block.settings.secondary_button_text }};
+    border: 2px solid {{ block.settings.secondary_button_border }};
+  }
+
+  .tentree-hero-cta-secondary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.secondary_button_hover }};
+  }
+
+  .tentree-section-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: {{ block.settings.section_padding }}px 20px;
+  }
+
+  .tentree-section-h2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h2_size }}px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 40px;
+    color: {{ block.settings.heading_color }};
+  }
+
+  .tentree-tabs-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid {{ block.settings.tab_border_color }};
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tentree-tab-{{ ai_gen_id }} {
+    padding: 16px 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: {{ block.settings.tab_inactive_color }};
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+
+  .tentree-tab-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.tab_hover_color }};
+  }
+
+  .tentree-tab-{{ ai_gen_id }}.active {
+    color: {{ block.settings.tab_active_color }};
+  }
+
+  .tentree-tab-{{ ai_gen_id }}.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: {{ block.settings.tab_active_underline }};
+  }
+
+  .tentree-tab-content-{{ ai_gen_id }} {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .tentree-tab-content-{{ ai_gen_id }}.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }} {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding-bottom: 20px;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }}::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }}::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }}::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  .tentree-card-{{ ai_gen_id }} {
+    min-width: 300px;
+    flex-shrink: 0;
+    border-radius: {{ block.settings.card_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.card_bg_color }};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .tentree-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .tentree-card-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+  }
+
+  .tentree-card-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-card-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tentree-card-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-card-content-{{ ai_gen_id }} {
+    padding: 20px;
+  }
+
+  .tentree-card-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: {{ block.settings.card_title_color }};
+  }
+
+  .tentree-card-description-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .tentree-page-content-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.8;
+  }
+
+  .tentree-page-content-{{ ai_gen_id }} h1,
+  .tentree-page-content-{{ ai_gen_id }} h2,
+  .tentree-page-content-{{ ai_gen_id }} h3 {
+    color: {{ block.settings.heading_color }};
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .tentree-page-content-{{ ai_gen_id }} p {
+    margin-bottom: 1em;
+  }
+
+  .tentree-empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 60px 20px;
+    color: {{ block.settings.tab_inactive_color }};
+    font-style: italic;
+  }
+
+  @media screen and (max-width: 768px) {
+    .tentree-hero-h1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h1_size | times: 0.7 }}px;
+    }
+
+    .tentree-hero-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheading_size | times: 0.85 }}px;
+    }
+
+    .tentree-section-h2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h2_size | times: 0.8 }}px;
+    }
+
+    .tentree-tabs-{{ ai_gen_id }} {
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .tentree-card-{{ ai_gen_id }} {
+      min-width: 250px;
+    }
+  }
+{% endstyle %}
+
+<tentree-homepage-{{ ai_gen_id }} class="tentree-homepage-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <section class="tentree-hero-{{ ai_gen_id }}">
+    <div class="tentree-hero-bg-{{ ai_gen_id }}" data-parallax>
+      {% if block.settings.hero_image %}
+        <img
+          src="{{ block.settings.hero_image | image_url: width: 2000 }}"
+          alt="{{ block.settings.hero_image.alt | escape }}"
+          loading="eager"
+          width="{{ block.settings.hero_image.width }}"
+          height="{{ block.settings.hero_image.height }}"
+        >
+      {% else %}
+        <div class="tentree-hero-bg-placeholder-{{ ai_gen_id }}">
+          {{ 'hero-apparel-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+    <div class="tentree-hero-content-{{ ai_gen_id }}">
+      <h1 class="tentree-hero-h1-{{ ai_gen_id }}">{{ block.settings.hero_h1 }}</h1>
+      <p class="tentree-hero-subheading-{{ ai_gen_id }}">{{ block.settings.hero_subheading }}</p>
+      <div class="tentree-hero-ctas-{{ ai_gen_id }}">
+        <a href="#wallart-tabs" class="tentree-hero-cta-{{ ai_gen_id }} tentree-hero-cta-primary-{{ ai_gen_id }}">
+          {{ block.settings.cta1_text }}
+        </a>
+        <a href="#service-tabs" class="tentree-hero-cta-{{ ai_gen_id }} tentree-hero-cta-secondary-{{ ai_gen_id }}">
+          {{ block.settings.cta2_text }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tentree-section-{{ ai_gen_id }}">
+    <h2 id="wallart-tabs" class="tentree-section-h2-{{ ai_gen_id }}">{{ block.settings.wallart_heading }}</h2>
+    <div class="tentree-tabs-{{ ai_gen_id }}" role="tablist" data-section="wallart">
+      <button class="tentree-tab-{{ ai_gen_id }} active" data-tab="canvas" role="tab" aria-selected="true">{{ block.settings.canvas_tab_label }}</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="metal" role="tab" aria-selected="false">{{ block.settings.metal_tab_label }}</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="acrylic" role="tab" aria-selected="false">{{ block.settings.acrylic_tab_label }}</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="frames" role="tab" aria-selected="false">{{ block.settings.frames_tab_label }}</button>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }} active" data-content="canvas" data-section="wallart" role="tabpanel">
+      {% if block.settings.canvas_content_type == 'collection' %}
+        {% if block.settings.canvas_collection %}
+          <div class="tentree-scroll-container-{{ ai_gen_id }}">
+            {% for product in block.settings.canvas_collection.products limit: 8 %}
+              <div class="tentree-card-{{ ai_gen_id }}">
+                <div class="tentree-card-image-{{ ai_gen_id }}">
+                  {% if product.featured_image %}
+                    <img
+                      src="{{ product.featured_image | image_url: width: 400 }}"
+                      alt="{{ product.featured_image.alt | escape }}"
+                      loading="lazy"
+                      width="400"
+                      height="250"
+                    >
+                  {% else %}
+                    <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="tentree-card-content-{{ ai_gen_id }}">
+                  <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                  <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a collection for Canvas Paintings in the block settings
+          </div>
+        {% endif %}
+      {% elsif block.settings.canvas_content_type == 'page' %}
+        {% if block.settings.canvas_page %}
+          <div class="tentree-page-content-{{ ai_gen_id }}">
+            {{ block.settings.canvas_page.content }}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a page for Canvas Paintings in the block settings
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="metal" data-section="wallart" role="tabpanel">
+      {% if block.settings.metal_content_type == 'collection' %}
+        {% if block.settings.metal_collection %}
+          <div class="tentree-scroll-container-{{ ai_gen_id }}">
+            {% for product in block.settings.metal_collection.products limit: 8 %}
+              <div class="tentree-card-{{ ai_gen_id }}">
+                <div class="tentree-card-image-{{ ai_gen_id }}">
+                  {% if product.featured_image %}
+                    <img
+                      src="{{ product.featured_image | image_url: width: 400 }}"
+                      alt="{{ product.featured_image.alt | escape }}"
+                      loading="lazy"
+                      width="400"
+                      height="250"
+                    >
+                  {% else %}
+                    <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="tentree-card-content-{{ ai_gen_id }}">
+                  <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                  <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a collection for Metal Posters in the block settings
+          </div>
+        {% endif %}
+      {% elsif block.settings.metal_content_type == 'page' %}
+        {% if block.settings.metal_page %}
+          <div class="tentree-page-content-{{ ai_gen_id }}">
+            {{ block.settings.metal_page.content }}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a page for Metal Posters in the block settings
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="acrylic" data-section="wallart" role="tabpanel">
+      {% if block.settings.acrylic_content_type == 'collection' %}
+        {% if block.settings.acrylic_collection %}
+          <div class="tentree-scroll-container-{{ ai_gen_id }}">
+            {% for product in block.settings.acrylic_collection.products limit: 8 %}
+              <div class="tentree-card-{{ ai_gen_id }}">
+                <div class="tentree-card-image-{{ ai_gen_id }}">
+                  {% if product.featured_image %}
+                    <img
+                      src="{{ product.featured_image | image_url: width: 400 }}"
+                      alt="{{ product.featured_image.alt | escape }}"
+                      loading="lazy"
+                      width="400"
+                      height="250"
+                    >
+                  {% else %}
+                    <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="tentree-card-content-{{ ai_gen_id }}">
+                  <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                  <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a collection for Acrylic Posters in the block settings
+          </div>
+        {% endif %}
+      {% elsif block.settings.acrylic_content_type == 'page' %}
+        {% if block.settings.acrylic_page %}
+          <div class="tentree-page-content-{{ ai_gen_id }}">
+            {{ block.settings.acrylic_page.content }}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a page for Acrylic Posters in the block settings
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="frames" data-section="wallart" role="tabpanel">
+      {% if block.settings.frames_content_type == 'collection' %}
+        {% if block.settings.frames_collection %}
+          <div class="tentree-scroll-container-{{ ai_gen_id }}">
+            {% for product in block.settings.frames_collection.products limit: 8 %}
+              <div class="tentree-card-{{ ai_gen_id }}">
+                <div class="tentree-card-image-{{ ai_gen_id }}">
+                  {% if product.featured_image %}
+                    <img
+                      src="{{ product.featured_image | image_url: width: 400 }}"
+                      alt="{{ product.featured_image.alt | escape }}"
+                      loading="lazy"
+                      width="400"
+                      height="250"
+                    >
+                  {% else %}
+                    <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="tentree-card-content-{{ ai_gen_id }}">
+                  <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                  <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a collection for UV Printed Frames in the block settings
+          </div>
+        {% endif %}
+      {% elsif block.settings.frames_content_type == 'page' %}
+        {% if block.settings.frames_page %}
+          <div class="tentree-page-content-{{ ai_gen_id }}">
+            {{ block.settings.frames_page.content }}
+          </div>
+        {% else %}
+          <div class="tentree-empty-state-{{ ai_gen_id }}">
+            Select a page for UV Printed Frames in the block settings
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="tentree-section-{{ ai_gen_id }}">
+    <h2 id="service-tabs" class="tentree-section-h2-{{ ai_gen_id }}">{{ block.settings.services_heading }}</h2>
+    <div class="tentree-tabs-{{ ai_gen_id }}" role="tablist" data-section="services">
+      <button class="tentree-tab-{{ ai_gen_id }} active" data-tab="uv-flatbed" role="tab" aria-selected="true">{{ block.settings.uv_tab_label }}</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="eco-solvent" role="tab" aria-selected="false">{{ block.settings.eco_tab_label }}</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="latex" role="tab" aria-selected="false">{{ block.settings.latex_tab_label }}</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="signage" role="tab" aria-selected="false">{{ block.settings.signage_tab_label }}</button>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }} active" data-content="uv-flatbed" data-section="services" role="tabpanel">
+      {% if block.settings.uv_page %}
+        <div class="tentree-page-content-{{ ai_gen_id }}">
+          {{ block.settings.uv_page.content }}
+        </div>
+      {% else %}
+        <div class="tentree-empty-state-{{ ai_gen_id }}">
+          Select a page for UV Flatbed Printing in the block settings
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="eco-solvent" data-section="services" role="tabpanel">
+      {% if block.settings.eco_page %}
+        <div class="tentree-page-content-{{ ai_gen_id }}">
+          {{ block.settings.eco_page.content }}
+        </div>
+      {% else %}
+        <div class="tentree-empty-state-{{ ai_gen_id }}">
+          Select a page for Eco-Solvent Printing in the block settings
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="latex" data-section="services" role="tabpanel">
+      {% if block.settings.latex_page %}
+        <div class="tentree-page-content-{{ ai_gen_id }}">
+          {{ block.settings.latex_page.content }}
+        </div>
+      {% else %}
+        <div class="tentree-empty-state-{{ ai_gen_id }}">
+          Select a page for Latex Printing in the block settings
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="signage" data-section="services" role="tabpanel">
+      {% if block.settings.signage_page %}
+        <div class="tentree-page-content-{{ ai_gen_id }}">
+          {{ block.settings.signage_page.content }}
+        </div>
+      {% else %}
+        <div class="tentree-empty-state-{{ ai_gen_id }}">
+          Select a page for Signage Printing in the block settings
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</tentree-homepage-{{ ai_gen_id }}>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "{{ block.settings.hero_h1 }}",
+  "description": "{{ block.settings.hero_subheading }}",
+  "url": "{{ shop.url }}",
+  "mainEntity": [
+    {
+      "@type": "ItemList",
+      "name": "Wall Art Categories",
+      "itemListElement": [
+        {% assign wallart_position = 0 %}
+        {% if block.settings.canvas_content_type == 'collection' and block.settings.canvas_collection %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.canvas_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.canvas_collection.url }}"
+          }{% if block.settings.metal_content_type == 'collection' and block.settings.metal_collection or block.settings.acrylic_content_type == 'collection' and block.settings.acrylic_collection or block.settings.frames_content_type == 'collection' and block.settings.frames_collection %},{% endif %}
+        {% elsif block.settings.canvas_content_type == 'page' and block.settings.canvas_page %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.canvas_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.canvas_page.url }}"
+          }{% if block.settings.metal_content_type == 'collection' and block.settings.metal_collection or block.settings.metal_content_type == 'page' and block.settings.metal_page or block.settings.acrylic_content_type == 'collection' and block.settings.acrylic_collection or block.settings.acrylic_content_type == 'page' and block.settings.acrylic_page or block.settings.frames_content_type == 'collection' and block.settings.frames_collection or block.settings.frames_content_type == 'page' and block.settings.frames_page %},{% endif %}
+        {% endif %}
+        {% if block.settings.metal_content_type == 'collection' and block.settings.metal_collection %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.metal_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.metal_collection.url }}"
+          }{% if block.settings.acrylic_content_type == 'collection' and block.settings.acrylic_collection or block.settings.frames_content_type == 'collection' and block.settings.frames_collection %},{% endif %}
+        {% elsif block.settings.metal_content_type == 'page' and block.settings.metal_page %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.metal_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.metal_page.url }}"
+          }{% if block.settings.acrylic_content_type == 'collection' and block.settings.acrylic_collection or block.settings.acrylic_content_type == 'page' and block.settings.acrylic_page or block.settings.frames_content_type == 'collection' and block.settings.frames_collection or block.settings.frames_content_type == 'page' and block.settings.frames_page %},{% endif %}
+        {% endif %}
+        {% if block.settings.acrylic_content_type == 'collection' and block.settings.acrylic_collection %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.acrylic_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.acrylic_collection.url }}"
+          }{% if block.settings.frames_content_type == 'collection' and block.settings.frames_collection %},{% endif %}
+        {% elsif block.settings.acrylic_content_type == 'page' and block.settings.acrylic_page %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.acrylic_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.acrylic_page.url }}"
+          }{% if block.settings.frames_content_type == 'collection' and block.settings.frames_collection or block.settings.frames_content_type == 'page' and block.settings.frames_page %},{% endif %}
+        {% endif %}
+        {% if block.settings.frames_content_type == 'collection' and block.settings.frames_collection %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.frames_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.frames_collection.url }}"
+          }
+        {% elsif block.settings.frames_content_type == 'page' and block.settings.frames_page %}
+          {% assign wallart_position = wallart_position | plus: 1 %}
+          {
+            "@type": "ListItem",
+            "position": {{ wallart_position }},
+            "name": "{{ block.settings.frames_tab_label }}",
+            "url": "{{ shop.url }}{{ block.settings.frames_page.url }}"
+          }
+        {% endif %}
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "name": "Printing Services",
+      "itemListElement": [
+        {% if block.settings.uv_page %}
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "{{ block.settings.uv_tab_label }}",
+          "url": "{{ shop.url }}{{ block.settings.uv_page.url }}"
+        }{% if block.settings.eco_page %},{% endif %}
+        {% endif %}
+        {% if block.settings.eco_page %}
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ block.settings.eco_tab_label }}",
+          "url": "{{ shop.url }}{{ block.settings.eco_page.url }}"
+        }{% if block.settings.latex_page %},{% endif %}
+        {% endif %}
+        {% if block.settings.latex_page %}
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ block.settings.latex_tab_label }}",
+          "url": "{{ shop.url }}{{ block.settings.latex_page.url }}"
+        }{% if block.settings.signage_page %},{% endif %}
+        {% endif %}
+        {% if block.settings.signage_page %}
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "{{ block.settings.signage_tab_label }}",
+          "url": "{{ shop.url }}{{ block.settings.signage_page.url }}"
+        }
+        {% endif %}
+      ]
+    }
+  ]
+}
+</script>
+
+<script>
+  (function() {
+    class TentreeHomepage{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.parallaxBg = this.querySelector('[data-parallax]');
+        this.tabButtons = this.querySelectorAll('.tentree-tab-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        this.setupParallax();
+        this.setupTabs();
+      }
+
+      setupParallax() {
+        if (!this.parallaxBg) return;
+
+        let ticking = false;
+        const handleScroll = () => {
+          if (!ticking) {
+            window.requestAnimationFrame(() => {
+              const scrolled = window.pageYOffset;
+              const parallaxSpeed = {{ block.settings.parallax_speed }};
+              this.parallaxBg.style.transform = 'translateY(' + (scrolled * parallaxSpeed) + 'px)';
+              ticking = false;
+            });
+            ticking = true;
+          }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+      }
+
+      setupTabs() {
+        this.tabButtons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const tabId = button.getAttribute('data-tab');
+            const tabList = button.closest('.tentree-tabs-{{ ai_gen_id }}');
+            const sectionType = tabList.getAttribute('data-section');
+            const parentSection = button.closest('.tentree-section-{{ ai_gen_id }}');
+            
+            const sectionTabs = parentSection.querySelectorAll('.tentree-tab-{{ ai_gen_id }}');
+            const sectionContents = parentSection.querySelectorAll('.tentree-tab-content-{{ ai_gen_id }}[data-section="' + sectionType + '"]');
+
+            sectionTabs.forEach(tab => {
+              tab.classList.remove('active');
+              tab.setAttribute('aria-selected', 'false');
+            });
+
+            sectionContents.forEach(content => {
+              content.classList.remove('active');
+            });
+
+            button.classList.add('active');
+            button.setAttribute('aria-selected', 'true');
+
+            const targetContent = parentSection.querySelector('.tentree-tab-content-{{ ai_gen_id }}[data-content="' + tabId + '"][data-section="' + sectionType + '"]');
+            if (targetContent) {
+              targetContent.classList.add('active');
+            }
+          });
+        });
+      }
+    }
+
+    customElements.define('tentree-homepage-{{ ai_gen_id }}', TentreeHomepage{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Tentree homepage",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero section"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero background image"
+    },
+    {
+      "type": "range",
+      "id": "hero_height",
+      "min": 400,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Hero height",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "parallax_speed",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.1,
+      "label": "Parallax speed",
+      "default": 0.2
+    },
+    {
+      "type": "text",
+      "id": "hero_h1",
+      "label": "Hero heading",
+      "default": "Premium Wall Art & Professional UV Printing Services"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subheading",
+      "label": "Hero subheading",
+      "default": "Shop premium wall art or book same-day UV printing services."
+    },
+    {
+      "type": "text",
+      "id": "cta1_text",
+      "label": "Primary CTA text",
+      "default": "Shop By Category"
+    },
+    {
+      "type": "text",
+      "id": "cta2_text",
+      "label": "Secondary CTA text",
+      "default": "Book Services"
+    },
+    {
+      "type": "color",
+      "id": "hero_bg_color",
+      "label": "Hero background color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "hero_text_color",
+      "label": "Hero text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Wall art section"
+    },
+    {
+      "type": "text",
+      "id": "wallart_heading",
+      "label": "Wall art heading",
+      "default": "Paintings & Posters by Category"
+    },
+    {
+      "type": "header",
+      "content": "Canvas paintings tab"
+    },
+    {
+      "type": "text",
+      "id": "canvas_tab_label",
+      "label": "Tab label",
+      "default": "Canvas Paintings"
+    },
+    {
+      "type": "select",
+      "id": "canvas_content_type",
+      "label": "Content type",
+      "options": [
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "page",
+          "label": "Page"
+        }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "collection",
+      "id": "canvas_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "page",
+      "id": "canvas_page",
+      "label": "Page"
+    },
+    {
+      "type": "header",
+      "content": "Metal posters tab"
+    },
+    {
+      "type": "text",
+      "id": "metal_tab_label",
+      "label": "Tab label",
+      "default": "Metal Posters"
+    },
+    {
+      "type": "select",
+      "id": "metal_content_type",
+      "label": "Content type",
+      "options": [
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "page",
+          "label": "Page"
+        }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "collection",
+      "id": "metal_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "page",
+      "id": "metal_page",
+      "label": "Page"
+    },
+    {
+      "type": "header",
+      "content": "Acrylic posters tab"
+    },
+    {
+      "type": "text",
+      "id": "acrylic_tab_label",
+      "label": "Tab label",
+      "default": "Acrylic Posters"
+    },
+    {
+      "type": "select",
+      "id": "acrylic_content_type",
+      "label": "Content type",
+      "options": [
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "page",
+          "label": "Page"
+        }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "collection",
+      "id": "acrylic_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "page",
+      "id": "acrylic_page",
+      "label": "Page"
+    },
+    {
+      "type": "header",
+      "content": "UV printed frames tab"
+    },
+    {
+      "type": "text",
+      "id": "frames_tab_label",
+      "label": "Tab label",
+      "default": "UV Printed Frames"
+    },
+    {
+      "type": "select",
+      "id": "frames_content_type",
+      "label": "Content type",
+      "options": [
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "page",
+          "label": "Page"
+        }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "collection",
+      "id": "frames_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "page",
+      "id": "frames_page",
+      "label": "Page"
+    },
+    {
+      "type": "header",
+      "content": "Services section"
+    },
+    {
+      "type": "text",
+      "id": "services_heading",
+      "label": "Services heading",
+      "default": "Printing Services by Category"
+    },
+    {
+      "type": "text",
+      "id": "uv_tab_label",
+      "label": "UV flatbed tab label",
+      "default": "UV Flatbed Printing"
+    },
+    {
+      "type": "page",
+      "id": "uv_page",
+      "label": "UV flatbed page"
+    },
+    {
+      "type": "text",
+      "id": "eco_tab_label",
+      "label": "Eco-solvent tab label",
+      "default": "Eco-Solvent Printing"
+    },
+    {
+      "type": "page",
+      "id": "eco_page",
+      "label": "Eco-solvent page"
+    },
+    {
+      "type": "text",
+      "id": "latex_tab_label",
+      "label": "Latex tab label",
+      "default": "Latex Printing"
+    },
+    {
+      "type": "page",
+      "id": "latex_page",
+      "label": "Latex page"
+    },
+    {
+      "type": "text",
+      "id": "signage_tab_label",
+      "label": "Signage tab label",
+      "default": "Signage Printing"
+    },
+    {
+      "type": "page",
+      "id": "signage_page",
+      "label": "Signage page"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "h1_size",
+      "min": 30,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "H1 size",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "h2_size",
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "H2 size",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Headings",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Primary button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Primary button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_hover",
+      "label": "Primary button hover",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_bg",
+      "label": "Secondary button background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text",
+      "label": "Secondary button text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_border",
+      "label": "Secondary button border",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover",
+      "label": "Secondary button hover",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Tabs"
+    },
+    {
+      "type": "color",
+      "id": "tab_inactive_color",
+      "label": "Inactive tab",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_color",
+      "label": "Hover tab",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active tab",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_underline",
+      "label": "Active tab underline",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Tab border",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card title",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Card border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 40,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tentree homepage"
+    }
+  ]
+}
 {% endschema %}
