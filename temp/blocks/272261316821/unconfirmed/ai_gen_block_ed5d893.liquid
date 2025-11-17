@@ -1,6 +1,1146 @@
+{% doc %}
+  @prompt
+    Build a Tentree-style Shopify homepage.
+    
+    ### HERO
+    • Full-width minimal hero with light parallax.
+    • H1: “Premium Wall Art & Professional UV Printing Services”
+    • Subheading: “Shop premium wall art or book same-day UV printing services.”
+    • Two CTAs: Shop By Category → #wallart-tabs , Book Services → #service-tabs
+    
+    ### SILO 1 — WALL ART
+    • H2 with ID="wallart-tabs": “Paintings & Posters by Category”
+    • Below H2 create Tentree-style horizontal TABS (like Women | Men | Accessories):
+       – Canvas Paintings (/collections/canvas-paintings)
+       – Metal Posters (/collections/metal-posters)
+       – Acrylic Posters (/collections/acrylic-posters)
+       – UV Printed Frames (/collections/uv-printed-frames)
+    • Under tabs show a horizontal scroll row of items (banners or featured products) that switch when tabs change. Match the Tentree “New Arrivals” layout: clean, minimal, large spacing, swipeable on mobile.
+    
+    ### SILO 2 — PRINTING SERVICES
+    • H2 with ID="service-tabs": “Printing Services by Category”
+    • Create Tentree-style tabs:
+       – UV Flatbed Printing (/collections/uv-flatbed-printing)
+       – Eco-Solvent Printing (/collections/eco-solvent-printing)
+       – Latex Printing (/collections/latex-printing)
+       – Signage Printing (/collections/signage-printing)
+    • Each tab shows a horizontal scroll section of service banners/cards, same style as above.
+    
+    ### STYLE
+    • Only one H1 on page.
+    • Tabs must visually match Tentree: centered text, underline active tab, smooth fade/slide.
+    • Aesthetic: minimal, clean, modern, rounded edges, soft shadows, airy spacing.
+    
+    ### SCHEMA
+    Add one JSON-LD WebPage + two ItemList entries for the 4 wall art categories and 4 service categories using URLs above.
+    
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .tentree-homepage-{{ ai_gen_id }} {
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .tentree-hero-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    min-height: {{ block.settings.hero_height }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: {{ block.settings.hero_bg_color }};
+  }
+
+  .tentree-hero-bg-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .tentree-hero-bg-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-hero-bg-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tentree-hero-bg-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-hero-content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 60px 20px;
+    color: {{ block.settings.hero_text_color }};
+  }
+
+  .tentree-hero-h1-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h1_size }}px;
+    font-weight: 600;
+    margin: 0 0 20px;
+    line-height: 1.2;
+    color: {{ block.settings.hero_text_color }};
+  }
+
+  .tentree-hero-subheading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_size }}px;
+    margin: 0 0 40px;
+    line-height: 1.6;
+    color: {{ block.settings.hero_text_color }};
+    opacity: 0.9;
+  }
+
+  .tentree-hero-ctas-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tentree-hero-cta-{{ ai_gen_id }} {
+    padding: 16px 32px;
+    border-radius: {{ block.settings.button_radius }}px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .tentree-hero-cta-primary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.primary_button_bg }};
+    color: {{ block.settings.primary_button_text }};
+  }
+
+  .tentree-hero-cta-primary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.primary_button_hover }};
+  }
+
+  .tentree-hero-cta-secondary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.secondary_button_bg }};
+    color: {{ block.settings.secondary_button_text }};
+    border: 2px solid {{ block.settings.secondary_button_border }};
+  }
+
+  .tentree-hero-cta-secondary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.secondary_button_hover }};
+  }
+
+  .tentree-section-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: {{ block.settings.section_padding }}px 20px;
+  }
+
+  .tentree-section-h2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h2_size }}px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 40px;
+    color: {{ block.settings.heading_color }};
+  }
+
+  .tentree-tabs-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid {{ block.settings.tab_border_color }};
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tentree-tab-{{ ai_gen_id }} {
+    padding: 16px 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: {{ block.settings.tab_inactive_color }};
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+
+  .tentree-tab-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.tab_hover_color }};
+  }
+
+  .tentree-tab-{{ ai_gen_id }}.active {
+    color: {{ block.settings.tab_active_color }};
+  }
+
+  .tentree-tab-{{ ai_gen_id }}.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: {{ block.settings.tab_active_underline }};
+  }
+
+  .tentree-tab-content-{{ ai_gen_id }} {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .tentree-tab-content-{{ ai_gen_id }}.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }} {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding-bottom: 20px;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }}::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }}::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .tentree-scroll-container-{{ ai_gen_id }}::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  .tentree-card-{{ ai_gen_id }} {
+    min-width: 300px;
+    flex-shrink: 0;
+    border-radius: {{ block.settings.card_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.card_bg_color }};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .tentree-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .tentree-card-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+  }
+
+  .tentree-card-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-card-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tentree-card-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tentree-card-content-{{ ai_gen_id }} {
+    padding: 20px;
+  }
+
+  .tentree-card-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: {{ block.settings.card_title_color }};
+  }
+
+  .tentree-card-description-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.card_text_color }};
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 768px) {
+    .tentree-hero-h1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h1_size | times: 0.7 }}px;
+    }
+
+    .tentree-hero-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheading_size | times: 0.85 }}px;
+    }
+
+    .tentree-section-h2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h2_size | times: 0.8 }}px;
+    }
+
+    .tentree-tabs-{{ ai_gen_id }} {
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .tentree-card-{{ ai_gen_id }} {
+      min-width: 250px;
+    }
+  }
+{% endstyle %}
+
+<div class="tentree-homepage-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <section class="tentree-hero-{{ ai_gen_id }}">
+    <div class="tentree-hero-bg-{{ ai_gen_id }}" data-parallax>
+      {% if block.settings.hero_image %}
+        <img
+          src="{{ block.settings.hero_image | image_url: width: 2000 }}"
+          alt="{{ block.settings.hero_image.alt | escape }}"
+          loading="eager"
+          width="{{ block.settings.hero_image.width }}"
+          height="{{ block.settings.hero_image.height }}"
+        >
+      {% else %}
+        <div class="tentree-hero-bg-placeholder-{{ ai_gen_id }}">
+          {{ 'hero-apparel-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </div>
+    <div class="tentree-hero-content-{{ ai_gen_id }}">
+      <h1 class="tentree-hero-h1-{{ ai_gen_id }}">{{ block.settings.hero_h1 }}</h1>
+      <p class="tentree-hero-subheading-{{ ai_gen_id }}">{{ block.settings.hero_subheading }}</p>
+      <div class="tentree-hero-ctas-{{ ai_gen_id }}">
+        <a href="#wallart-tabs" class="tentree-hero-cta-{{ ai_gen_id }} tentree-hero-cta-primary-{{ ai_gen_id }}">
+          {{ block.settings.cta1_text }}
+        </a>
+        <a href="#service-tabs" class="tentree-hero-cta-{{ ai_gen_id }} tentree-hero-cta-secondary-{{ ai_gen_id }}">
+          {{ block.settings.cta2_text }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tentree-section-{{ ai_gen_id }}">
+    <h2 id="wallart-tabs" class="tentree-section-h2-{{ ai_gen_id }}">{{ block.settings.wallart_heading }}</h2>
+    <div class="tentree-tabs-{{ ai_gen_id }}" role="tablist">
+      <button class="tentree-tab-{{ ai_gen_id }} active" data-tab="canvas" role="tab" aria-selected="true">Canvas Paintings</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="metal" role="tab" aria-selected="false">Metal Posters</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="acrylic" role="tab" aria-selected="false">Acrylic Posters</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="frames" role="tab" aria-selected="false">UV Printed Frames</button>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }} active" data-content="canvas" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign canvas_collection = collections['canvas-paintings'] %}
+        {% if canvas_collection and canvas_collection.products.size > 0 %}
+          {% for product in canvas_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">Canvas Painting {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Premium quality canvas art</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="metal" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign metal_collection = collections['metal-posters'] %}
+        {% if metal_collection and metal_collection.products.size > 0 %}
+          {% for product in metal_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">Metal Poster {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Durable metal wall art</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="acrylic" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign acrylic_collection = collections['acrylic-posters'] %}
+        {% if acrylic_collection and acrylic_collection.products.size > 0 %}
+          {% for product in acrylic_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">Acrylic Poster {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Modern acrylic prints</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="frames" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign frames_collection = collections['uv-printed-frames'] %}
+        {% if frames_collection and frames_collection.products.size > 0 %}
+          {% for product in frames_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">UV Printed Frame {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Custom UV printed frames</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="tentree-section-{{ ai_gen_id }}">
+    <h2 id="service-tabs" class="tentree-section-h2-{{ ai_gen_id }}">{{ block.settings.services_heading }}</h2>
+    <div class="tentree-tabs-{{ ai_gen_id }}" role="tablist">
+      <button class="tentree-tab-{{ ai_gen_id }} active" data-tab="uv-flatbed" role="tab" aria-selected="true">UV Flatbed Printing</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="eco-solvent" role="tab" aria-selected="false">Eco-Solvent Printing</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="latex" role="tab" aria-selected="false">Latex Printing</button>
+      <button class="tentree-tab-{{ ai_gen_id }}" data-tab="signage" role="tab" aria-selected="false">Signage Printing</button>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }} active" data-content="uv-flatbed" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign uv_collection = collections['uv-flatbed-printing'] %}
+        {% if uv_collection and uv_collection.products.size > 0 %}
+          {% for product in uv_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">UV Flatbed Service {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Professional UV flatbed printing</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="eco-solvent" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign eco_collection = collections['eco-solvent-printing'] %}
+        {% if eco_collection and eco_collection.products.size > 0 %}
+          {% for product in eco_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">Eco-Solvent Service {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Eco-friendly solvent printing</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="latex" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign latex_collection = collections['latex-printing'] %}
+        {% if latex_collection and latex_collection.products.size > 0 %}
+          {% for product in latex_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">Latex Service {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">High-quality latex printing</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="tentree-tab-content-{{ ai_gen_id }}" data-content="signage" role="tabpanel">
+      <div class="tentree-scroll-container-{{ ai_gen_id }}">
+        {% assign signage_collection = collections['signage-printing'] %}
+        {% if signage_collection and signage_collection.products.size > 0 %}
+          {% for product in signage_collection.products limit: 6 %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 400 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="400"
+                    height="250"
+                  >
+                {% else %}
+                  <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">{{ product.price | money }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for i in (1..6) %}
+            <div class="tentree-card-{{ ai_gen_id }}">
+              <div class="tentree-card-image-{{ ai_gen_id }}">
+                <div class="tentree-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              </div>
+              <div class="tentree-card-content-{{ ai_gen_id }}">
+                <h3 class="tentree-card-title-{{ ai_gen_id }}">Signage Service {{ i }}</h3>
+                <p class="tentree-card-description-{{ ai_gen_id }}">Custom signage printing</p>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "{{ block.settings.hero_h1 }}",
+  "description": "{{ block.settings.hero_subheading }}",
+  "url": "{{ shop.url }}",
+  "mainEntity": [
+    {
+      "@type": "ItemList",
+      "name": "Wall Art Categories",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Canvas Paintings",
+          "url": "{{ shop.url }}/collections/canvas-paintings"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Metal Posters",
+          "url": "{{ shop.url }}/collections/metal-posters"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Acrylic Posters",
+          "url": "{{ shop.url }}/collections/acrylic-posters"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "UV Printed Frames",
+          "url": "{{ shop.url }}/collections/uv-printed-frames"
+        }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "name": "Printing Services",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "UV Flatbed Printing",
+          "url": "{{ shop.url }}/collections/uv-flatbed-printing"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Eco-Solvent Printing",
+          "url": "{{ shop.url }}/collections/eco-solvent-printing"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Latex Printing",
+          "url": "{{ shop.url }}/collections/latex-printing"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Signage Printing",
+          "url": "{{ shop.url }}/collections/signage-printing"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<script>
+  (function() {
+    class TentreeHomepage{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.parallaxBg = this.querySelector('[data-parallax]');
+        this.tabButtons = this.querySelectorAll('.tentree-tab-{{ ai_gen_id }}');
+        this.tabContents = this.querySelectorAll('.tentree-tab-content-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        this.setupParallax();
+        this.setupTabs();
+      }
+
+      setupParallax() {
+        if (!this.parallaxBg) return;
+
+        let ticking = false;
+        const handleScroll = () => {
+          if (!ticking) {
+            window.requestAnimationFrame(() => {
+              const scrolled = window.pageYOffset;
+              const parallaxSpeed = {{ block.settings.parallax_speed }};
+              this.parallaxBg.style.transform = 'translateY(' + (scrolled * parallaxSpeed) + 'px)';
+              ticking = false;
+            });
+            ticking = true;
+          }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+      }
+
+      setupTabs() {
+        this.tabButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            const parentSection = button.closest('.tentree-section-{{ ai_gen_id }}');
+            const sectionTabs = parentSection.querySelectorAll('.tentree-tab-{{ ai_gen_id }}');
+            const sectionContents = parentSection.querySelectorAll('.tentree-tab-content-{{ ai_gen_id }}');
+
+            sectionTabs.forEach(tab => {
+              tab.classList.remove('active');
+              tab.setAttribute('aria-selected', 'false');
+            });
+
+            sectionContents.forEach(content => {
+              content.classList.remove('active');
+            });
+
+            button.classList.add('active');
+            button.setAttribute('aria-selected', 'true');
+
+            const targetContent = parentSection.querySelector('[data-content="' + tabId + '"]');
+            if (targetContent) {
+              targetContent.classList.add('active');
+            }
+          });
+        });
+      }
+    }
+
+    customElements.define('tentree-homepage-{{ ai_gen_id }}', TentreeHomepage{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Tentree homepage",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero section"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero background image"
+    },
+    {
+      "type": "range",
+      "id": "hero_height",
+      "min": 400,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Hero height",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "parallax_speed",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.1,
+      "label": "Parallax speed",
+      "default": 0.2
+    },
+    {
+      "type": "text",
+      "id": "hero_h1",
+      "label": "Hero heading",
+      "default": "Premium Wall Art & Professional UV Printing Services"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subheading",
+      "label": "Hero subheading",
+      "default": "Shop premium wall art or book same-day UV printing services."
+    },
+    {
+      "type": "text",
+      "id": "cta1_text",
+      "label": "Primary CTA text",
+      "default": "Shop By Category"
+    },
+    {
+      "type": "text",
+      "id": "cta2_text",
+      "label": "Secondary CTA text",
+      "default": "Book Services"
+    },
+    {
+      "type": "color",
+      "id": "hero_bg_color",
+      "label": "Hero background color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "hero_text_color",
+      "label": "Hero text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Section headings"
+    },
+    {
+      "type": "text",
+      "id": "wallart_heading",
+      "label": "Wall art heading",
+      "default": "Paintings & Posters by Category"
+    },
+    {
+      "type": "text",
+      "id": "services_heading",
+      "label": "Services heading",
+      "default": "Printing Services by Category"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "h1_size",
+      "min": 30,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "H1 size",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "h2_size",
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "H2 size",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Headings",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Primary button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Primary button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_hover",
+      "label": "Primary button hover",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_bg",
+      "label": "Secondary button background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text",
+      "label": "Secondary button text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_border",
+      "label": "Secondary button border",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover",
+      "label": "Secondary button hover",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Tabs"
+    },
+    {
+      "type": "color",
+      "id": "tab_inactive_color",
+      "label": "Inactive tab",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_color",
+      "label": "Hover tab",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active tab",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_underline",
+      "label": "Active tab underline",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Tab border",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card title",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Card border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 40,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tentree homepage"
+    }
+  ]
+}
 {% endschema %}
