@@ -1,6 +1,1041 @@
+{% doc %}
+  @prompt
+    Generate a Shopify homepage section with:
+    
+    • 1 hero section at top with full-width parallax background.
+    • Single H1 in hero: “Premium Wall Art & Professional UV Printing Services”.
+    • Subheading: “Shop premium wall art collections or book UV printing services with same-day production.”
+    • Two CTA buttons:
+      - “Shop By Category” → links to /#wall-art-categories section ID
+      - “Book Services” → links to /#printing-services section ID
+    
+    Below hero, create two main silos with clean SEO heading hierarchy:
+    
+    1) H2: “Paintings & Posters by Category” (id="wall-art-categories")
+       Under this H2, add a 4-card grid. Each card has:
+       - H3 title linking to collection:
+         • Canvas Paintings  → /collections/canvas-paintings
+         • Metal Posters → /collections/metal-posters
+         • Acrylic Posters → /collections/acrylic-posters
+         • UV Printed Frames → /collections/uv-printed-frames
+       - Short 15–20 word description
+       - Small parallax-style image area
+       - Button: “Explore Collection”
+    
+    2) H2: “Printing Services by Category” (id="printing-services")
+       Under this H2, add a 4-card grid. Each card has:
+       - H3 title linking to collection:
+         • UV Flatbed Printing → /collections/uv-flatbed-printing
+         • Eco-Solvent Printing → /collections/eco-solvent-printing
+         • Latex Printing → /collections/latex-printing
+         • Signage Printing → /collections/signage-printing
+       - Short 15–20 word description
+       - Parallax-style image area
+       - Button: “View Service”
+    
+    Requirements:
+    • Only one H1 on the page (in hero).
+    • Use H2 only for the two silos, H3 only for the category/service cards.
+    • Add a single <script type="application/ld+json"> block at the end with WebPage schema and two ItemList entries (one for wall art categories, one for printing services), using the same URLs as above.
+    • Use simple inline CSS for parallax effects and responsive grid layout (desktop and mobile).
+    , THE WHOLE SECTION SHOULD HAVE A DESIGN LIKE https://www.tentree.com/ HOMEPAGE WITH NAVIGATION LIKE HERE 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-homepage-{{ ai_gen_id }} {
+    width: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+
+  .ai-nav-{{ ai_gen_id }} {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: {{ block.settings.nav_bg_color }};
+    border-bottom: 1px solid {{ block.settings.nav_border_color }};
+    transition: all 0.3s ease;
+  }
+
+  .ai-nav-container-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+  }
+
+  .ai-nav-links-{{ ai_gen_id }} {
+    display: flex;
+    gap: 35px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ai-nav-link-{{ ai_gen_id }} {
+    color: {{ block.settings.nav_text_color }};
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .ai-nav-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.nav_hover_color }};
+  }
+
+  .ai-hero-{{ ai_gen_id }} {
+    position: relative;
+    height: {{ block.settings.hero_height }}vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f5f5f5;
+  }
+
+  .ai-hero-bg-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-hero-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+  }
+
+  .ai-hero-content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .ai-hero-h1-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h1_size }}px;
+    color: {{ block.settings.hero_text_color }};
+    margin: 0 0 20px;
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .ai-hero-subheading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_size }}px;
+    color: {{ block.settings.hero_text_color }};
+    margin: 0 0 35px;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .ai-hero-cta-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .ai-hero-cta-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 16px 40px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .ai-hero-cta-primary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.primary_button_bg }};
+    color: {{ block.settings.primary_button_text }};
+    border: 2px solid {{ block.settings.primary_button_bg }};
+  }
+
+  .ai-hero-cta-primary-{{ ai_gen_id }}:hover {
+    background-color: transparent;
+    color: {{ block.settings.primary_button_bg }};
+  }
+
+  .ai-hero-cta-secondary-{{ ai_gen_id }} {
+    background-color: transparent;
+    color: {{ block.settings.hero_text_color }};
+    border: 2px solid {{ block.settings.hero_text_color }};
+  }
+
+  .ai-hero-cta-secondary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.hero_text_color }};
+    color: {{ block.settings.primary_button_bg }};
+  }
+
+  .ai-section-{{ ai_gen_id }} {
+    padding: {{ block.settings.section_padding }}px 20px;
+    background-color: {{ block.settings.section_bg_color }};
+  }
+
+  .ai-section-container-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .ai-section-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .ai-section-h2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h2_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0 0 15px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .ai-section-subtitle-{{ ai_gen_id }} {
+    font-size: 16px;
+    color: {{ block.settings.text_color }};
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .ai-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+  }
+
+  .ai-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_bg_color }};
+    overflow: hidden;
+    transition: transform 0.4s ease;
+    cursor: pointer;
+  }
+
+  .ai-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-8px);
+  }
+
+  .ai-card-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    padding-bottom: 125%;
+    overflow: hidden;
+    background-color: #f5f5f5;
+  }
+
+  .ai-card-image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .ai-card-{{ ai_gen_id }}:hover .ai-card-image-{{ ai_gen_id }} {
+    transform: scale(1.08);
+  }
+
+  .ai-card-image-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+  }
+
+  .ai-card-image-placeholder-{{ ai_gen_id }} svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.2;
+  }
+
+  .ai-card-content-{{ ai_gen_id }} {
+    padding: 25px 20px;
+    text-align: center;
+  }
+
+  .ai-card-h3-{{ ai_gen_id }} {
+    font-size: {{ block.settings.h3_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0 0 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-card-h3-{{ ai_gen_id }} a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .ai-card-description-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+
+  .ai-card-button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: transparent;
+    color: {{ block.settings.heading_color }};
+    text-decoration: none;
+    border: 1px solid {{ block.settings.heading_color }};
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+
+  .ai-card-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.heading_color }};
+    color: {{ block.settings.card_bg_color }};
+  }
+
+  .ai-divider-{{ ai_gen_id }} {
+    height: 1px;
+    background-color: {{ block.settings.nav_border_color }};
+    margin: 0 auto;
+    max-width: 1400px;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .ai-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .ai-hero-h1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h1_size | times: 0.7 }}px;
+    }
+
+    .ai-section-h2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h2_size | times: 0.8 }}px;
+    }
+
+    .ai-nav-links-{{ ai_gen_id }} {
+      gap: 20px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-nav-links-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-hero-{{ ai_gen_id }} {
+      height: {{ block.settings.hero_height | times: 0.8 }}vh;
+    }
+
+    .ai-hero-h1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h1_size | times: 0.5 }}px;
+    }
+
+    .ai-hero-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheading_size | times: 0.85 }}px;
+    }
+
+    .ai-section-h2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h2_size | times: 0.7 }}px;
+    }
+
+    .ai-card-h3-{{ ai_gen_id }} {
+      font-size: {{ block.settings.h3_size | times: 0.9 }}px;
+    }
+
+    .ai-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding | times: 0.7 }}px 20px;
+    }
+  }
+{% endstyle %}
+
+<homepage-section-{{ ai_gen_id }} class="ai-homepage-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <nav class="ai-nav-{{ ai_gen_id }}">
+    <div class="ai-nav-container-{{ ai_gen_id }}">
+      <ul class="ai-nav-links-{{ ai_gen_id }}">
+        <li><a href="/#wall-art-categories" class="ai-nav-link-{{ ai_gen_id }}">Shop Art</a></li>
+        <li><a href="/#printing-services" class="ai-nav-link-{{ ai_gen_id }}">Services</a></li>
+        <li><a href="/pages/about" class="ai-nav-link-{{ ai_gen_id }}">About</a></li>
+        <li><a href="/pages/contact" class="ai-nav-link-{{ ai_gen_id }}">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="ai-hero-{{ ai_gen_id }}">
+    {% if block.settings.hero_image %}
+      <img
+        src="{{ block.settings.hero_image | image_url: width: 2400 }}"
+        alt="{{ block.settings.hero_h1 }}"
+        class="ai-hero-bg-{{ ai_gen_id }}"
+        loading="eager"
+      >
+    {% endif %}
+    <div class="ai-hero-overlay-{{ ai_gen_id }}"></div>
+    <div class="ai-hero-content-{{ ai_gen_id }}">
+      <h1 class="ai-hero-h1-{{ ai_gen_id }}">{{ block.settings.hero_h1 }}</h1>
+      <p class="ai-hero-subheading-{{ ai_gen_id }}">{{ block.settings.hero_subheading }}</p>
+      <div class="ai-hero-cta-wrapper-{{ ai_gen_id }}">
+        <a href="/#wall-art-categories" class="ai-hero-cta-{{ ai_gen_id }} ai-hero-cta-primary-{{ ai_gen_id }}">
+          {{ block.settings.cta1_text }}
+        </a>
+        <a href="/#printing-services" class="ai-hero-cta-{{ ai_gen_id }} ai-hero-cta-secondary-{{ ai_gen_id }}">
+          {{ block.settings.cta2_text }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ai-section-{{ ai_gen_id }}" id="wall-art-categories">
+    <div class="ai-section-container-{{ ai_gen_id }}">
+      <div class="ai-section-header-{{ ai_gen_id }}">
+        <h2 class="ai-section-h2-{{ ai_gen_id }}">{{ block.settings.wall_art_h2 }}</h2>
+        <p class="ai-section-subtitle-{{ ai_gen_id }}">Discover our curated collection of premium wall art, crafted with museum-quality materials</p>
+      </div>
+      <div class="ai-grid-{{ ai_gen_id }}">
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/canvas-paintings">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.canvas_image %}
+                <img
+                  src="{{ block.settings.canvas_image | image_url: width: 800 }}"
+                  alt="Canvas Paintings"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/canvas-paintings">Canvas Paintings</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Premium canvas prints with vibrant colors and museum-quality materials for timeless wall decor.
+            </p>
+            <a href="/collections/canvas-paintings" class="ai-card-button-{{ ai_gen_id }}">Shop Now</a>
+          </div>
+        </article>
+
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/metal-posters">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.metal_image %}
+                <img
+                  src="{{ block.settings.metal_image | image_url: width: 800 }}"
+                  alt="Metal Posters"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/metal-posters">Metal Posters</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Sleek metal prints with stunning depth and durability, perfect for modern interiors and offices.
+            </p>
+            <a href="/collections/metal-posters" class="ai-card-button-{{ ai_gen_id }}">Shop Now</a>
+          </div>
+        </article>
+
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/acrylic-posters">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.acrylic_image %}
+                <img
+                  src="{{ block.settings.acrylic_image | image_url: width: 800 }}"
+                  alt="Acrylic Posters"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/acrylic-posters">Acrylic Posters</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              High-gloss acrylic prints with brilliant clarity and a luxurious finish for contemporary spaces.
+            </p>
+            <a href="/collections/acrylic-posters" class="ai-card-button-{{ ai_gen_id }}">Shop Now</a>
+          </div>
+        </article>
+
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/uv-printed-frames">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.frames_image %}
+                <img
+                  src="{{ block.settings.frames_image | image_url: width: 800 }}"
+                  alt="UV Printed Frames"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/uv-printed-frames">UV Printed Frames</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Custom UV-printed frames with exceptional detail and fade-resistant inks for lasting beauty.
+            </p>
+            <a href="/collections/uv-printed-frames" class="ai-card-button-{{ ai_gen_id }}">Shop Now</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="ai-divider-{{ ai_gen_id }}"></div>
+
+  <section class="ai-section-{{ ai_gen_id }}" id="printing-services">
+    <div class="ai-section-container-{{ ai_gen_id }}">
+      <div class="ai-section-header-{{ ai_gen_id }}">
+        <h2 class="ai-section-h2-{{ ai_gen_id }}">{{ block.settings.printing_h2 }}</h2>
+        <p class="ai-section-subtitle-{{ ai_gen_id }}">Professional printing services with same-day production and exceptional quality</p>
+      </div>
+      <div class="ai-grid-{{ ai_gen_id }}">
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/uv-flatbed-printing">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.uv_flatbed_image %}
+                <img
+                  src="{{ block.settings.uv_flatbed_image | image_url: width: 800 }}"
+                  alt="UV Flatbed Printing"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/uv-flatbed-printing">UV Flatbed Printing</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Direct-to-substrate UV printing on rigid materials with same-day turnaround and vivid color output.
+            </p>
+            <a href="/collections/uv-flatbed-printing" class="ai-card-button-{{ ai_gen_id }}">Learn More</a>
+          </div>
+        </article>
+
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/eco-solvent-printing">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.eco_solvent_image %}
+                <img
+                  src="{{ block.settings.eco_solvent_image | image_url: width: 800 }}"
+                  alt="Eco-Solvent Printing"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/eco-solvent-printing">Eco-Solvent Printing</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Eco-friendly solvent printing for outdoor banners and vinyl with superior weather resistance.
+            </p>
+            <a href="/collections/eco-solvent-printing" class="ai-card-button-{{ ai_gen_id }}">Learn More</a>
+          </div>
+        </article>
+
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/latex-printing">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.latex_image %}
+                <img
+                  src="{{ block.settings.latex_image | image_url: width: 800 }}"
+                  alt="Latex Printing"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/latex-printing">Latex Printing</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Water-based latex printing for safe indoor use with vibrant colors and odorless output.
+            </p>
+            <a href="/collections/latex-printing" class="ai-card-button-{{ ai_gen_id }}">Learn More</a>
+          </div>
+        </article>
+
+        <article class="ai-card-{{ ai_gen_id }}">
+          <a href="/collections/signage-printing">
+            <div class="ai-card-image-wrapper-{{ ai_gen_id }}">
+              {% if block.settings.signage_image %}
+                <img
+                  src="{{ block.settings.signage_image | image_url: width: 800 }}"
+                  alt="Signage Printing"
+                  class="ai-card-image-{{ ai_gen_id }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <div class="ai-card-image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-apparel-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="ai-card-content-{{ ai_gen_id }}">
+            <h3 class="ai-card-h3-{{ ai_gen_id }}">
+              <a href="/collections/signage-printing">Signage Printing</a>
+            </h3>
+            <p class="ai-card-description-{{ ai_gen_id }}">
+              Professional signage printing for retail, events, and business displays with fast production.
+            </p>
+            <a href="/collections/signage-printing" class="ai-card-button-{{ ai_gen_id }}">Learn More</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "{{ block.settings.hero_h1 }}",
+    "description": "{{ block.settings.hero_subheading }}",
+    "mainEntity": [
+      {
+        "@type": "ItemList",
+        "name": "{{ block.settings.wall_art_h2 }}",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Canvas Paintings",
+            "url": "{{ shop.url }}/collections/canvas-paintings"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Metal Posters",
+            "url": "{{ shop.url }}/collections/metal-posters"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Acrylic Posters",
+            "url": "{{ shop.url }}/collections/acrylic-posters"
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "UV Printed Frames",
+            "url": "{{ shop.url }}/collections/uv-printed-frames"
+          }
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "name": "{{ block.settings.printing_h2 }}",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "UV Flatbed Printing",
+            "url": "{{ shop.url }}/collections/uv-flatbed-printing"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Eco-Solvent Printing",
+            "url": "{{ shop.url }}/collections/eco-solvent-printing"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Latex Printing",
+            "url": "{{ shop.url }}/collections/latex-printing"
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "Signage Printing",
+            "url": "{{ shop.url }}/collections/signage-printing"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</homepage-section-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class HomepageSection{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.initSmoothScroll();
+        this.initNavScroll();
+      }
+
+      initSmoothScroll() {
+        const links = this.querySelectorAll('a[href^="/#"]');
+        links.forEach(link => {
+          link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href.startsWith('/#')) {
+              e.preventDefault();
+              const targetId = href.substring(2);
+              const targetElement = document.getElementById(targetId);
+              if (targetElement) {
+                const navHeight = this.querySelector('.ai-nav-{{ ai_gen_id }}').offsetHeight;
+                const targetPosition = targetElement.offsetTop - navHeight;
+                window.scrollTo({
+                  top: targetPosition,
+                  behavior: 'smooth'
+                });
+              }
+            }
+          });
+        });
+      }
+
+      initNavScroll() {
+        const nav = this.querySelector('.ai-nav-{{ ai_gen_id }}');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+          const currentScroll = window.pageYOffset;
+          
+          if (currentScroll > 100) {
+            nav.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+          } else {
+            nav.style.boxShadow = 'none';
+          }
+
+          lastScroll = currentScroll;
+        });
+      }
+    }
+
+    customElements.define('homepage-section-{{ ai_gen_id }}', HomepageSection{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Tentree-style homepage",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "color",
+      "id": "nav_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "nav_hover_color",
+      "label": "Hover color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "nav_border_color",
+      "label": "Border color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "header",
+      "content": "Hero section"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Background image"
+    },
+    {
+      "type": "range",
+      "id": "hero_height",
+      "min": 60,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "label": "Hero height",
+      "default": 85
+    },
+    {
+      "type": "text",
+      "id": "hero_h1",
+      "label": "Main heading (H1)",
+      "default": "Premium Wall Art & Professional UV Printing Services"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subheading",
+      "label": "Subheading",
+      "default": "Shop premium wall art collections or book UV printing services with same-day production."
+    },
+    {
+      "type": "text",
+      "id": "cta1_text",
+      "label": "First button text",
+      "default": "Shop By Category"
+    },
+    {
+      "type": "text",
+      "id": "cta2_text",
+      "label": "Second button text",
+      "default": "Book Services"
+    },
+    {
+      "type": "color",
+      "id": "hero_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "h1_size",
+      "min": 32,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "H1 size",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "h2_size",
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "H2 size",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "h3_size",
+      "min": 16,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "H3 size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Section headings"
+    },
+    {
+      "type": "text",
+      "id": "wall_art_h2",
+      "label": "Wall art heading (H2)",
+      "default": "Paintings & Posters by Category"
+    },
+    {
+      "type": "text",
+      "id": "printing_h2",
+      "label": "Printing heading (H2)",
+      "default": "Printing Services by Category"
+    },
+    {
+      "type": "header",
+      "content": "Wall art images"
+    },
+    {
+      "type": "image_picker",
+      "id": "canvas_image",
+      "label": "Canvas paintings"
+    },
+    {
+      "type": "image_picker",
+      "id": "metal_image",
+      "label": "Metal posters"
+    },
+    {
+      "type": "image_picker",
+      "id": "acrylic_image",
+      "label": "Acrylic posters"
+    },
+    {
+      "type": "image_picker",
+      "id": "frames_image",
+      "label": "UV printed frames"
+    },
+    {
+      "type": "header",
+      "content": "Printing services images"
+    },
+    {
+      "type": "image_picker",
+      "id": "uv_flatbed_image",
+      "label": "UV flatbed printing"
+    },
+    {
+      "type": "image_picker",
+      "id": "eco_solvent_image",
+      "label": "Eco-solvent printing"
+    },
+    {
+      "type": "image_picker",
+      "id": "latex_image",
+      "label": "Latex printing"
+    },
+    {
+      "type": "image_picker",
+      "id": "signage_image",
+      "label": "Signage printing"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Primary button",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Primary button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 50,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding",
+      "default": 90
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tentree-style homepage"
+    }
+  ]
+}
 {% endschema %}
