@@ -1,4 +1,3 @@
-
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -215,18 +214,18 @@
     color: #666;
   }
 
-  .ai-page-content-{{ ai_gen_id }} {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 12px;
-    line-height: 1.6;
-  }
-
   .ai-service-heading-{{ ai_gen_id }} {
     font-size: 20px;
     font-weight: 600;
     margin: 0 0 15px;
     color: #333;
+  }
+
+  .ai-page-content-{{ ai_gen_id }} {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    line-height: 1.6;
   }
 
   .ai-clients-section-{{ ai_gen_id }} {
@@ -683,9 +682,6 @@
     <div class="ai-tab-content-{{ ai_gen_id }} active" data-content="uvflatbed">
       {% if block.settings.uvflatbed_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
-          <h3 class="ai-service-heading-{{ ai_gen_id }}">
-            {{ block.settings.uvflatbed_tab_label }}
-          </h3>
           {{ block.settings.uvflatbed_page.content }}
         </div>
       {% endif %}
@@ -694,9 +690,6 @@
     <div class="ai-tab-content-{{ ai_gen_id }}" data-content="ecosolvent">
       {% if block.settings.ecosolvent_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
-          <h3 class="ai-service-heading-{{ ai_gen_id }}">
-            {{ block.settings.ecosolvent_tab_label }}
-          </h3>
           {{ block.settings.ecosolvent_page.content }}
         </div>
       {% endif %}
@@ -705,9 +698,6 @@
     <div class="ai-tab-content-{{ ai_gen_id }}" data-content="latex">
       {% if block.settings.latex_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
-          <h3 class="ai-service-heading-{{ ai_gen_id }}">
-            {{ block.settings.latex_tab_label }}
-          </h3>
           {{ block.settings.latex_page.content }}
         </div>
       {% endif %}
@@ -716,9 +706,6 @@
     <div class="ai-tab-content-{{ ai_gen_id }}" data-content="signage">
       {% if block.settings.signage_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
-          <h3 class="ai-service-heading-{{ ai_gen_id }}">
-            {{ block.settings.signage_tab_label }}
-          </h3>
           {{ block.settings.signage_page.content }}
         </div>
       {% endif %}
@@ -755,21 +742,21 @@
           {% assign role_key = 'testimonial_' | append: i | append: '_role' %}
           {% assign avatar_key = 'testimonial_' | append: i | append: '_avatar' %}
           {% assign rating_key = 'testimonial_' | append: i | append: '_rating' %}
-
+          
           {% if block.settings[text_key] != blank %}
             <div class="ai-testimonial-card-{{ ai_gen_id }}">
               <div class="ai-testimonial-quote-{{ ai_gen_id }}">"</div>
-
+              
               <div class="ai-testimonial-stars-{{ ai_gen_id }}">
                 {% for star in (1..block.settings[rating_key]) %}
                   <span class="ai-testimonial-star-{{ ai_gen_id }}">★</span>
                 {% endfor %}
               </div>
-
+              
               <p class="ai-testimonial-text-{{ ai_gen_id }}">
                 "{{ block.settings[text_key] }}"
               </p>
-
+              
               <div class="ai-testimonial-author-{{ ai_gen_id }}">
                 <div class="ai-testimonial-avatar-{{ ai_gen_id }}">
                   {% if block.settings[avatar_key] %}
@@ -852,70 +839,96 @@
     </div>
   </section>
 
+  {%- comment -%}
+    JSON-LD: Organization (Aarohi PixelPrint) + Reviews (testimonials) + WebPage (H1/H2 structure)
+  {%- endcomment -%}
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": {{ shop.name | append: " - Home" | json }},
-    "url": {{ shop.url | json }},
-    "mainEntity": [
+    "@graph": [
       {
-        "@type": "ItemList",
-        "name": "Paintings & Posters by Category",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Canvas Paintings",
-            "url": {{ shop.url | append: "/collections/canvas-paintings" | json }}
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Metal Posters",
-            "url": {{ shop.url | append: "/collections/metal-posters" | json }}
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "Acrylic Posters",
-            "url": {{ shop.url | append: "/collections/acrylic-posters" | json }}
-          },
-          {
-            "@type": "ListItem",
-            "position": 4,
-            "name": "UV Printed Frames",
-            "url": {{ shop.url | append: "/collections/uv-printed-frames" | json }}
-          }
+        "@type": "Organization",
+        "@id": {{ shop.url | append: "/#organization" | json }},
+        "name": "Aarohi PixelPrint",
+        "url": {{ shop.url | json }},
+        "telephone": {{ block.settings.studio_phone | json }},
+        "email": {{ block.settings.studio_email | json }},
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": {{ block.settings.studio_address | json }}
+        },
+        "sameAs": [
+          "https://www.linkedin.com/company/aarohi-pixelprint/"
+        ],
+        "review": [
+          {% assign first_review = true %}
+          {% for i in (1..3) %}
+            {% assign text_key = 'testimonial_' | append: i | append: '_text' %}
+            {% assign name_key = 'testimonial_' | append: i | append: '_name' %}
+            {% assign rating_key = 'testimonial_' | append: i | append: '_rating' %}
+            {% if block.settings[text_key] != blank %}
+              {% unless first_review %}
+                ,
+              {% endunless %}
+              {
+                "@type": "Review",
+                "author": {
+                  "@type": "Person",
+                  "name": {{ block.settings[name_key] | json }}
+                },
+                "reviewBody": {{ block.settings[text_key] | json }},
+                "reviewRating": {
+                  "@type": "Rating",
+                  "ratingValue": {{ block.settings[rating_key] | default: 5 }},
+                  "bestRating": 5,
+                  "worstRating": 1
+                }
+              }
+              {% assign first_review = false %}
+            {% endif %}
+          {% endfor %}
         ]
       },
       {
-        "@type": "ItemList",
-        "name": "Printing Services by Category",
-        "itemListElement": [
+        "@type": "WebPage",
+        "@id": {{ shop.url | append: "/#homepage" | json }},
+        "url": {{ shop.url | json }},
+        "name": {{ block.settings.hero_title | json }},
+        "headline": {{ block.settings.hero_title | json }},
+        "description": {{ block.settings.hero_subtitle | json }},
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": {{ shop.name | json }},
+          "url": {{ shop.url | json }}
+        },
+        "inLanguage": "en-IN",
+        "about": [
+          {{ block.settings.wallart_title | json }},
+          {{ block.settings.services_title | json }},
+          {{ block.settings.clients_title | json }},
+          {{ block.settings.testimonials_title | json }},
+          {{ block.settings.studio_title | json }}
+        ],
+        "hasPart": [
           {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "UV Flatbed Printing",
-            "url": {{ shop.url | append: "/collections/uv-flatbed-printing" | json }}
+            "@type": "WebPageElement",
+            "name": {{ block.settings.wallart_title | json }}
           },
           {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Eco-Solvent Printing",
-            "url": {{ shop.url | append: "/collections/eco-solvent-printing" | json }}
+            "@type": "WebPageElement",
+            "name": {{ block.settings.services_title | json }}
           },
           {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "Latex Printing",
-            "url": {{ shop.url | append: "/collections/latex-printing" | json }}
+            "@type": "WebPageElement",
+            "name": {{ block.settings.clients_title | json }}
           },
           {
-            "@type": "ListItem",
-            "position": 4,
-            "name": "Signage Printing",
-            "url": {{ shop.url | append: "/collections/signage-printing" | json }}
+            "@type": "WebPageElement",
+            "name": {{ block.settings.testimonials_title | json }}
+          },
+          {
+            "@type": "WebPageElement",
+            "name": {{ block.settings.studio_title | json }}
           }
         ]
       }
@@ -935,18 +948,18 @@
 
       setupTabs() {
         const tabGroups = this.querySelectorAll('[data-tabs]');
-
+        
         tabGroups.forEach(group => {
           const tabs = group.querySelectorAll('.ai-tab-{{ ai_gen_id }}');
           const contents = group.parentElement.querySelectorAll('.ai-tab-content-{{ ai_gen_id }}');
-
+          
           tabs.forEach(tab => {
             tab.addEventListener('click', () => {
               const targetTab = tab.getAttribute('data-tab');
-
+              
               tabs.forEach(t => t.classList.remove('active'));
               tab.classList.add('active');
-
+              
               contents.forEach(content => {
                 if (content.getAttribute('data-content') === targetTab) {
                   content.classList.add('active');
@@ -962,13 +975,13 @@
       setupParallax() {
         const hero = this.querySelector('.ai-hero-{{ ai_gen_id }}');
         const heroBg = this.querySelector('.ai-hero-bg-{{ ai_gen_id }}');
-
+        
         if (!hero || !heroBg) return;
-
+        
         window.addEventListener('scroll', () => {
           const scrolled = window.pageYOffset;
           const heroHeight = hero.offsetHeight;
-
+          
           if (scrolled < heroHeight) {
             heroBg.style.transform = `translateY(${scrolled * 0.5}px)`;
           }
