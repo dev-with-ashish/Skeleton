@@ -1,40 +1,4 @@
-{% doc %}
-  @prompt
-    Build a Tentree-style Shopify homepage.
-    
-    ### HERO
-    • Full-width minimal hero with light parallax.
-    • H1: “Premium Wall Art & Professional UV Printing Services”
-    • Subheading: “Shop premium wall art or book same-day UV printing services.”
-    • Two CTAs: Shop By Category → #wallart-tabs , Book Services → #service-tabs
-    
-    ### SILO 1 — WALL ART
-    • H2 with ID="wallart-tabs": “Paintings & Posters by Category”
-    • Below H2 create Tentree-style horizontal TABS (like Women | Men | Accessories):
-       – Canvas Paintings (/collections/canvas-paintings)
-       – Metal Posters (/collections/metal-posters)
-       – Acrylic Posters (/collections/acrylic-posters)
-       – UV Printed Frames (/collections/uv-printed-frames)
-    • Under tabs show a horizontal scroll row of items (banners or featured products) that switch when tabs change. Match the Tentree “New Arrivals” layout: clean, minimal, large spacing, swipeable on mobile.
-    
-    ### SILO 2 — PRINTING SERVICES
-    • H2 with ID="service-tabs": “Printing Services by Category”
-    • Create Tentree-style tabs:
-       – UV Flatbed Printing (/collections/uv-flatbed-printing)
-       – Eco-Solvent Printing (/collections/eco-solvent-printing)
-       – Latex Printing (/collections/latex-printing)
-       – Signage Printing (/collections/signage-printing)
-    • Each tab shows a horizontal scroll section of service banners/cards, same style as above.
-    
-    ### STYLE
-    • Only one H1 on page.
-    • Tabs must visually match Tentree: centered text, underline active tab, smooth fade/slide.
-    • Aesthetic: minimal, clean, modern, rounded edges, soft shadows, airy spacing.
-    
-    ### SCHEMA
-    Add one JSON-LD WebPage + two ItemList entries for the 4 wall art categories and 4 service categories using URLs above.
-    , make the canvas paintings metalposter and ohther h2 navigationable nothing happening when clicked make it work for all, give me option to select collection for paintings and posters and option to select pages for services , under each canvas paintigns metal posters acrylic posters uv printed frames give me option to select collection or pages, add our clients after services and after our clients add our studio with address telephone map with get directions and call, add lets our customer speak for us section
-{% enddoc %}
+
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
@@ -256,6 +220,13 @@
     background-color: #f9f9f9;
     border-radius: 12px;
     line-height: 1.6;
+  }
+
+  .ai-service-heading-{{ ai_gen_id }} {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 15px;
+    color: #333;
   }
 
   .ai-clients-section-{{ ai_gen_id }} {
@@ -712,6 +683,9 @@
     <div class="ai-tab-content-{{ ai_gen_id }} active" data-content="uvflatbed">
       {% if block.settings.uvflatbed_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
+          <h3 class="ai-service-heading-{{ ai_gen_id }}">
+            {{ block.settings.uvflatbed_tab_label }}
+          </h3>
           {{ block.settings.uvflatbed_page.content }}
         </div>
       {% endif %}
@@ -720,6 +694,9 @@
     <div class="ai-tab-content-{{ ai_gen_id }}" data-content="ecosolvent">
       {% if block.settings.ecosolvent_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
+          <h3 class="ai-service-heading-{{ ai_gen_id }}">
+            {{ block.settings.ecosolvent_tab_label }}
+          </h3>
           {{ block.settings.ecosolvent_page.content }}
         </div>
       {% endif %}
@@ -728,6 +705,9 @@
     <div class="ai-tab-content-{{ ai_gen_id }}" data-content="latex">
       {% if block.settings.latex_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
+          <h3 class="ai-service-heading-{{ ai_gen_id }}">
+            {{ block.settings.latex_tab_label }}
+          </h3>
           {{ block.settings.latex_page.content }}
         </div>
       {% endif %}
@@ -736,6 +716,9 @@
     <div class="ai-tab-content-{{ ai_gen_id }}" data-content="signage">
       {% if block.settings.signage_page %}
         <div class="ai-page-content-{{ ai_gen_id }}">
+          <h3 class="ai-service-heading-{{ ai_gen_id }}">
+            {{ block.settings.signage_tab_label }}
+          </h3>
           {{ block.settings.signage_page.content }}
         </div>
       {% endif %}
@@ -772,21 +755,21 @@
           {% assign role_key = 'testimonial_' | append: i | append: '_role' %}
           {% assign avatar_key = 'testimonial_' | append: i | append: '_avatar' %}
           {% assign rating_key = 'testimonial_' | append: i | append: '_rating' %}
-          
+
           {% if block.settings[text_key] != blank %}
             <div class="ai-testimonial-card-{{ ai_gen_id }}">
               <div class="ai-testimonial-quote-{{ ai_gen_id }}">"</div>
-              
+
               <div class="ai-testimonial-stars-{{ ai_gen_id }}">
                 {% for star in (1..block.settings[rating_key]) %}
                   <span class="ai-testimonial-star-{{ ai_gen_id }}">★</span>
                 {% endfor %}
               </div>
-              
+
               <p class="ai-testimonial-text-{{ ai_gen_id }}">
                 "{{ block.settings[text_key] }}"
               </p>
-              
+
               <div class="ai-testimonial-author-{{ ai_gen_id }}">
                 <div class="ai-testimonial-avatar-{{ ai_gen_id }}">
                   {% if block.settings[avatar_key] %}
@@ -868,6 +851,77 @@
       </div>
     </div>
   </section>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": {{ shop.name | append: " - Home" | json }},
+    "url": {{ shop.url | json }},
+    "mainEntity": [
+      {
+        "@type": "ItemList",
+        "name": "Paintings & Posters by Category",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Canvas Paintings",
+            "url": {{ shop.url | append: "/collections/canvas-paintings" | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Metal Posters",
+            "url": {{ shop.url | append: "/collections/metal-posters" | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Acrylic Posters",
+            "url": {{ shop.url | append: "/collections/acrylic-posters" | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "UV Printed Frames",
+            "url": {{ shop.url | append: "/collections/uv-printed-frames" | json }}
+          }
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "name": "Printing Services by Category",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "UV Flatbed Printing",
+            "url": {{ shop.url | append: "/collections/uv-flatbed-printing" | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Eco-Solvent Printing",
+            "url": {{ shop.url | append: "/collections/eco-solvent-printing" | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Latex Printing",
+            "url": {{ shop.url | append: "/collections/latex-printing" | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "Signage Printing",
+            "url": {{ shop.url | append: "/collections/signage-printing" | json }}
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </div>
 
 <script>
@@ -881,18 +935,18 @@
 
       setupTabs() {
         const tabGroups = this.querySelectorAll('[data-tabs]');
-        
+
         tabGroups.forEach(group => {
           const tabs = group.querySelectorAll('.ai-tab-{{ ai_gen_id }}');
           const contents = group.parentElement.querySelectorAll('.ai-tab-content-{{ ai_gen_id }}');
-          
+
           tabs.forEach(tab => {
             tab.addEventListener('click', () => {
               const targetTab = tab.getAttribute('data-tab');
-              
+
               tabs.forEach(t => t.classList.remove('active'));
               tab.classList.add('active');
-              
+
               contents.forEach(content => {
                 if (content.getAttribute('data-content') === targetTab) {
                   content.classList.add('active');
@@ -908,13 +962,13 @@
       setupParallax() {
         const hero = this.querySelector('.ai-hero-{{ ai_gen_id }}');
         const heroBg = this.querySelector('.ai-hero-bg-{{ ai_gen_id }}');
-        
+
         if (!hero || !heroBg) return;
-        
+
         window.addEventListener('scroll', () => {
           const scrolled = window.pageYOffset;
           const heroHeight = hero.offsetHeight;
-          
+
           if (scrolled < heroHeight) {
             heroBg.style.transform = `translateY(${scrolled * 0.5}px)`;
           }
