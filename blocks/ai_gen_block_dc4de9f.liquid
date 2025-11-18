@@ -939,58 +939,53 @@
 
 <script>
   (function() {
-    class TentreeHomepage{{ ai_gen_id }} extends HTMLElement {
-      constructor() {
-        super();
-        this.setupTabs();
-        this.setupParallax();
-      }
+    function initTentreeHomepage_{{ ai_gen_id }}() {
+      var root = document.querySelector('.ai-tentree-homepage-{{ ai_gen_id }}');
+      if (!root) return;
 
-      setupTabs() {
-        const tabGroups = this.querySelectorAll('[data-tabs]');
-        
-        tabGroups.forEach(group => {
-          const tabs = group.querySelectorAll('.ai-tab-{{ ai_gen_id }}');
-          const contents = group.parentElement.querySelectorAll('.ai-tab-content-{{ ai_gen_id }}');
-          
-          tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-              const targetTab = tab.getAttribute('data-tab');
-              
-              tabs.forEach(t => t.classList.remove('active'));
-              tab.classList.add('active');
-              
-              contents.forEach(content => {
-                if (content.getAttribute('data-content') === targetTab) {
-                  content.classList.add('active');
-                } else {
-                  content.classList.remove('active');
-                }
-              });
+      // Tabs
+      var tabGroups = root.querySelectorAll('[data-tabs]');
+      tabGroups.forEach(function(group) {
+        var tabs = group.querySelectorAll('.ai-tab-{{ ai_gen_id }}');
+        var contents = group.parentElement.querySelectorAll('.ai-tab-content-{{ ai_gen_id }}');
+
+        tabs.forEach(function(tab) {
+          tab.addEventListener('click', function() {
+            var targetTab = tab.getAttribute('data-tab');
+
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+
+            contents.forEach(function(content) {
+              if (content.getAttribute('data-content') === targetTab) {
+                content.classList.add('active');
+              } else {
+                content.classList.remove('active');
+              }
             });
           });
         });
-      }
+      });
 
-      setupParallax() {
-        const hero = this.querySelector('.ai-hero-{{ ai_gen_id }}');
-        const heroBg = this.querySelector('.ai-hero-bg-{{ ai_gen_id }}');
-        
-        if (!hero || !heroBg) return;
-        
-        window.addEventListener('scroll', () => {
-          const scrolled = window.pageYOffset;
-          const heroHeight = hero.offsetHeight;
-          
-          if (scrolled < heroHeight) {
-            heroBg.style.transform = `translateY(${scrolled * 0.5}px)`;
-          }
-        });
-      }
+      // Parallax hero background
+      var hero = root.querySelector('.ai-hero-{{ ai_gen_id }}');
+      var heroBg = root.querySelector('.ai-hero-bg-{{ ai_gen_id }}');
+      if (!hero || !heroBg) return;
+
+      window.addEventListener('scroll', function() {
+        var scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        var heroHeight = hero.offsetHeight || 0;
+
+        if (scrolled < heroHeight) {
+          heroBg.style.transform = 'translateY(' + (scrolled * 0.5) + 'px)';
+        }
+      });
     }
 
-    if (!customElements.get('tentree-homepage-{{ ai_gen_id }}')) {
-      customElements.define('tentree-homepage-{{ ai_gen_id }}', TentreeHomepage{{ ai_gen_id }});
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTentreeHomepage_{{ ai_gen_id }});
+    } else {
+      initTentreeHomepage_{{ ai_gen_id }}();
     }
   })();
 </script>
