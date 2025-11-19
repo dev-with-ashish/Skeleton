@@ -5,292 +5,434 @@
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
-  .image-text-split-{{ ai_gen_id }} {
+  .features-grid-{{ ai_gen_id }} {
     padding: {{ block.settings.section_padding }}px 20px;
     background-color: {{ block.settings.background_color }};
   }
 
-  .image-text-split__container-{{ ai_gen_id }} {
+  .features-grid__container-{{ ai_gen_id }} {
     max-width: 1400px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: {% if block.settings.layout == 'image_first' %}1fr 1fr{% else %}1fr 1fr{% endif %};
-    gap: {{ block.settings.content_gap }}px;
-    align-items: center;
   }
 
-  .image-text-split__image-wrapper-{{ ai_gen_id }} {
-    {% if block.settings.layout == 'image_first' %}
-      order: 1;
-    {% else %}
-      order: 2;
-    {% endif %}
-    border-radius: {{ block.settings.image_border_radius }}px;
-    overflow: hidden;
-  }
-
-  .image-text-split__image-{{ ai_gen_id }} {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .image-text-split__image-placeholder-{{ ai_gen_id }} {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background-color: #f4f4f4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  .image-text-split__image-placeholder-{{ ai_gen_id }} svg {
-    width: 100%;
-    height: 100%;
-    max-width: 400px;
-    max-height: 400px;
-    opacity: 0.3;
-  }
-
-  .image-text-split__empty-state-{{ ai_gen_id }} {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 24px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    font-size: 14px;
-    color: #333;
+  .features-grid__header-{{ ai_gen_id }} {
     text-align: center;
-    pointer-events: none;
+    margin-bottom: 48px;
   }
 
-  .image-text-split__content-{{ ai_gen_id }} {
-    {% if block.settings.layout == 'image_first' %}
-      order: 2;
-    {% else %}
-      order: 1;
-    {% endif %}
-    padding: 20px;
-  }
-
-  .image-text-split__eyebrow-{{ ai_gen_id }} {
-    font-size: {{ block.settings.eyebrow_size }}px;
-    font-weight: 600;
-    color: {{ block.settings.eyebrow_color }};
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin: 0 0 16px;
-  }
-
-  .image-text-split__heading-{{ ai_gen_id }} {
+  .features-grid__title-{{ ai_gen_id }} {
     font-size: {{ block.settings.heading_size }}px;
     font-weight: 700;
     color: {{ block.settings.heading_color }};
-    margin: 0 0 20px;
-    line-height: 1.2;
+    margin: 0 0 16px;
     letter-spacing: -0.02em;
   }
 
-  .image-text-split__text-{{ ai_gen_id }} {
-    font-size: {{ block.settings.text_size }}px;
+  .features-grid__subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
     color: {{ block.settings.text_color }};
-    line-height: 1.6;
-    margin: 0 0 32px;
+    margin: 0;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .image-text-split__cta-{{ ai_gen_id }} {
-    display: inline-flex;
+  .features-grid__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
+    gap: {{ block.settings.grid_gap }}px;
+  }
+
+  .features-grid__item-{{ ai_gen_id }} {
+    text-align: center;
+    padding: {{ block.settings.item_padding }}px;
+    background-color: {{ block.settings.item_bg_color }};
+    border-radius: {{ block.settings.item_border_radius }}px;
+    transition: transform 0.3s ease;
+  }
+
+  .features-grid__item-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+  }
+
+  .features-grid__icon-{{ ai_gen_id }} {
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    margin: 0 auto 20px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 14px 32px;
-    background-color: {{ block.settings.cta_bg }};
-    color: {{ block.settings.cta_text_color }};
-    border: 2px solid {{ block.settings.cta_border }};
-    border-radius: {{ block.settings.cta_border_radius }}px;
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
+    background-color: {{ block.settings.icon_bg_color }};
+    border-radius: 50%;
   }
 
-  .image-text-split__cta-{{ ai_gen_id }}:hover {
-    background-color: {{ block.settings.cta_hover_bg }};
-    color: {{ block.settings.cta_hover_text }};
-    border-color: {{ block.settings.cta_hover_border }};
-    transform: translateY(-2px);
+  .features-grid__icon-{{ ai_gen_id }} svg {
+    width: {{ block.settings.icon_size | times: 0.5 }}px;
+    height: {{ block.settings.icon_size | times: 0.5 }}px;
+    stroke: {{ block.settings.icon_color }};
+  }
+
+  .features-grid__item-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.item_title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.item_title_color }};
+    margin: 0 0 12px;
+  }
+
+  .features-grid__item-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.item_text_size }}px;
+    color: {{ block.settings.item_text_color }};
+    line-height: 1.5;
+    margin: 0;
   }
 
   @media screen and (max-width: 989px) {
-    .image-text-split__container-{{ ai_gen_id }} {
-      grid-template-columns: 1fr;
-      gap: {{ block.settings.content_gap | times: 0.7 }}px;
-    }
-
-    .image-text-split__image-wrapper-{{ ai_gen_id }},
-    .image-text-split__content-{{ ai_gen_id }} {
-      order: unset;
-    }
-
-    .image-text-split__content-{{ ai_gen_id }} {
-      padding: 10px;
+    .features-grid__grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
   @media screen and (max-width: 749px) {
-    .image-text-split-{{ ai_gen_id }} {
+    .features-grid-{{ ai_gen_id }} {
       padding: {{ block.settings.section_padding | times: 0.6 }}px 16px;
     }
 
-    .image-text-split__heading-{{ ai_gen_id }} {
+    .features-grid__grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
+      gap: {{ block.settings.grid_gap | times: 0.7 }}px;
+    }
+
+    .features-grid__title-{{ ai_gen_id }} {
       font-size: {{ block.settings.heading_size | times: 0.7 }}px;
     }
 
-    .image-text-split__text-{{ ai_gen_id }} {
-      font-size: {{ block.settings.text_size | times: 0.9 }}px;
-      margin-bottom: 24px;
+    .features-grid__subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size | times: 0.9 }}px;
     }
 
-    .image-text-split__cta-{{ ai_gen_id }} {
-      width: 100%;
-      max-width: 300px;
+    .features-grid__header-{{ ai_gen_id }} {
+      margin-bottom: 32px;
     }
   }
 {% endstyle %}
 
-<div class="image-text-split-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
-  <div class="image-text-split__container-{{ ai_gen_id }}">
-    <div class="image-text-split__image-wrapper-{{ ai_gen_id }}">
-      {% if block.settings.image %}
-        <img
-          src="{{ block.settings.image | image_url: width: 1200 }}"
-          srcset="{{ block.settings.image | image_url: width: 600 }} 600w,
-                  {{ block.settings.image | image_url: width: 900 }} 900w,
-                  {{ block.settings.image | image_url: width: 1200 }} 1200w"
-          sizes="(min-width: 990px) 50vw, 100vw"
-          alt="{{ block.settings.image.alt | escape }}"
-          loading="lazy"
-          width="{{ block.settings.image.width }}"
-          height="{{ block.settings.image.height }}"
-          class="image-text-split__image-{{ ai_gen_id }}"
-        >
-      {% else %}
-        <div class="image-text-split__image-placeholder-{{ ai_gen_id }}">
-          {{ 'detailed-apparel-1' | placeholder_svg_tag }}
-          <div class="image-text-split__empty-state-{{ ai_gen_id }}">
-            Add an image
+<div class="features-grid-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="features-grid__container-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank or block.settings.subtitle != blank %}
+      <div class="features-grid__header-{{ ai_gen_id }}">
+        {% if block.settings.heading != blank %}
+          <h2 class="features-grid__title-{{ ai_gen_id }}">
+            {{ block.settings.heading }}
+          </h2>
+        {% endif %}
+        {% if block.settings.subtitle != blank %}
+          <div class="features-grid__subtitle-{{ ai_gen_id }}">
+            {{ block.settings.subtitle }}
           </div>
-        </div>
-      {% endif %}
-    </div>
+        {% endif %}
+      </div>
+    {% endif %}
 
-    <div class="image-text-split__content-{{ ai_gen_id }}">
-      {% if block.settings.eyebrow != blank %}
-        <div class="image-text-split__eyebrow-{{ ai_gen_id }}">
-          {{ block.settings.eyebrow }}
-        </div>
-      {% endif %}
+    <div class="features-grid__grid-{{ ai_gen_id }}">
+      {% for i in (1..4) %}
+        {% liquid
+          assign title_key = 'feature_' | append: i | append: '_title'
+          assign text_key = 'feature_' | append: i | append: '_text'
+          assign icon_key = 'feature_' | append: i | append: '_icon'
+          
+          assign feature_title = block.settings[title_key]
+          assign feature_text = block.settings[text_key]
+          assign feature_icon = block.settings[icon_key]
+        %}
 
-      {% if block.settings.heading != blank %}
-        <h2 class="image-text-split__heading-{{ ai_gen_id }}">
-          {{ block.settings.heading }}
-        </h2>
-      {% endif %}
+        {% if feature_title != blank %}
+          <div class="features-grid__item-{{ ai_gen_id }}">
+            <div class="features-grid__icon-{{ ai_gen_id }}">
+              {% case feature_icon %}
+                {% when 'leaf' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3c0-1.66 4-3 9-3s9 1.34 9 3z M3 5c0 1.66 4 3 9 3s9-1.34 9-3c0-1.66-4-3-9-3S3 3.34 3 5z M3 12v7c0 1.66 4 3 9 3s9-1.34 9-3v-7" />
+                  </svg>
+                {% when 'truck' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                  </svg>
+                {% when 'shield' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                {% when 'heart' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+              {% endcase %}
+            </div>
 
-      {% if block.settings.text != blank %}
-        <div class="image-text-split__text-{{ ai_gen_id }}">
-          {{ block.settings.text }}
-        </div>
-      {% endif %}
+            <h3 class="features-grid__item-title-{{ ai_gen_id }}">
+              {{ feature_title }}
+            </h3>
 
-      {% if block.settings.cta_label != blank %}
-        <a
-          href="{{ block.settings.cta_link }}"
-          class="image-text-split__cta-{{ ai_gen_id }}"
-        >
-          {{ block.settings.cta_label }}
-        </a>
-      {% endif %}
+            {% if feature_text != blank %}
+              <p class="features-grid__item-text-{{ ai_gen_id }}">
+                {{ feature_text }}
+              </p>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
   </div>
 </div>
 
 {% schema %}
 {
-  "name": "Image with text",
+  "name": "Features grid",
   "settings": [
     {
       "type": "header",
-      "content": "Image"
-    },
-    {
-      "type": "image_picker",
-      "id": "image",
-      "label": "Image"
-    },
-    {
-      "type": "select",
-      "id": "layout",
-      "label": "Layout",
-      "options": [
-        {
-          "value": "image_first",
-          "label": "Image left"
-        },
-        {
-          "value": "text_first",
-          "label": "Image right"
-        }
-      ],
-      "default": "image_first"
-    },
-    {
-      "type": "header",
-      "content": "Content"
-    },
-    {
-      "type": "text",
-      "id": "eyebrow",
-      "label": "Eyebrow text"
+      "content": "Section header"
     },
     {
       "type": "inline_richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "Our Story"
+      "default": "Why Choose Us"
     },
     {
       "type": "richtext",
-      "id": "text",
-      "label": "Text",
-      "default": "<p>We believe in creating products that make a positive impact on the planet. Every purchase helps plant trees and supports sustainable practices.</p>"
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "<p>Committed to quality, sustainability, and customer satisfaction</p>"
+    },
+    {
+      "type": "header",
+      "content": "Feature 1"
     },
     {
       "type": "text",
-      "id": "cta_label",
-      "label": "Button label",
-      "default": "Learn More"
+      "id": "feature_1_title",
+      "label": "Title",
+      "default": "Sustainable Materials"
     },
     {
-      "type": "url",
-      "id": "cta_link",
-      "label": "Button link"
+      "type": "textarea",
+      "id": "feature_1_text",
+      "label": "Description",
+      "default": "Made from eco-friendly materials that help protect our planet"
+    },
+    {
+      "type": "select",
+      "id": "feature_1_icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "shield",
+          "label": "Shield"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "check",
+          "label": "Check"
+        }
+      ],
+      "default": "leaf"
+    },
+    {
+      "type": "header",
+      "content": "Feature 2"
+    },
+    {
+      "type": "text",
+      "id": "feature_2_title",
+      "label": "Title",
+      "default": "Free Shipping"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_2_text",
+      "label": "Description",
+      "default": "Enjoy free shipping on all orders over $50"
+    },
+    {
+      "type": "select",
+      "id": "feature_2_icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "shield",
+          "label": "Shield"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "check",
+          "label": "Check"
+        }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "header",
+      "content": "Feature 3"
+    },
+    {
+      "type": "text",
+      "id": "feature_3_title",
+      "label": "Title",
+      "default": "Quality Guarantee"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_3_text",
+      "label": "Description",
+      "default": "100% satisfaction guaranteed or your money back"
+    },
+    {
+      "type": "select",
+      "id": "feature_3_icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "shield",
+          "label": "Shield"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "check",
+          "label": "Check"
+        }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "header",
+      "content": "Feature 4"
+    },
+    {
+      "type": "text",
+      "id": "feature_4_title",
+      "label": "Title",
+      "default": "Made With Love"
+    },
+    {
+      "type": "textarea",
+      "id": "feature_4_text",
+      "label": "Description",
+      "default": "Crafted with care and attention to every detail"
+    },
+    {
+      "type": "select",
+      "id": "feature_4_icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "shield",
+          "label": "Shield"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "check",
+          "label": "Check"
+        }
+      ],
+      "default": "heart"
     },
     {
       "type": "header",
       "content": "Layout"
     },
     {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
       "type": "range",
-      "id": "content_gap",
-      "min": 20,
-      "max": 100,
-      "step": 10,
+      "id": "grid_gap",
+      "min": 10,
+      "max": 50,
+      "step": 5,
       "unit": "px",
-      "label": "Content gap",
-      "default": 60
+      "label": "Grid gap",
+      "default": 30
     },
     {
       "type": "range",
@@ -303,6 +445,16 @@
       "default": 60
     },
     {
+      "type": "range",
+      "id": "item_padding",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Item padding",
+      "default": 30
+    },
+    {
       "type": "header",
       "content": "Colors"
     },
@@ -311,12 +463,6 @@
       "id": "background_color",
       "label": "Background",
       "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "eyebrow_color",
-      "label": "Eyebrow",
-      "default": "#2d5016"
     },
     {
       "type": "color",
@@ -331,58 +477,38 @@
       "default": "#666666"
     },
     {
-      "type": "header",
-      "content": "Button style"
+      "type": "color",
+      "id": "item_bg_color",
+      "label": "Item background",
+      "default": "#f9f9f9"
     },
     {
       "type": "color",
-      "id": "cta_bg",
-      "label": "Background",
+      "id": "item_title_color",
+      "label": "Item title",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "item_text_color",
+      "label": "Item text",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "icon_bg_color",
+      "label": "Icon background",
+      "default": "#e8f5e9"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
       "default": "#2d5016"
-    },
-    {
-      "type": "color",
-      "id": "cta_text_color",
-      "label": "Text",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "cta_border",
-      "label": "Border",
-      "default": "#2d5016"
-    },
-    {
-      "type": "color",
-      "id": "cta_hover_bg",
-      "label": "Hover background",
-      "default": "#1f3810"
-    },
-    {
-      "type": "color",
-      "id": "cta_hover_text",
-      "label": "Hover text",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "cta_hover_border",
-      "label": "Hover border",
-      "default": "#1f3810"
     },
     {
       "type": "header",
       "content": "Typography"
-    },
-    {
-      "type": "range",
-      "id": "eyebrow_size",
-      "min": 10,
-      "max": 20,
-      "step": 2,
-      "unit": "px",
-      "label": "Eyebrow size",
-      "default": 12
     },
     {
       "type": "range",
@@ -396,38 +522,58 @@
     },
     {
       "type": "range",
-      "id": "text_size",
+      "id": "subtitle_size",
       "min": 14,
       "max": 24,
       "step": 2,
       "unit": "px",
-      "label": "Text size",
-      "default": 16
+      "label": "Subtitle size",
+      "default": 18
     },
     {
       "type": "range",
-      "id": "image_border_radius",
+      "id": "item_title_size",
+      "min": 16,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "label": "Item title size",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "item_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Item text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 40,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "item_border_radius",
       "min": 0,
       "max": 30,
       "step": 2,
       "unit": "px",
-      "label": "Image border radius",
-      "default": 8
-    },
-    {
-      "type": "range",
-      "id": "cta_border_radius",
-      "min": 0,
-      "max": 50,
-      "step": 2,
-      "unit": "px",
-      "label": "Button border radius",
-      "default": 4
+      "label": "Item border radius",
+      "default": 12
     }
   ],
   "presets": [
     {
-      "name": "Image with text"
+      "name": "Features grid"
     }
   ]
 }
