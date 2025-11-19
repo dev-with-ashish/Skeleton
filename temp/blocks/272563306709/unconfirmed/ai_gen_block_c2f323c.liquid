@@ -5,22 +5,22 @@
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
-  .featured-collections-{{ ai_gen_id }} {
+  .tabbed-products-{{ ai_gen_id }} {
     padding: {{ block.settings.section_padding }}px 20px;
     background-color: {{ block.settings.background_color }};
   }
 
-  .featured-collections__container-{{ ai_gen_id }} {
+  .tabbed-products__container-{{ ai_gen_id }} {
     max-width: 1400px;
     margin: 0 auto;
   }
 
-  .featured-collections__header-{{ ai_gen_id }} {
+  .tabbed-products__header-{{ ai_gen_id }} {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
   }
 
-  .featured-collections__title-{{ ai_gen_id }} {
+  .tabbed-products__title-{{ ai_gen_id }} {
     font-size: {{ block.settings.heading_size }}px;
     font-weight: 700;
     color: {{ block.settings.heading_color }};
@@ -28,51 +28,94 @@
     letter-spacing: -0.02em;
   }
 
-  .featured-collections__subtitle-{{ ai_gen_id }} {
+  .tabbed-products__subtitle-{{ ai_gen_id }} {
     font-size: {{ block.settings.subtitle_size }}px;
     color: {{ block.settings.text_color }};
     margin: 0;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
-  .featured-collections__grid-{{ ai_gen_id }} {
+  .tabbed-products__tabs-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .tabbed-products__tab-{{ ai_gen_id }} {
+    padding: 12px 24px;
+    background-color: transparent;
+    border: 2px solid {{ block.settings.tab_border_color }};
+    border-radius: {{ block.settings.tab_border_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.tab_text_color }};
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .tabbed-products__tab-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.tab_hover_bg }};
+    border-color: {{ block.settings.tab_hover_border }};
+    color: {{ block.settings.tab_hover_text }};
+  }
+
+  .tabbed-products__tab-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.tab_active_bg }};
+    border-color: {{ block.settings.tab_active_border }};
+    color: {{ block.settings.tab_active_text }};
+  }
+
+  .tabbed-products__content-{{ ai_gen_id }} {
+    position: relative;
+  }
+
+  .tabbed-products__panel-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .tabbed-products__panel-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .tabbed-products__grid-{{ ai_gen_id }} {
     display: grid;
     grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
     gap: {{ block.settings.grid_gap }}px;
   }
 
-  .featured-collections__item-{{ ai_gen_id }} {
-    position: relative;
-    overflow: hidden;
-    border-radius: {{ block.settings.card_border_radius }}px;
-    cursor: pointer;
-    aspect-ratio: {{ block.settings.image_ratio }};
-  }
-
-  .featured-collections__link-{{ ai_gen_id }} {
-    display: block;
-    position: relative;
-    width: 100%;
-    height: 100%;
+  .tabbed-products__product-{{ ai_gen_id }} {
     text-decoration: none;
-  }
-
-  .featured-collections__image-wrapper-{{ ai_gen_id }} {
-    width: 100%;
-    height: 100%;
+    display: block;
+    border-radius: {{ block.settings.card_border_radius }}px;
     overflow: hidden;
+    transition: transform 0.3s ease;
   }
 
-  .featured-collections__image-{{ ai_gen_id }} {
+  .tabbed-products__product-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+  }
+
+  .tabbed-products__product-image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: {{ block.settings.image_ratio }};
+    overflow: hidden;
+    background-color: #f4f4f4;
+  }
+
+  .tabbed-products__product-image-{{ ai_gen_id }} {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s ease;
+    transition: transform 0.4s ease;
   }
 
-  .featured-collections__image-placeholder-{{ ai_gen_id }} {
+  .tabbed-products__product-{{ ai_gen_id }}:hover .tabbed-products__product-image-{{ ai_gen_id }} {
+    transform: scale(1.05);
+  }
+
+  .tabbed-products__product-image-placeholder-{{ ai_gen_id }} {
     width: 100%;
     height: 100%;
     background-color: #f4f4f4;
@@ -81,189 +124,215 @@
     justify-content: center;
   }
 
-  .featured-collections__image-placeholder-{{ ai_gen_id }} svg {
+  .tabbed-products__product-image-placeholder-{{ ai_gen_id }} svg {
     width: 100%;
     height: 100%;
-    max-width: 300px;
-    max-height: 300px;
+    max-width: 200px;
+    max-height: 200px;
     opacity: 0.3;
   }
 
-  .featured-collections__item-{{ ai_gen_id }}:hover .featured-collections__image-{{ ai_gen_id }} {
-    transform: scale(1.05);
+  .tabbed-products__product-info-{{ ai_gen_id }} {
+    padding: 16px 0;
   }
 
-  .featured-collections__overlay-{{ ai_gen_id }} {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 24px;
-    z-index: 1;
-  }
-
-  .featured-collections__item-title-{{ ai_gen_id }} {
-    font-size: {{ block.settings.card_title_size }}px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 8px;
-  }
-
-  .featured-collections__item-description-{{ ai_gen_id }} {
-    font-size: 14px;
-    color: #ffffff;
-    margin: 0 0 12px;
-    opacity: 0.9;
-  }
-
-  .featured-collections__item-cta-{{ ai_gen_id }} {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
+  .tabbed-products__product-title-{{ ai_gen_id }} {
+    font-size: 16px;
     font-weight: 600;
-    color: #ffffff;
-    text-decoration: none;
-    transition: gap 0.3s ease;
+    color: {{ block.settings.product_title_color }};
+    margin: 0 0 8px;
+    line-height: 1.3;
   }
 
-  .featured-collections__item-{{ ai_gen_id }}:hover .featured-collections__item-cta-{{ ai_gen_id }} {
-    gap: 12px;
+  .tabbed-products__product-price-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 700;
+    color: {{ block.settings.product_price_color }};
+  }
+
+  .tabbed-products__empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 16px;
   }
 
   @media screen and (max-width: 989px) {
-    .featured-collections__grid-{{ ai_gen_id }} {
-      grid-template-columns: repeat(2, 1fr);
+    .tabbed-products__grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
   @media screen and (max-width: 749px) {
-    .featured-collections-{{ ai_gen_id }} {
+    .tabbed-products-{{ ai_gen_id }} {
       padding: {{ block.settings.section_padding | times: 0.6 }}px 16px;
     }
 
-    .featured-collections__grid-{{ ai_gen_id }} {
+    .tabbed-products__grid-{{ ai_gen_id }} {
       grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
       gap: {{ block.settings.grid_gap | times: 0.7 }}px;
     }
 
-    .featured-collections__title-{{ ai_gen_id }} {
+    .tabbed-products__title-{{ ai_gen_id }} {
       font-size: {{ block.settings.heading_size | times: 0.7 }}px;
     }
 
-    .featured-collections__subtitle-{{ ai_gen_id }} {
+    .tabbed-products__subtitle-{{ ai_gen_id }} {
       font-size: {{ block.settings.subtitle_size | times: 0.9 }}px;
     }
 
-    .featured-collections__header-{{ ai_gen_id }} {
-      margin-bottom: 32px;
+    .tabbed-products__tabs-{{ ai_gen_id }} {
+      gap: 6px;
+    }
+
+    .tabbed-products__tab-{{ ai_gen_id }} {
+      padding: 10px 16px;
+      font-size: 14px;
     }
   }
 {% endstyle %}
 
-<div class="featured-collections-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
-  <div class="featured-collections__container-{{ ai_gen_id }}">
+<tabbed-products-{{ ai_gen_id }} class="tabbed-products-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="tabbed-products__container-{{ ai_gen_id }}">
     {% if block.settings.heading != blank or block.settings.subtitle != blank %}
-      <div class="featured-collections__header-{{ ai_gen_id }}">
+      <div class="tabbed-products__header-{{ ai_gen_id }}">
         {% if block.settings.heading != blank %}
-          <h2 class="featured-collections__title-{{ ai_gen_id }}">
+          <h2 class="tabbed-products__title-{{ ai_gen_id }}">
             {{ block.settings.heading }}
           </h2>
         {% endif %}
         {% if block.settings.subtitle != blank %}
-          <div class="featured-collections__subtitle-{{ ai_gen_id }}">
+          <div class="tabbed-products__subtitle-{{ ai_gen_id }}">
             {{ block.settings.subtitle }}
           </div>
         {% endif %}
       </div>
     {% endif %}
 
-    <div class="featured-collections__grid-{{ ai_gen_id }}">
-      {% for i in (1..4) %}
+    <div class="tabbed-products__tabs-{{ ai_gen_id }}" role="tablist">
+      {% for i in (1..3) %}
         {% liquid
-          assign collection_key = 'collection_' | append: i
-          assign title_key = 'collection_' | append: i | append: '_title'
-          assign description_key = 'collection_' | append: i | append: '_description'
-          assign image_key = 'collection_' | append: i | append: '_image'
-          
+          assign tab_label_key = 'tab_' | append: i | append: '_label'
+          assign collection_key = 'tab_' | append: i | append: '_collection'
+          assign tab_label = block.settings[tab_label_key]
           assign collection = block.settings[collection_key]
-          assign custom_title = block.settings[title_key]
-          assign custom_description = block.settings[description_key]
-          assign custom_image = block.settings[image_key]
-          
-          if collection != blank
-            assign collection_url = collection.url
-            assign collection_title = collection.title
-            assign collection_image = collection.featured_image
-          else
-            assign collection_url = '#'
-            assign collection_title = 'Collection ' | append: i
-            assign collection_image = null
-          endif
-          
-          if custom_title != blank
-            assign collection_title = custom_title
-          endif
-          
-          if custom_image != blank
-            assign collection_image = custom_image
-          endif
         %}
+        {% if tab_label != blank %}
+          <button
+            class="tabbed-products__tab-{{ ai_gen_id }} {% if forloop.first %}active{% endif %}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            data-tab="{{ i }}"
+          >
+            {{ tab_label }}
+          </button>
+        {% endif %}
+      {% endfor %}
+    </div>
 
-        <div class="featured-collections__item-{{ ai_gen_id }}">
-          <a href="{{ collection_url }}" class="featured-collections__link-{{ ai_gen_id }}">
-            <div class="featured-collections__image-wrapper-{{ ai_gen_id }}">
-              {% if collection_image %}
-                <img
-                  src="{{ collection_image | image_url: width: 800 }}"
-                  srcset="{{ collection_image | image_url: width: 400 }} 400w,
-                          {{ collection_image | image_url: width: 600 }} 600w,
-                          {{ collection_image | image_url: width: 800 }} 800w"
-                  sizes="(min-width: 990px) calc(100vw / {{ block.settings.columns_desktop }}), (min-width: 750px) 50vw, 100vw"
-                  alt="{{ collection_image.alt | escape }}"
-                  loading="lazy"
-                  width="{{ collection_image.width }}"
-                  height="{{ collection_image.height }}"
-                  class="featured-collections__image-{{ ai_gen_id }}"
-                >
-              {% else %}
-                <div class="featured-collections__image-placeholder-{{ ai_gen_id }}">
-                  {{ 'collection-apparel-1' | placeholder_svg_tag }}
-                </div>
-              {% endif %}
-            </div>
-
-            <div class="featured-collections__overlay-{{ ai_gen_id }}">
-              <h3 class="featured-collections__item-title-{{ ai_gen_id }}">
-                {{ collection_title }}
-              </h3>
-              {% if custom_description != blank %}
-                <p class="featured-collections__item-description-{{ ai_gen_id }}">
-                  {{ custom_description }}
-                </p>
-              {% endif %}
-              <span class="featured-collections__item-cta-{{ ai_gen_id }}">
-                {{ block.settings.cta_text }}
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
-          </a>
-        </div>
+    <div class="tabbed-products__content-{{ ai_gen_id }}">
+      {% for i in (1..3) %}
+        {% liquid
+          assign tab_label_key = 'tab_' | append: i | append: '_label'
+          assign collection_key = 'tab_' | append: i | append: '_collection'
+          assign tab_label = block.settings[tab_label_key]
+          assign collection = block.settings[collection_key]
+        %}
+        {% if tab_label != blank %}
+          <div
+            class="tabbed-products__panel-{{ ai_gen_id }} {% if forloop.first %}active{% endif %}"
+            role="tabpanel"
+            data-panel="{{ i }}"
+          >
+            {% if collection != blank and collection.products.size > 0 %}
+              <div class="tabbed-products__grid-{{ ai_gen_id }}">
+                {% for product in collection.products limit: block.settings.products_to_show %}
+                  <a href="{{ product.url }}" class="tabbed-products__product-{{ ai_gen_id }}">
+                    <div class="tabbed-products__product-image-wrapper-{{ ai_gen_id }}">
+                      {% if product.featured_image %}
+                        <img
+                          src="{{ product.featured_image | image_url: width: 600 }}"
+                          srcset="{{ product.featured_image | image_url: width: 300 }} 300w,
+                                  {{ product.featured_image | image_url: width: 600 }} 600w"
+                          sizes="(min-width: 990px) calc(100vw / {{ block.settings.columns_desktop }}), (min-width: 750px) 33vw, 50vw"
+                          alt="{{ product.featured_image.alt | escape }}"
+                          loading="lazy"
+                          width="{{ product.featured_image.width }}"
+                          height="{{ product.featured_image.height }}"
+                          class="tabbed-products__product-image-{{ ai_gen_id }}"
+                        >
+                      {% else %}
+                        <div class="tabbed-products__product-image-placeholder-{{ ai_gen_id }}">
+                          {{ 'product-apparel-1' | placeholder_svg_tag }}
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div class="tabbed-products__product-info-{{ ai_gen_id }}">
+                      <h3 class="tabbed-products__product-title-{{ ai_gen_id }}">
+                        {{ product.title }}
+                      </h3>
+                      <div class="tabbed-products__product-price-{{ ai_gen_id }}">
+                        {{ product.price | money }}
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="tabbed-products__empty-state-{{ ai_gen_id }}">
+                Select a collection for this tab
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
   </div>
-</div>
+</tabbed-products-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class TabbedProducts{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.tabs = this.querySelectorAll('.tabbed-products__tab-{{ ai_gen_id }}');
+        this.panels = this.querySelectorAll('.tabbed-products__panel-{{ ai_gen_id }}');
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const tabId = tab.getAttribute('data-tab');
+            this.switchTab(tabId);
+          });
+        });
+      }
+
+      switchTab(tabId) {
+        this.tabs.forEach((tab) => {
+          const isActive = tab.getAttribute('data-tab') === tabId;
+          tab.classList.toggle('active', isActive);
+          tab.setAttribute('aria-selected', isActive);
+        });
+
+        this.panels.forEach((panel) => {
+          const isActive = panel.getAttribute('data-panel') === tabId;
+          panel.classList.toggle('active', isActive);
+        });
+      }
+    }
+
+    customElements.define('tabbed-products-{{ ai_gen_id }}', TabbedProducts{{ ai_gen_id }});
+  })();
+</script>
 
 {% schema %}
 {
-  "name": "Featured collections",
+  "name": "Tabbed products",
   "settings": [
     {
       "type": "header",
@@ -273,119 +342,71 @@
       "type": "inline_richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "Shop By Category"
+      "default": "Featured Products"
     },
     {
       "type": "richtext",
       "id": "subtitle",
       "label": "Subtitle",
-      "default": "<p>Discover our curated collections</p>"
-    },
-    {
-      "type": "text",
-      "id": "cta_text",
-      "label": "Call to action text",
-      "default": "Shop Now"
+      "default": "<p>Browse our best sellers</p>"
     },
     {
       "type": "header",
-      "content": "Collection 1"
+      "content": "Tab 1"
+    },
+    {
+      "type": "text",
+      "id": "tab_1_label",
+      "label": "Tab label",
+      "default": "New Arrivals"
     },
     {
       "type": "collection",
-      "id": "collection_1",
+      "id": "tab_1_collection",
       "label": "Collection"
-    },
-    {
-      "type": "text",
-      "id": "collection_1_title",
-      "label": "Custom title"
-    },
-    {
-      "type": "text",
-      "id": "collection_1_description",
-      "label": "Description"
-    },
-    {
-      "type": "image_picker",
-      "id": "collection_1_image",
-      "label": "Custom image"
     },
     {
       "type": "header",
-      "content": "Collection 2"
+      "content": "Tab 2"
+    },
+    {
+      "type": "text",
+      "id": "tab_2_label",
+      "label": "Tab label",
+      "default": "Best Sellers"
     },
     {
       "type": "collection",
-      "id": "collection_2",
+      "id": "tab_2_collection",
       "label": "Collection"
-    },
-    {
-      "type": "text",
-      "id": "collection_2_title",
-      "label": "Custom title"
-    },
-    {
-      "type": "text",
-      "id": "collection_2_description",
-      "label": "Description"
-    },
-    {
-      "type": "image_picker",
-      "id": "collection_2_image",
-      "label": "Custom image"
     },
     {
       "type": "header",
-      "content": "Collection 3"
+      "content": "Tab 3"
+    },
+    {
+      "type": "text",
+      "id": "tab_3_label",
+      "label": "Tab label",
+      "default": "Sale"
     },
     {
       "type": "collection",
-      "id": "collection_3",
+      "id": "tab_3_collection",
       "label": "Collection"
-    },
-    {
-      "type": "text",
-      "id": "collection_3_title",
-      "label": "Custom title"
-    },
-    {
-      "type": "text",
-      "id": "collection_3_description",
-      "label": "Description"
-    },
-    {
-      "type": "image_picker",
-      "id": "collection_3_image",
-      "label": "Custom image"
-    },
-    {
-      "type": "header",
-      "content": "Collection 4"
-    },
-    {
-      "type": "collection",
-      "id": "collection_4",
-      "label": "Collection"
-    },
-    {
-      "type": "text",
-      "id": "collection_4_title",
-      "label": "Custom title"
-    },
-    {
-      "type": "text",
-      "id": "collection_4_description",
-      "label": "Description"
-    },
-    {
-      "type": "image_picker",
-      "id": "collection_4_image",
-      "label": "Custom image"
     },
     {
       "type": "header",
       "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 12,
+      "step": 2,
+      "label": "Products to show",
+      "default": 8
     },
     {
       "type": "select",
@@ -393,16 +414,16 @@
       "label": "Columns on desktop",
       "options": [
         {
-          "value": "2",
-          "label": "2"
-        },
-        {
           "value": "3",
           "label": "3"
         },
         {
           "value": "4",
           "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
         }
       ],
       "default": "4"
@@ -421,7 +442,7 @@
           "label": "2"
         }
       ],
-      "default": "1"
+      "default": "2"
     },
     {
       "type": "select",
@@ -439,19 +460,15 @@
         {
           "value": "4/3",
           "label": "Landscape"
-        },
-        {
-          "value": "16/9",
-          "label": "Wide"
         }
       ],
-      "default": "3/4"
+      "default": "1/1"
     },
     {
       "type": "range",
       "id": "grid_gap",
       "min": 10,
-      "max": 50,
+      "max": 40,
       "step": 5,
       "unit": "px",
       "label": "Grid gap",
@@ -469,25 +486,93 @@
     },
     {
       "type": "header",
-      "content": "Style"
+      "content": "Colors"
     },
     {
       "type": "color",
       "id": "background_color",
       "label": "Background",
-      "default": "#ffffff"
+      "default": "#f9f9f9"
     },
     {
       "type": "color",
       "id": "heading_color",
-      "label": "Heading color",
+      "label": "Heading",
       "default": "#000000"
     },
     {
       "type": "color",
       "id": "text_color",
-      "label": "Text color",
+      "label": "Text",
       "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product title",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "product_price_color",
+      "label": "Product price",
+      "default": "#2d5016"
+    },
+    {
+      "type": "header",
+      "content": "Tab style"
+    },
+    {
+      "type": "color",
+      "id": "tab_text_color",
+      "label": "Text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Border",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_bg",
+      "label": "Hover background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_border",
+      "label": "Hover border",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_text",
+      "label": "Hover text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_bg",
+      "label": "Active background",
+      "default": "#2d5016"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_border",
+      "label": "Active border",
+      "default": "#2d5016"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text",
+      "label": "Active text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
     },
     {
       "type": "range",
@@ -511,12 +596,12 @@
     },
     {
       "type": "range",
-      "id": "card_title_size",
-      "min": 16,
-      "max": 36,
+      "id": "tab_border_radius",
+      "min": 0,
+      "max": 30,
       "step": 2,
       "unit": "px",
-      "label": "Card title size",
+      "label": "Tab border radius",
       "default": 24
     },
     {
@@ -532,7 +617,7 @@
   ],
   "presets": [
     {
-      "name": "Featured collections"
+      "name": "Tabbed products"
     }
   ]
 }
