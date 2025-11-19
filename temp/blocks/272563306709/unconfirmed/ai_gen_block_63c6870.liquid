@@ -1,6 +1,703 @@
+{% doc %}
+  @prompt
+    Create a final section with a dark navy/charcoal background similar to tentree’s impact section. Use a two-column layout on desktop and stacked columns on mobile. Add an H2: “Our UV Printing Studio”. Left column: a rounded container with a Google Maps embed (HTML setting) and soft shadow. Right column: small eyebrow “Visit Our Production Facility”, address text (rich text), phone (tel link setting) and email (mailto setting), plus two pill buttons: “Get Directions” and “Book a Printing Slot”. Keep fonts, rounded corners and button styles consistent with the hero., make the styling more responsive the text according to the section height make everything more symmetric and aligned
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-studio-section-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding_desktop }}px 20px;
+  }
+
+  .ai-studio-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-studio-heading-{{ ai_gen_id }} {
+    color: {{ block.settings.heading_color }};
+    font-size: {{ block.settings.heading_size }}px;
+    margin: 0 0 {{ block.settings.heading_spacing }}px;
+    text-align: center;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .ai-studio-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ block.settings.column_gap }}px;
+    align-items: center;
+  }
+
+  .ai-studio-map-wrapper-{{ ai_gen_id }} {
+    background-color: {{ block.settings.map_container_bg }};
+    border-radius: {{ block.settings.border_radius }}px;
+    padding: {{ block.settings.map_padding }}px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .ai-studio-map-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+    background-color: #e0e0e0;
+  }
+
+  .ai-studio-map-container-{{ ai_gen_id }} iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .ai-studio-map-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .ai-studio-info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.info_spacing }}px;
+    padding: 20px;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .ai-studio-eyebrow-{{ ai_gen_id }} {
+    color: {{ block.settings.eyebrow_color }};
+    font-size: {{ block.settings.eyebrow_size }}px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ai-studio-address-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .ai-studio-address-{{ ai_gen_id }} p {
+    margin: 0;
+  }
+
+  .ai-studio-contact-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-studio-contact-link-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color }};
+    font-size: {{ block.settings.text_size }}px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    line-height: 1.6;
+  }
+
+  .ai-studio-contact-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.link_hover_color }};
+  }
+
+  .ai-studio-buttons-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .ai-studio-button-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    border: 2px solid {{ block.settings.button_border_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .ai-studio-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg }};
+    color: {{ block.settings.button_hover_text }};
+    border-color: {{ block.settings.button_hover_border }};
+    transform: translateY(-2px);
+  }
+
+  .ai-studio-button--secondary-{{ ai_gen_id }} {
+    background-color: {{ block.settings.button_secondary_bg }};
+    color: {{ block.settings.button_secondary_text }};
+    border-color: {{ block.settings.button_secondary_border }};
+  }
+
+  .ai-studio-button--secondary-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_secondary_hover_bg }};
+    color: {{ block.settings.button_secondary_hover_text }};
+    border-color: {{ block.settings.button_secondary_hover_border }};
+  }
+
+  @media screen and (max-width: 989px) {
+    .ai-studio-heading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.heading_size }}px * 0.75);
+      margin-bottom: calc({{ block.settings.heading_spacing }}px * 0.75);
+    }
+
+    .ai-studio-eyebrow-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.eyebrow_size }}px * 0.9);
+    }
+
+    .ai-studio-address-{{ ai_gen_id }},
+    .ai-studio-contact-link-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.text_size }}px * 0.95);
+    }
+
+    .ai-studio-button-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.button_font_size }}px * 0.95);
+      padding: calc({{ block.settings.button_padding_vertical }}px * 0.9) calc({{ block.settings.button_padding_horizontal }}px * 0.9);
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-studio-section-{{ ai_gen_id }} {
+      padding: {{ block.settings.section_padding_mobile }}px 20px;
+    }
+
+    .ai-studio-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: {{ block.settings.column_gap_mobile }}px;
+      align-items: stretch;
+    }
+
+    .ai-studio-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size_mobile }}px;
+      margin-bottom: {{ block.settings.heading_spacing_mobile }}px;
+    }
+
+    .ai-studio-map-wrapper-{{ ai_gen_id }} {
+      height: auto;
+    }
+
+    .ai-studio-info-{{ ai_gen_id }} {
+      padding: 0;
+    }
+
+    .ai-studio-buttons-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-studio-button-{{ ai_gen_id }} {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .ai-studio-eyebrow-{{ ai_gen_id }} {
+      font-size: {{ block.settings.eyebrow_size }}px;
+    }
+
+    .ai-studio-address-{{ ai_gen_id }},
+    .ai-studio-contact-link-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size }}px;
+    }
+
+    .ai-studio-button-{{ ai_gen_id }} {
+      font-size: {{ block.settings.button_font_size }}px;
+      padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-studio-heading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.heading_size_mobile }}px * 0.85);
+    }
+
+    .ai-studio-eyebrow-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.eyebrow_size }}px * 0.9);
+      letter-spacing: 1px;
+    }
+
+    .ai-studio-address-{{ ai_gen_id }},
+    .ai-studio-contact-link-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.text_size }}px * 0.9);
+    }
+
+    .ai-studio-info-{{ ai_gen_id }} {
+      gap: calc({{ block.settings.info_spacing }}px * 0.8);
+    }
+  }
+{% endstyle %}
+
+<div class="ai-studio-section-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-studio-container-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-studio-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="ai-studio-grid-{{ ai_gen_id }}">
+      <div class="ai-studio-map-wrapper-{{ ai_gen_id }}">
+        <div class="ai-studio-map-container-{{ ai_gen_id }}">
+          {% if block.settings.map_embed != blank %}
+            {{ block.settings.map_embed }}
+          {% else %}
+            <div class="ai-studio-map-placeholder-{{ ai_gen_id }}">
+              Add your Google Maps embed code in the block settings
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ai-studio-info-{{ ai_gen_id }}">
+        {% if block.settings.eyebrow != blank %}
+          <p class="ai-studio-eyebrow-{{ ai_gen_id }}">{{ block.settings.eyebrow }}</p>
+        {% endif %}
+
+        {% if block.settings.address != blank %}
+          <div class="ai-studio-address-{{ ai_gen_id }}">
+            {{ block.settings.address }}
+          </div>
+        {% endif %}
+
+        <div class="ai-studio-contact-{{ ai_gen_id }}">
+          {% if block.settings.phone != blank %}
+            <a href="tel:{{ block.settings.phone }}" class="ai-studio-contact-link-{{ ai_gen_id }}">
+              {{ block.settings.phone }}
+            </a>
+          {% endif %}
+
+          {% if block.settings.email != blank %}
+            <a href="mailto:{{ block.settings.email }}" class="ai-studio-contact-link-{{ ai_gen_id }}">
+              {{ block.settings.email }}
+            </a>
+          {% endif %}
+        </div>
+
+        <div class="ai-studio-buttons-{{ ai_gen_id }}">
+          {% if block.settings.button_1_text != blank and block.settings.button_1_link != blank %}
+            <a href="{{ block.settings.button_1_link }}" class="ai-studio-button-{{ ai_gen_id }}">
+              {{ block.settings.button_1_text }}
+            </a>
+          {% endif %}
+
+          {% if block.settings.button_2_text != blank and block.settings.button_2_link != blank %}
+            <a href="{{ block.settings.button_2_link }}" class="ai-studio-button-{{ ai_gen_id }} ai-studio-button--secondary-{{ ai_gen_id }}">
+              {{ block.settings.button_2_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "UV printing studio",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our UV Printing Studio"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size (desktop)",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size (mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 20,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Heading spacing (desktop)",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing_mobile",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Heading spacing (mobile)",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Map"
+    },
+    {
+      "type": "html",
+      "id": "map_embed",
+      "label": "Google Maps embed code"
+    },
+    {
+      "type": "color",
+      "id": "map_container_bg",
+      "label": "Map container background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "map_padding",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Map container padding",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Contact information"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "Visit Our Production Facility"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Eyebrow size",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Eyebrow color",
+      "default": "#a0a0a0"
+    },
+    {
+      "type": "richtext",
+      "id": "address",
+      "label": "Address",
+      "default": "<p>123 Production Street<br>Industrial District<br>City, State 12345</p>"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone number",
+      "default": "+1 (555) 123-4567"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email address",
+      "default": "studio@metalposters.com"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link hover color",
+      "default": "#a0a0a0"
+    },
+    {
+      "type": "range",
+      "id": "info_spacing",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Info spacing",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Button 1"
+    },
+    {
+      "type": "text",
+      "id": "button_1_text",
+      "label": "Button 1 text",
+      "default": "Get Directions"
+    },
+    {
+      "type": "url",
+      "id": "button_1_link",
+      "label": "Button 1 link"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text",
+      "default": "#1a1a2e"
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Border",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg",
+      "label": "Hover background",
+      "default": "#1a1a2e"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text",
+      "label": "Hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_border",
+      "label": "Hover border",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button 2"
+    },
+    {
+      "type": "text",
+      "id": "button_2_text",
+      "label": "Button 2 text",
+      "default": "Book a Printing Slot"
+    },
+    {
+      "type": "url",
+      "id": "button_2_link",
+      "label": "Button 2 link"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_bg",
+      "label": "Background",
+      "default": "transparent"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_text",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_border",
+      "label": "Border",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_hover_bg",
+      "label": "Hover background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_hover_text",
+      "label": "Hover text",
+      "default": "#1a1a2e"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_hover_border",
+      "label": "Hover border",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_desktop",
+      "min": 40,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "label": "Section padding (desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "section_padding_mobile",
+      "min": 32,
+      "max": 80,
+      "step": 8,
+      "unit": "px",
+      "label": "Section padding (mobile)",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 24,
+      "max": 80,
+      "step": 8,
+      "unit": "px",
+      "label": "Column gap (desktop)",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "column_gap_mobile",
+      "min": 24,
+      "max": 64,
+      "step": 8,
+      "unit": "px",
+      "label": "Column gap (mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#1a1a2e"
+    }
+  ],
+  "presets": [
+    {
+      "name": "UV printing studio"
+    }
+  ]
+}
 {% endschema %}
