@@ -1,6 +1,828 @@
+{% doc %}
+  @prompt
+    Under the hero, create a new section with id="shop-by-category" in the same visual style as the hero and tentree.com. Use a soft neutral background and a centered max-width container. Add an H2: “Shop Premium Wall Art by Category” and a short paragraph. Below, create 3 pill-style tabs: Paintings, Metal Posters, Acrylic Posters. Each tab should show a horizontally scrollable row of product cards from a collection picker. Each card: rounded white card, soft shadow, product image on top, product title as H3, small meta line, and a full-width pill “Buy Now” button linking to the product URL. Only one tab’s cards are visible at a time. Match spacing, rounded corners and hover feel to tentree-style product rows.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-shop-category-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.section_padding_top }}px 0 {{ block.settings.section_padding_bottom }}px;
+  }
+
+  .ai-shop-category-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.container_max_width }}px;
+    margin: 0 auto;
+    padding: 0 {{ block.settings.container_padding }}px;
+  }
+
+  .ai-shop-category-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: {{ block.settings.header_spacing }}px;
+  }
+
+  .ai-shop-category-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+
+  .ai-shop-category-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_size }}px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .ai-shop-category-tabs-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: {{ block.settings.tabs_spacing }}px;
+    flex-wrap: wrap;
+  }
+
+  .ai-shop-category-tab-{{ ai_gen_id }} {
+    padding: 12px 32px;
+    background-color: {{ block.settings.tab_bg_color }};
+    color: {{ block.settings.tab_text_color }};
+    border: 1px solid {{ block.settings.tab_border_color }};
+    border-radius: {{ block.settings.tab_border_radius }}px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: {{ block.settings.tab_font_size }}px;
+    font-weight: 500;
+  }
+
+  .ai-shop-category-tab-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.tab_hover_bg_color }};
+    border-color: {{ block.settings.tab_hover_border_color }};
+    transform: translateY(-2px);
+  }
+
+  .ai-shop-category-tab-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.tab_active_bg_color }};
+    color: {{ block.settings.tab_active_text_color }};
+    border-color: {{ block.settings.tab_active_border_color }};
+  }
+
+  .ai-shop-category-content-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-shop-category-content-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-shop-category-products-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.card_gap }}px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 0 16px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ai-shop-category-products-{{ ai_gen_id }}::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .ai-shop-category-products-{{ ai_gen_id }}::-webkit-scrollbar-track {
+    background: {{ block.settings.scrollbar_track_color }};
+    border-radius: 4px;
+  }
+
+  .ai-shop-category-products-{{ ai_gen_id }}::-webkit-scrollbar-thumb {
+    background: {{ block.settings.scrollbar_thumb_color }};
+    border-radius: 4px;
+  }
+
+  .ai-shop-category-card-{{ ai_gen_id }} {
+    flex: 0 0 {{ block.settings.card_width }}px;
+    background-color: {{ block.settings.card_bg_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: {{ block.settings.card_shadow }};
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-shop-category-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+    box-shadow: {{ block.settings.card_hover_shadow }};
+  }
+
+  .ai-shop-category-card-image-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: {{ block.settings.image_aspect_ratio }};
+    overflow: hidden;
+    background-color: #f5f5f5;
+  }
+
+  .ai-shop-category-card-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-shop-category-card-content-{{ ai_gen_id }} {
+    padding: {{ block.settings.card_padding }}px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .ai-shop-category-card-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_title_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 8px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ai-shop-category-card-meta-{{ ai_gen_id }} {
+    font-size: {{ block.settings.card_meta_size }}px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+    margin-bottom: 16px;
+  }
+
+  .ai-shop-category-card-button-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: 12px 24px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    text-align: center;
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-top: auto;
+  }
+
+  .ai-shop-category-card-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg_color }};
+    transform: scale(1.02);
+  }
+
+  .ai-shop-category-empty-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 60px 20px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.6;
+    font-size: 16px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-shop-category-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.title_size }}px * 0.8);
+    }
+
+    .ai-shop-category-card-{{ ai_gen_id }} {
+      flex: 0 0 {{ block.settings.card_width_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<shop-by-category-{{ ai_gen_id }}
+  id="shop-by-category"
+  class="ai-shop-category-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-shop-category-container-{{ ai_gen_id }}">
+    <div class="ai-shop-category-header-{{ ai_gen_id }}">
+      {% if block.settings.title != blank %}
+        <h2 class="ai-shop-category-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+      {% endif %}
+      {% if block.settings.description != blank %}
+        <div class="ai-shop-category-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+      {% endif %}
+    </div>
+
+    <div class="ai-shop-category-tabs-{{ ai_gen_id }}">
+      <button
+        class="ai-shop-category-tab-{{ ai_gen_id }} active"
+        data-tab="tab1"
+        aria-label="View {{ block.settings.tab1_label }}"
+      >
+        {{ block.settings.tab1_label }}
+      </button>
+      <button
+        class="ai-shop-category-tab-{{ ai_gen_id }}"
+        data-tab="tab2"
+        aria-label="View {{ block.settings.tab2_label }}"
+      >
+        {{ block.settings.tab2_label }}
+      </button>
+      <button
+        class="ai-shop-category-tab-{{ ai_gen_id }}"
+        data-tab="tab3"
+        aria-label="View {{ block.settings.tab3_label }}"
+      >
+        {{ block.settings.tab3_label }}
+      </button>
+    </div>
+
+    <div class="ai-shop-category-content-{{ ai_gen_id }} active" data-content="tab1">
+      {% if block.settings.tab1_collection != blank %}
+        <div class="ai-shop-category-products-{{ ai_gen_id }}">
+          {% for product in block.settings.tab1_collection.products limit: block.settings.products_limit %}
+            <div class="ai-shop-category-card-{{ ai_gen_id }}">
+              <div class="ai-shop-category-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="600"
+                    height="600"
+                  >
+                {% else %}
+                  <div class="ai-shop-category-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="ai-shop-category-card-content-{{ ai_gen_id }}">
+                <h3 class="ai-shop-category-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <div class="ai-shop-category-card-meta-{{ ai_gen_id }}">{{ product.price | money }}</div>
+                <a
+                  href="{{ product.url }}"
+                  class="ai-shop-category-card-button-{{ ai_gen_id }}"
+                >
+                  {{ block.settings.button_text }}
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ai-shop-category-empty-{{ ai_gen_id }}">
+          Select a collection for {{ block.settings.tab1_label }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-shop-category-content-{{ ai_gen_id }}" data-content="tab2">
+      {% if block.settings.tab2_collection != blank %}
+        <div class="ai-shop-category-products-{{ ai_gen_id }}">
+          {% for product in block.settings.tab2_collection.products limit: block.settings.products_limit %}
+            <div class="ai-shop-category-card-{{ ai_gen_id }}">
+              <div class="ai-shop-category-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="600"
+                    height="600"
+                  >
+                {% else %}
+                  <div class="ai-shop-category-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="ai-shop-category-card-content-{{ ai_gen_id }}">
+                <h3 class="ai-shop-category-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <div class="ai-shop-category-card-meta-{{ ai_gen_id }}">{{ product.price | money }}</div>
+                <a
+                  href="{{ product.url }}"
+                  class="ai-shop-category-card-button-{{ ai_gen_id }}"
+                >
+                  {{ block.settings.button_text }}
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ai-shop-category-empty-{{ ai_gen_id }}">
+          Select a collection for {{ block.settings.tab2_label }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ai-shop-category-content-{{ ai_gen_id }}" data-content="tab3">
+      {% if block.settings.tab3_collection != blank %}
+        <div class="ai-shop-category-products-{{ ai_gen_id }}">
+          {% for product in block.settings.tab3_collection.products limit: block.settings.products_limit %}
+            <div class="ai-shop-category-card-{{ ai_gen_id }}">
+              <div class="ai-shop-category-card-image-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    loading="lazy"
+                    width="600"
+                    height="600"
+                  >
+                {% else %}
+                  <div class="ai-shop-category-card-image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="ai-shop-category-card-content-{{ ai_gen_id }}">
+                <h3 class="ai-shop-category-card-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <div class="ai-shop-category-card-meta-{{ ai_gen_id }}">{{ product.price | money }}</div>
+                <a
+                  href="{{ product.url }}"
+                  class="ai-shop-category-card-button-{{ ai_gen_id }}"
+                >
+                  {{ block.settings.button_text }}
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ai-shop-category-empty-{{ ai_gen_id }}">
+          Select a collection for {{ block.settings.tab3_label }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</shop-by-category-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ShopByCategory{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.tabs = this.querySelectorAll('.ai-shop-category-tab-{{ ai_gen_id }}');
+        this.contents = this.querySelectorAll('.ai-shop-category-content-{{ ai_gen_id }}');
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const tabId = tab.getAttribute('data-tab');
+            
+            this.tabs.forEach((t) => t.classList.remove('active'));
+            this.contents.forEach((c) => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const content = this.querySelector(`[data-content="${tabId}"]`);
+            if (content) {
+              content.classList.add('active');
+            }
+          });
+        });
+      }
+    }
+
+    customElements.define('shop-by-category-{{ ai_gen_id }}', ShopByCategory{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Shop by category",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Shop Premium Wall Art by Category"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Discover our curated collection of premium wall art. From classic paintings to modern metal and acrylic posters, find the perfect piece to transform your space."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Buy Now"
+    },
+    {
+      "type": "header",
+      "content": "Tab 1"
+    },
+    {
+      "type": "text",
+      "id": "tab1_label",
+      "label": "Label",
+      "default": "Paintings"
+    },
+    {
+      "type": "collection",
+      "id": "tab1_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "header",
+      "content": "Tab 2"
+    },
+    {
+      "type": "text",
+      "id": "tab2_label",
+      "label": "Label",
+      "default": "Metal Posters"
+    },
+    {
+      "type": "collection",
+      "id": "tab2_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "header",
+      "content": "Tab 3"
+    },
+    {
+      "type": "text",
+      "id": "tab3_label",
+      "label": "Label",
+      "default": "Acrylic Posters"
+    },
+    {
+      "type": "collection",
+      "id": "tab3_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "min": 800,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Container max width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Container padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 20,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 20,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding bottom",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "header_spacing",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Header spacing",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "tabs_spacing",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Tabs spacing",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "label": "Products limit",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Tabs style"
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "tab_border_radius",
+      "min": 10,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 30
+    },
+    {
+      "type": "color",
+      "id": "tab_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tab_text_color",
+      "label": "Text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Border",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_bg_color",
+      "label": "Hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_border_color",
+      "label": "Hover border",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_bg_color",
+      "label": "Active background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text_color",
+      "label": "Active text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_border_color",
+      "label": "Active border",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "min": 200,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Card width",
+      "default": 280
+    },
+    {
+      "type": "range",
+      "id": "card_width_mobile",
+      "min": 150,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Card width mobile",
+      "default": 220
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Gap between cards",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Card padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 4,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "card_shadow",
+      "label": "Shadow",
+      "default": "0 2px 8px rgba(0, 0, 0, 0.08)"
+    },
+    {
+      "type": "text",
+      "id": "card_hover_shadow",
+      "label": "Hover shadow",
+      "default": "0 8px 16px rgba(0, 0, 0, 0.12)"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "1 / 1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "16 / 9",
+          "label": "Wide (16:9)"
+        }
+      ],
+      "default": "1 / 1"
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Title size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_meta_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Meta size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 4,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Hover background",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Scrollbar"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_track_color",
+      "label": "Track",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_thumb_color",
+      "label": "Thumb",
+      "default": "#cccccc"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by category"
+    }
+  ]
+}
 {% endschema %}
