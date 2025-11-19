@@ -1,6 +1,654 @@
+{% doc %}
+  @prompt
+    a hero section with bg image with h1 and sub text (not heading) and 2 CTA shop by category and book services the text block in the left and offer promotion in the right make as more styled as you can do dark themed
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-hero-{{ ai_gen_id }} {
+    position: relative;
+    min-height: {{ block.settings.section_height }}px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: #0a0a0a;
+  }
+
+  .ai-hero-bg-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .ai-hero-bg-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: {{ block.settings.image_opacity }};
+  }
+
+  .ai-hero-bg-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-hero-bg-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+  }
+
+  .ai-hero-overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, {{ block.settings.overlay_opacity }}) 0%,
+      rgba(0, 0, 0, {{ block.settings.overlay_opacity | times: 0.7 }}) 50%,
+      rgba(0, 0, 0, {{ block.settings.overlay_opacity | times: 0.3 }}) 100%
+    );
+    z-index: 2;
+  }
+
+  .ai-hero-container-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .ai-hero-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ai-hero-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: {{ block.settings.heading_color }};
+    margin: 0;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+  }
+
+  .ai-hero-subtext-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtext_size }}px;
+    line-height: 1.6;
+    color: {{ block.settings.subtext_color }};
+    margin: 0;
+    opacity: 0.95;
+  }
+
+  .ai-hero-buttons-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .ai-hero-btn-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    font-size: {{ block.settings.button_text_size }}px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .ai-hero-btn-primary-{{ ai_gen_id }} {
+    background: {{ block.settings.primary_button_bg }};
+    color: {{ block.settings.primary_button_color }};
+    border-color: {{ block.settings.primary_button_bg }};
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+  }
+
+  .ai-hero-btn-primary-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.primary_button_hover_bg }};
+    border-color: {{ block.settings.primary_button_hover_bg }};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .ai-hero-btn-secondary-{{ ai_gen_id }} {
+    background: transparent;
+    color: {{ block.settings.secondary_button_color }};
+    border-color: {{ block.settings.secondary_button_border }};
+  }
+
+  .ai-hero-btn-secondary-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.secondary_button_hover_bg }};
+    border-color: {{ block.settings.secondary_button_hover_bg }};
+    transform: translateY(-2px);
+  }
+
+  .ai-hero-promo-{{ ai_gen_id }} {
+    background: linear-gradient(135deg, {{ block.settings.promo_bg_start }} 0%, {{ block.settings.promo_bg_end }} 100%);
+    padding: 40px;
+    border-radius: {{ block.settings.promo_border_radius }}px;
+    border: 2px solid {{ block.settings.promo_border_color }};
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-hero-promo-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, {{ block.settings.promo_border_color }}, transparent);
+    border-radius: {{ block.settings.promo_border_radius }}px;
+    z-index: -1;
+    opacity: 0.5;
+  }
+
+  .ai-hero-promo-badge-{{ ai_gen_id }} {
+    display: inline-block;
+    background: {{ block.settings.promo_badge_bg }};
+    color: {{ block.settings.promo_badge_text }};
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .ai-hero-promo-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.promo_title_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.promo_title_color }};
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+  }
+
+  .ai-hero-promo-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.promo_text_size }}px;
+    color: {{ block.settings.promo_text_color }};
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .ai-hero-promo-code-{{ ai_gen_id }} {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px dashed {{ block.settings.promo_code_border }};
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .ai-hero-promo-code-label-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: {{ block.settings.promo_text_color }};
+    opacity: 0.8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .ai-hero-promo-code-value-{{ ai_gen_id }} {
+    font-size: 24px;
+    font-weight: 700;
+    color: {{ block.settings.promo_code_color }};
+    font-family: monospace;
+    letter-spacing: 0.15em;
+  }
+
+  @media screen and (max-width: 989px) {
+    .ai-hero-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 40px 24px;
+    }
+
+    .ai-hero-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+    }
+
+    .ai-hero-subtext-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtext_size | times: 0.9 }}px;
+    }
+
+    .ai-hero-promo-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.promo_title_size | times: 0.8 }}px;
+    }
+
+    .ai-hero-buttons-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-hero-btn-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-hero-{{ ai_gen_id }} {
+      min-height: {{ block.settings.section_height | times: 0.7 }}px;
+    }
+
+    .ai-hero-promo-{{ ai_gen_id }} {
+      padding: 24px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-hero-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-hero-bg-{{ ai_gen_id }}">
+    {% if block.settings.background_image %}
+      <img
+        src="{{ block.settings.background_image | image_url: width: 2000 }}"
+        alt="{{ block.settings.background_image.alt | escape }}"
+        loading="lazy"
+        width="{{ block.settings.background_image.width }}"
+        height="{{ block.settings.background_image.height }}"
+      >
+    {% else %}
+      <div class="ai-hero-bg-placeholder-{{ ai_gen_id }}">
+        {{ 'hero-apparel-1' | placeholder_svg_tag }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="ai-hero-overlay-{{ ai_gen_id }}"></div>
+
+  <div class="ai-hero-container-{{ ai_gen_id }}">
+    <div class="ai-hero-content-{{ ai_gen_id }}">
+      {% if block.settings.heading != blank %}
+        <h1 class="ai-hero-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h1>
+      {% endif %}
+
+      {% if block.settings.subtext != blank %}
+        <div class="ai-hero-subtext-{{ ai_gen_id }}">{{ block.settings.subtext }}</div>
+      {% endif %}
+
+      <div class="ai-hero-buttons-{{ ai_gen_id }}">
+        {% if block.settings.primary_button_label != blank %}
+          <a
+            href="{{ block.settings.primary_button_link }}"
+            class="ai-hero-btn-{{ ai_gen_id }} ai-hero-btn-primary-{{ ai_gen_id }}"
+          >
+            {{ block.settings.primary_button_label }}
+          </a>
+        {% endif %}
+
+        {% if block.settings.secondary_button_label != blank %}
+          <a
+            href="{{ block.settings.secondary_button_link }}"
+            class="ai-hero-btn-{{ ai_gen_id }} ai-hero-btn-secondary-{{ ai_gen_id }}"
+          >
+            {{ block.settings.secondary_button_label }}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-hero-promo-{{ ai_gen_id }}">
+      {% if block.settings.promo_badge != blank %}
+        <div class="ai-hero-promo-badge-{{ ai_gen_id }}">{{ block.settings.promo_badge }}</div>
+      {% endif %}
+
+      {% if block.settings.promo_title != blank %}
+        <h2 class="ai-hero-promo-title-{{ ai_gen_id }}">{{ block.settings.promo_title }}</h2>
+      {% endif %}
+
+      {% if block.settings.promo_text != blank %}
+        <div class="ai-hero-promo-text-{{ ai_gen_id }}">{{ block.settings.promo_text }}</div>
+      {% endif %}
+
+      {% if block.settings.show_promo_code and block.settings.promo_code != blank %}
+        <div class="ai-hero-promo-code-{{ ai_gen_id }}">
+          <div class="ai-hero-promo-code-label-{{ ai_gen_id }}">Use Code</div>
+          <div class="ai-hero-promo-code-value-{{ ai_gen_id }}">{{ block.settings.promo_code }}</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Hero with promo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "min": 400,
+      "max": 900,
+      "step": 50,
+      "unit": "px",
+      "label": "Section height",
+      "default": 700
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "type": "range",
+      "id": "image_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Image opacity",
+      "default": 0.4
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Overlay opacity",
+      "default": 0.7
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Transform Your Space"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 30,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 64
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Subtext"
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Discover premium metal posters that bring your walls to life. Explore our curated collections or book professional installation services."
+    },
+    {
+      "type": "range",
+      "id": "subtext_size",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtext size",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "subtext_color",
+      "label": "Subtext color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "header",
+      "content": "Primary button"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_label",
+      "label": "Button text",
+      "default": "Shop by Category"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_hover_bg",
+      "label": "Hover background color",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "header",
+      "content": "Secondary button"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_label",
+      "label": "Button text",
+      "default": "Book Services"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_border",
+      "label": "Border color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover_bg",
+      "label": "Hover background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Promotion box"
+    },
+    {
+      "type": "text",
+      "id": "promo_badge",
+      "label": "Badge text",
+      "default": "Limited Offer"
+    },
+    {
+      "type": "text",
+      "id": "promo_title",
+      "label": "Title",
+      "default": "Get 25% Off Your First Order"
+    },
+    {
+      "type": "textarea",
+      "id": "promo_text",
+      "label": "Description",
+      "default": "Join thousands of satisfied customers and elevate your space with our exclusive metal poster collection."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_promo_code",
+      "label": "Show promo code",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "promo_code",
+      "label": "Promo code",
+      "default": "WELCOME25"
+    },
+    {
+      "type": "range",
+      "id": "promo_title_size",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "promo_text_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "promo_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Promotion colors"
+    },
+    {
+      "type": "color",
+      "id": "promo_bg_start",
+      "label": "Background gradient start",
+      "default": "#1a1a2e"
+    },
+    {
+      "type": "color",
+      "id": "promo_bg_end",
+      "label": "Background gradient end",
+      "default": "#16213e"
+    },
+    {
+      "type": "color",
+      "id": "promo_border_color",
+      "label": "Border color",
+      "default": "#ffd700"
+    },
+    {
+      "type": "color",
+      "id": "promo_badge_bg",
+      "label": "Badge background",
+      "default": "#ffd700"
+    },
+    {
+      "type": "color",
+      "id": "promo_badge_text",
+      "label": "Badge text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "promo_title_color",
+      "label": "Title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "promo_text_color",
+      "label": "Text color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "promo_code_border",
+      "label": "Code border",
+      "default": "#ffd700"
+    },
+    {
+      "type": "color",
+      "id": "promo_code_color",
+      "label": "Code text",
+      "default": "#ffd700"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero with promo"
+    }
+  ]
+}
 {% endschema %}
