@@ -1,6 +1,533 @@
+{% doc %}
+  @prompt
+    70-30 ratio split top 70% will be transparent layer of image and below 30% will be a navigation area with humburger in the left and cart icon in the right below the top 70% transparent there should be a box of same width as of 30% navigation area has as both the 70% area and the 30% area can have their own width padding and margins
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-split-layout-{{ ai_gen_id }} {
+    width: 100%;
+    position: relative;
+  }
+
+  .ai-split-layout__top-{{ ai_gen_id }} {
+    width: calc(100% - {{ block.settings.top_padding_left }}px - {{ block.settings.top_padding_right }}px);
+    height: {{ block.settings.top_height }}vh;
+    margin-left: {{ block.settings.top_margin_left }}px;
+    margin-right: {{ block.settings.top_margin_right }}px;
+    margin-top: {{ block.settings.top_margin_top }}px;
+    margin-bottom: {{ block.settings.top_margin_bottom }}px;
+    padding-left: {{ block.settings.top_padding_left }}px;
+    padding-right: {{ block.settings.top_padding_right }}px;
+    padding-top: {{ block.settings.top_padding_top }}px;
+    padding-bottom: {{ block.settings.top_padding_bottom }}px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-split-layout__top-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: {{ block.settings.image_opacity }};
+  }
+
+  .ai-split-layout__top-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-split-layout__top-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: {{ block.settings.image_opacity }};
+  }
+
+  .ai-split-layout__bottom-{{ ai_gen_id }} {
+    width: calc(100% - {{ block.settings.nav_padding_left }}px - {{ block.settings.nav_padding_right }}px);
+    height: {{ block.settings.nav_height }}vh;
+    margin-left: {{ block.settings.nav_margin_left }}px;
+    margin-right: {{ block.settings.nav_margin_right }}px;
+    margin-top: {{ block.settings.nav_margin_top }}px;
+    margin-bottom: {{ block.settings.nav_margin_bottom }}px;
+    padding-left: {{ block.settings.nav_padding_left }}px;
+    padding-right: {{ block.settings.nav_padding_right }}px;
+    padding-top: {{ block.settings.nav_padding_top }}px;
+    padding-bottom: {{ block.settings.nav_padding_bottom }}px;
+    background-color: {{ block.settings.nav_background_color }};
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-split-layout__hamburger-{{ ai_gen_id }} {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ai-split-layout__hamburger-line-{{ ai_gen_id }} {
+    width: {{ block.settings.hamburger_size }}px;
+    height: 2px;
+    background-color: {{ block.settings.icon_color }};
+    transition: all 0.3s ease;
+  }
+
+  .ai-split-layout__cart-{{ ai_gen_id }} {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: {{ block.settings.icon_color }};
+  }
+
+  .ai-split-layout__cart-{{ ai_gen_id }} svg {
+    width: {{ block.settings.cart_icon_size }}px;
+    height: {{ block.settings.cart_icon_size }}px;
+  }
+
+  .ai-split-layout__content-box-{{ ai_gen_id }} {
+    width: calc(100% - {{ block.settings.nav_padding_left }}px - {{ block.settings.nav_padding_right }}px - {{ block.settings.nav_margin_left }}px - {{ block.settings.nav_margin_right }}px);
+    margin-left: {{ block.settings.nav_margin_left }}px;
+    margin-right: {{ block.settings.nav_margin_right }}px;
+    margin-top: {{ block.settings.box_margin_top }}px;
+    margin-bottom: {{ block.settings.box_margin_bottom }}px;
+    padding: {{ block.settings.box_padding }}px;
+    background-color: {{ block.settings.box_background_color }};
+    border-radius: {{ block.settings.box_border_radius }}px;
+  }
+
+  .ai-split-layout__content-box-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.box_title_size }}px;
+    color: {{ block.settings.box_text_color }};
+    margin: 0 0 12px 0;
+  }
+
+  .ai-split-layout__content-box-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.box_text_size }}px;
+    color: {{ block.settings.box_text_color }};
+    line-height: 1.5;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-split-layout__top-{{ ai_gen_id }} {
+      height: {{ block.settings.top_height | times: 0.8 }}vh;
+    }
+
+    .ai-split-layout__bottom-{{ ai_gen_id }} {
+      height: {{ block.settings.nav_height | times: 0.8 }}vh;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-split-layout-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-split-layout__top-{{ ai_gen_id }}">
+    {% if block.settings.top_image %}
+      <img
+        src="{{ block.settings.top_image | image_url: width: 2000 }}"
+        alt="{{ block.settings.top_image.alt | escape }}"
+        loading="lazy"
+        width="{{ block.settings.top_image.width }}"
+        height="{{ block.settings.top_image.height }}"
+        class="ai-split-layout__top-image-{{ ai_gen_id }}"
+      >
+    {% else %}
+      <div class="ai-split-layout__top-placeholder-{{ ai_gen_id }}">
+        {{ 'hero-apparel-1' | placeholder_svg_tag }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="ai-split-layout__bottom-{{ ai_gen_id }}">
+    <button
+      class="ai-split-layout__hamburger-{{ ai_gen_id }}"
+      aria-label="Open menu"
+    >
+      <span class="ai-split-layout__hamburger-line-{{ ai_gen_id }}"></span>
+      <span class="ai-split-layout__hamburger-line-{{ ai_gen_id }}"></span>
+      <span class="ai-split-layout__hamburger-line-{{ ai_gen_id }}"></span>
+    </button>
+
+    <a
+      href="/cart"
+      class="ai-split-layout__cart-{{ ai_gen_id }}"
+      aria-label="View cart"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+    </a>
+  </div>
+
+  <div class="ai-split-layout__content-box-{{ ai_gen_id }}">
+    {% if block.settings.box_title != blank %}
+      <h2 class="ai-split-layout__content-box-title-{{ ai_gen_id }}">
+        {{ block.settings.box_title }}
+      </h2>
+    {% endif %}
+    {% if block.settings.box_text != blank %}
+      <div class="ai-split-layout__content-box-text-{{ ai_gen_id }}">
+        {{ block.settings.box_text }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Split layout nav",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Top section (70%)"
+    },
+    {
+      "type": "image_picker",
+      "id": "top_image",
+      "label": "Image"
+    },
+    {
+      "type": "range",
+      "id": "image_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Image opacity",
+      "default": 0.5
+    },
+    {
+      "type": "range",
+      "id": "top_height",
+      "min": 30,
+      "max": 80,
+      "step": 5,
+      "unit": "vh",
+      "label": "Height",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "top_margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_margin_left",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin left",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_margin_right",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_padding_left",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding left",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "top_padding_right",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding right",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Navigation area (30%)"
+    },
+    {
+      "type": "range",
+      "id": "nav_height",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "vh",
+      "label": "Height",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "nav_background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "nav_margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "nav_margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "nav_margin_left",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin left",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "nav_margin_right",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "nav_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "nav_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "nav_padding_left",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding left",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "nav_padding_right",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding right",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Navigation icons"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "hamburger_size",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Hamburger size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "cart_icon_size",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Cart icon size",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Content box"
+    },
+    {
+      "type": "richtext",
+      "id": "box_title",
+      "label": "Title",
+      "default": "<p>Welcome to our store</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "box_text",
+      "label": "Text",
+      "default": "<p>Discover our amazing collection of products</p>"
+    },
+    {
+      "type": "color",
+      "id": "box_background_color",
+      "label": "Background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "box_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "box_padding",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "box_margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "box_margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin bottom",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "box_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "box_title_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "box_text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split layout nav"
+    }
+  ]
+}
 {% endschema %}
