@@ -1,6 +1,319 @@
+{% doc %}
+  @prompt
+    a header with a 45 degree angeled strip lines sketched over a cream colored bg strip covering 60% of the header, the strip should be over the block having width equal to the device width
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-header-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.header_height }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-header-strip-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: {{ block.settings.strip_height }}%;
+    background-color: {{ block.settings.strip_color }};
+    z-index: 1;
+  }
+
+  .ai-header-lines-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .ai-header-content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: {{ block.settings.text_alignment }};
+    text-align: {{ block.settings.text_alignment }};
+  }
+
+  .ai-header-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 {{ block.settings.title_spacing }}px 0;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .ai-header-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.subtitle_color }};
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-header-{{ ai_gen_id }} {
+      height: {{ block.settings.header_height | times: 0.7 }}px;
+    }
+
+    .ai-header-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.7 }}px;
+    }
+
+    .ai-header-subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size | times: 0.8 }}px;
+    }
+
+    .ai-header-content-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_vertical | times: 0.7 }}px {{ block.settings.padding_horizontal | times: 0.7 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-header-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-header-strip-{{ ai_gen_id }}">
+    <svg class="ai-header-lines-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      {% for i in (1..20) %}
+        {% assign line_position = i | times: 5 %}
+        <line
+          x1="{{ line_position }}%"
+          y1="-50%"
+          x2="{{ line_position }}%"
+          y2="150%"
+          stroke="{{ block.settings.line_color }}"
+          stroke-width="{{ block.settings.line_thickness }}"
+          opacity="{{ block.settings.line_opacity }}"
+          transform="rotate({{ block.settings.line_angle }} 0 0)"
+        />
+      {% endfor %}
+    </svg>
+  </div>
+
+  <div class="ai-header-content-{{ ai_gen_id }}">
+    {% if block.settings.title != blank %}
+      <h1 class="ai-header-title-{{ ai_gen_id }}">{{ block.settings.title }}</h1>
+    {% endif %}
+    {% if block.settings.subtitle != blank %}
+      <p class="ai-header-subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+    {% endif %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Angled strip header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Title",
+      "default": "Welcome to Our Store"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Discover amazing products"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "header_height",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Header height",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 600,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Content max width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Strip"
+    },
+    {
+      "type": "range",
+      "id": "strip_height",
+      "min": 30,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Strip height",
+      "default": 60
+    },
+    {
+      "type": "color",
+      "id": "strip_color",
+      "label": "Strip color",
+      "default": "#f5f1e8"
+    },
+    {
+      "type": "header",
+      "content": "Lines"
+    },
+    {
+      "type": "range",
+      "id": "line_angle",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "deg",
+      "label": "Line angle",
+      "default": 45
+    },
+    {
+      "type": "range",
+      "id": "line_thickness",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Line thickness",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "line_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Line opacity",
+      "default": 0.3
+    },
+    {
+      "type": "color",
+      "id": "line_color",
+      "label": "Line color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 24,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Title size",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Title spacing",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Angled strip header"
+    }
+  ]
+}
 {% endschema %}
