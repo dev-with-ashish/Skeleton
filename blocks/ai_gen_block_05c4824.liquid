@@ -5,14 +5,25 @@
     width: 100%;
     position: relative;
     overflow: hidden;
+    margin-top: 0;
   }
 
-  /* --- FULL-WIDTH STRIPE SECTION (UPDATED) --- */
+  /* OUTER STRIPE WRAPPER – FULL VIEWPORT WIDTH, TRANSPARENT */
   .ai-retro-header__stripe-section-{{ ai_gen_id }} {
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     height: {{ block.settings.stripe_height }}px;
+    position: relative;
+    overflow: visible;
+    background: transparent;
+  }
+
+  /* INNER STRIPE AREA – ONLY INSIDE "CONTAINER" AREA */
+  .ai-retro-header__stripe-inner-{{ ai_gen_id }} {
+    height: 100%;
+    max-width: var(--page-width, 1200px);
+    margin: 0 auto;
     position: relative;
     overflow: hidden;
     background-color: {{ block.settings.stripe_background }};
@@ -57,14 +68,11 @@
     padding: 0 {{ block.settings.nav_padding }}px;
   }
 
-  /* --- UPDATED BADGE POSITIONING --- */
+  /* BADGE – SAME LOGIC, CENTERED, OVERLAPPING STRIPES + NAV */
   .ai-retro-header__badge-{{ ai_gen_id }} {
     position: absolute;
     left: 50%;
-    top: calc(
-      {{ block.settings.stripe_height }}px
-      - {{ block.settings.badge_overlap }}px
-    );
+    top: calc({{ block.settings.stripe_height }}px - {{ block.settings.badge_overlap }}px);
     transform: translateX(-50%);
     z-index: 10;
     display: flex;
@@ -140,6 +148,10 @@
       height: {{ block.settings.stripe_height | times: 0.7 }}px;
     }
 
+    .ai-retro-header__stripe-inner-{{ ai_gen_id }} {
+      height: 100%;
+    }
+
     .ai-retro-header__nav-section-{{ ai_gen_id }} {
       height: {{ block.settings.nav_height | times: 0.8 }}px;
       padding: 0 {{ block.settings.nav_padding | times: 0.5 }}px;
@@ -181,10 +193,12 @@
 
 <retro-header-{{ ai_gen_id }} class="ai-retro-header-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
   <div class="ai-retro-header__stripe-section-{{ ai_gen_id }}">
-    {% if block.settings.show_edge_bars %}
-      <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--left-{{ ai_gen_id }}"></div>
-      <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--right-{{ ai_gen_id }}"></div>
-    {% endif %}
+    <div class="ai-retro-header__stripe-inner-{{ ai_gen_id }}">
+      {% if block.settings.show_edge_bars %}
+        <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--left-{{ ai_gen_id }}"></div>
+        <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--right-{{ ai_gen_id }}"></div>
+      {% endif %}
+    </div>
   </div>
 
   <div class="ai-retro-header__badge-{{ ai_gen_id }}">
@@ -249,7 +263,7 @@
 </script>
 
 {% schema %}
-  {
+{
   "name": "Retro header",
   "settings": [
     {
