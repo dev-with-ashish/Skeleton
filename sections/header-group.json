@@ -64,6 +64,7 @@
       "block_order": [
         "ai_gen_block_ad61d97_y9aqkx"
       ],
+      "disabled": true,
       "name": "t:general.custom_section",
       "settings": {
         "theme": "dark",
