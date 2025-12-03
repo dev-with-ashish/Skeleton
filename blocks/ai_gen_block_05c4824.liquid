@@ -1,73 +1,22 @@
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
 {% style %}
+  .ai-retro-header-{{ ai_gen_id }} {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
 
-/* ================================================
-   GLOBAL PROTECTION — ENSURE TRANSPARENCY WORKS
-   (Overrides theme wrappers that block transparency)
-   ================================================ */
-
-:root {
-  --retro-max-width: 1200px; /* adjust if Shopify container width differs */
-}
-
-#shopify-section-{{ section.id }},
-.ai-retro-header-{{ ai_gen_id }},
-.ai-retro-header__stripe-section-{{ ai_gen_id }},
-.ai-retro-header__stripe-outer-{{ ai_gen_id }} {
-  background: transparent !important;
-  overflow: visible !important;
-}
-
-/* Remove unwanted padding/margin pushing the header down */
-body,
-.header-wrapper,
-.site-header,
-.shopify-section-header,
-#shopify-section-header {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
-}
-
-/* ================================================
-   MAIN HEADER WRAPPER
-   ================================================ */
-.ai-retro-header-{{ ai_gen_id }} {
-  width: 100%;
-  position: relative;
-  overflow: visible;
-}
-
-
-
-/* ================================================
-   FULL-BLEED STRIPES (OUTER WRAPPER)
-   ================================================ */
-.ai-retro-header__stripe-section-{{ ai_gen_id }} {
-  width: 100vw;
-  height: {{ block.settings.stripe_height }}px;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 0;
-  background: transparent !important;
-}
-
-/* ================================================
-   INNER STRIPES (CONTAINER WIDTH ONLY)
-   ================================================ */
-.ai-retro-header__stripe-inner-{{ ai_gen_id }} {
-  height: 100%;
-  width: 100%;
-  max-width: var(--retro-max-width);
-  background-color: {{ block.settings.stripe_background }};
-  background-image: repeating-linear-gradient(
+  /* --- FULL-WIDTH STRIPE SECTION (UPDATED) --- */
+  .ai-retro-header__stripe-section-{{ ai_gen_id }} {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    height: {{ block.settings.stripe_height }}px;
+    position: relative;
+    overflow: hidden;
+    background-color: {{ block.settings.stripe_background }};
+    background-image: repeating-linear-gradient(
       -45deg,
       {{ block.settings.stripe_color_1 }},
       {{ block.settings.stripe_color_1 }} {{ block.settings.stripe_width }}px,
@@ -77,186 +26,167 @@ body,
       {{ block.settings.stripe_color_2 }} calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px),
       transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px),
       transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px * 2)
-  );
-  position: relative;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* Edge bars remain inside container width */
-.ai-retro-header__edge-bar-{{ ai_gen_id }} {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: {{ block.settings.edge_bar_width }}px;
-  background-color: {{ block.settings.edge_bar_color }};
-  z-index: 5;
-}
-
-.ai-retro-header__edge-bar--left-{{ ai_gen_id }} { left: 0; }
-.ai-retro-header__edge-bar--right-{{ ai_gen_id }} { right: 0; }
-
-
-
-/* ================================================
-   BADGE
-   ================================================ */
-.ai-retro-header__badge-{{ ai_gen_id }} {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: calc({{ block.settings.stripe_height }}px - {{ block.settings.badge_overlap }}px);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.ai-retro-header__badge-top-{{ ai_gen_id }} {
-  width: {{ block.settings.badge_width }}px;
-  height: {{ block.settings.badge_top_height }}px;
-  background-color: {{ block.settings.badge_color }};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: {{ block.settings.badge_text_spacing }}px;
-  padding: {{ block.settings.badge_padding }}px;
-}
-
-.ai-retro-header__badge-bottom-{{ ai_gen_id }} {
-  width: {{ block.settings.badge_width }}px;
-  height: calc({{ block.settings.badge_width }}px / 2);
-  background-color: {{ block.settings.badge_color }};
-  border-radius: 0 0 {{ block.settings.badge_width }}px {{ block.settings.badge_width }}px;
-}
-
-.ai-retro-header__badge-line-{{ ai_gen_id }} {
-  width: {{ block.settings.badge_line_width }}px;
-  height: {{ block.settings.badge_line_thickness }}px;
-  background-color: {{ block.settings.badge_text_color }};
-}
-
-.ai-retro-header__badge-text-{{ ai_gen_id }} {
-  color: {{ block.settings.badge_text_color }};
-  font-size: {{ block.settings.badge_text_size }}px;
-  font-weight: {{ block.settings.badge_text_weight }};
-  letter-spacing: {{ block.settings.badge_letter_spacing }}px;
-  text-transform: uppercase;
-  margin: 0;
-  line-height: 1;
-}
-
-
-/* ================================================
-   NAVIGATION BAR
-   ================================================ */
-.ai-retro-header__nav-section-{{ ai_gen_id }} {
-  width: 100%;
-  height: {{ block.settings.nav_height }}px;
-  background-color: {{ block.settings.nav_background }};
-  position: relative;
-  z-index: 9;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 {{ block.settings.nav_padding }}px;
-}
-
-.ai-retro-header__menu-icon-{{ ai_gen_id }},
-.ai-retro-header__cart-icon-{{ ai_gen_id }} {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: {{ block.settings.icon_size }}px;
-  height: {{ block.settings.icon_size }}px;
-}
-
-.ai-retro-header__menu-icon-{{ ai_gen_id }} svg,
-.ai-retro-header__cart-icon-{{ ai_gen_id }} svg {
-  width: 100%;
-  height: 100%;
-  stroke: {{ block.settings.icon_color }};
-  fill: none;
-  stroke-width: {{ block.settings.icon_stroke_width }};
-}
-
-.ai-retro-header__hamburger-line-{{ ai_gen_id }} {
-  stroke: {{ block.settings.icon_color }};
-  stroke-width: {{ block.settings.icon_stroke_width }};
-  stroke-linecap: round;
-}
-
-
-/* ================================================
-   MOBILE RESPONSIVE
-   ================================================ */
-@media screen and (max-width: 749px) {
-
-  .ai-retro-header__stripe-section-{{ ai_gen_id }} {
-    height: {{ block.settings.stripe_height | times: 0.7 }}px;
-  }
-
-  .ai-retro-header__nav-section-{{ ai_gen_id }} {
-    height: {{ block.settings.nav_height | times: 0.8 }}px;
-    padding: 0 {{ block.settings.nav_padding | times: 0.5 }}px;
-  }
-
-  .ai-retro-header__badge-{{ ai_gen_id }} {
-    top: calc(
-      {{ block.settings.stripe_height | times: 0.7 }}px
-      - {{ block.settings.badge_overlap | times: 0.7 }}px
     );
   }
 
+  .ai-retro-header__edge-bar-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: {{ block.settings.edge_bar_width }}px;
+    background-color: {{ block.settings.edge_bar_color }};
+    z-index: 1;
+  }
+
+  .ai-retro-header__edge-bar--left-{{ ai_gen_id }} {
+    left: 0;
+  }
+
+  .ai-retro-header__edge-bar--right-{{ ai_gen_id }} {
+    right: 0;
+  }
+
+  .ai-retro-header__nav-section-{{ ai_gen_id }} {
+    width: 100%;
+    height: {{ block.settings.nav_height }}px;
+    background-color: {{ block.settings.nav_background }};
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 {{ block.settings.nav_padding }}px;
+  }
+
+  /* --- UPDATED BADGE POSITIONING --- */
+  .ai-retro-header__badge-{{ ai_gen_id }} {
+    position: absolute;
+    left: 50%;
+    top: calc(
+      {{ block.settings.stripe_height }}px
+      - {{ block.settings.badge_overlap }}px
+    );
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .ai-retro-header__badge-top-{{ ai_gen_id }} {
-    width: {{ block.settings.badge_width | times: 0.8 }}px;
-    height: {{ block.settings.badge_top_height | times: 0.8 }}px;
+    width: {{ block.settings.badge_width }}px;
+    height: {{ block.settings.badge_top_height }}px;
+    background-color: {{ block.settings.badge_color }};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: {{ block.settings.badge_text_spacing }}px;
+    padding: {{ block.settings.badge_padding }}px;
   }
+
   .ai-retro-header__badge-bottom-{{ ai_gen_id }} {
-    width: {{ block.settings.badge_width | times: 0.8 }}px;
-    height: calc({{ block.settings.badge_width | times: 0.8 }}px / 2);
+    width: {{ block.settings.badge_width }}px;
+    height: calc({{ block.settings.badge_width }}px / 2);
+    background-color: {{ block.settings.badge_color }};
+    border-radius: 0 0 {{ block.settings.badge_width }}px {{ block.settings.badge_width }}px;
   }
-  .ai-retro-header__badge-text-{{ ai_gen_id }} {
-    font-size: {{ block.settings.badge_text_size | times: 0.8 }}px;
-  }
+
   .ai-retro-header__badge-line-{{ ai_gen_id }} {
-    width: {{ block.settings.badge_line_width | times: 0.8 }}px;
+    width: {{ block.settings.badge_line_width }}px;
+    height: {{ block.settings.badge_line_thickness }}px;
+    background-color: {{ block.settings.badge_text_color }};
+  }
+
+  .ai-retro-header__badge-text-{{ ai_gen_id }} {
+    color: {{ block.settings.badge_text_color }};
+    font-size: {{ block.settings.badge_text_size }}px;
+    font-weight: {{ block.settings.badge_text_weight }};
+    letter-spacing: {{ block.settings.badge_letter_spacing }}px;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1;
   }
 
   .ai-retro-header__menu-icon-{{ ai_gen_id }},
   .ai-retro-header__cart-icon-{{ ai_gen_id }} {
-    width: {{ block.settings.icon_size | times: 0.8 }}px;
-    height: {{ block.settings.icon_size | times: 0.8 }}px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
   }
 
-}
+  .ai-retro-header__menu-icon-{{ ai_gen_id }} svg,
+  .ai-retro-header__cart-icon-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    stroke: {{ block.settings.icon_color }};
+    fill: none;
+    stroke-width: {{ block.settings.icon_stroke_width }};
+  }
 
+  .ai-retro-header__hamburger-line-{{ ai_gen_id }} {
+    stroke: {{ block.settings.icon_color }};
+    stroke-width: {{ block.settings.icon_stroke_width }};
+    stroke-linecap: round;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-retro-header__stripe-section-{{ ai_gen_id }} {
+      height: {{ block.settings.stripe_height | times: 0.7 }}px;
+    }
+
+    .ai-retro-header__nav-section-{{ ai_gen_id }} {
+      height: {{ block.settings.nav_height | times: 0.8 }}px;
+      padding: 0 {{ block.settings.nav_padding | times: 0.5 }}px;
+    }
+
+    .ai-retro-header__badge-{{ ai_gen_id }} {
+      top: calc(
+        {{ block.settings.stripe_height | times: 0.7 }}px
+        - {{ block.settings.badge_overlap | times: 0.7 }}px
+      );
+    }
+
+    .ai-retro-header__badge-top-{{ ai_gen_id }} {
+      width: {{ block.settings.badge_width | times: 0.8 }}px;
+      height: {{ block.settings.badge_top_height | times: 0.8 }}px;
+    }
+
+    .ai-retro-header__badge-bottom-{{ ai_gen_id }} {
+      width: {{ block.settings.badge_width | times: 0.8 }}px;
+      height: calc({{ block.settings.badge_width | times: 0.8 }}px / 2);
+      border-radius: 0 0 {{ block.settings.badge_width | times: 0.8 }}px {{ block.settings.badge_width | times: 0.8 }}px;
+    }
+
+    .ai-retro-header__badge-text-{{ ai_gen_id }} {
+      font-size: {{ block.settings.badge_text_size | times: 0.8 }}px;
+    }
+
+    .ai-retro-header__badge-line-{{ ai_gen_id }} {
+      width: {{ block.settings.badge_line_width | times: 0.8 }}px;
+    }
+
+    .ai-retro-header__menu-icon-{{ ai_gen_id }},
+    .ai-retro-header__cart-icon-{{ ai_gen_id }} {
+      width: {{ block.settings.icon_size | times: 0.8 }}px;
+      height: {{ block.settings.icon_size | times: 0.8 }}px;
+    }
+  }
 {% endstyle %}
 
-
-
-<!-- ================================================
-     HTML MARKUP
-     ================================================ -->
-
 <retro-header-{{ ai_gen_id }} class="ai-retro-header-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
-
-  <!-- Full-bleed stripes -->
   <div class="ai-retro-header__stripe-section-{{ ai_gen_id }}">
-    <div class="ai-retro-header__stripe-inner-{{ ai_gen_id }}">
-      {% if block.settings.show_edge_bars %}
-        <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--left-{{ ai_gen_id }}"></div>
-        <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--right-{{ ai_gen_id }}"></div>
-      {% endif %}
-    </div>
+    {% if block.settings.show_edge_bars %}
+      <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--left-{{ ai_gen_id }}"></div>
+      <div class="ai-retro-header__edge-bar-{{ ai_gen_id }} ai-retro-header__edge-bar--right-{{ ai_gen_id }}"></div>
+    {% endif %}
   </div>
 
-  <!-- Badge -->
   <div class="ai-retro-header__badge-{{ ai_gen_id }}">
     <div class="ai-retro-header__badge-top-{{ ai_gen_id }}">
       <div class="ai-retro-header__badge-line-{{ ai_gen_id }}"></div>
@@ -266,10 +196,9 @@ body,
     <div class="ai-retro-header__badge-bottom-{{ ai_gen_id }}"></div>
   </div>
 
-  <!-- Navigation -->
   <div class="ai-retro-header__nav-section-{{ ai_gen_id }}">
     <button class="ai-retro-header__menu-icon-{{ ai_gen_id }}" aria-label="Open menu">
-      <svg viewBox="0 0 24 24">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <line class="ai-retro-header__hamburger-line-{{ ai_gen_id }}" x1="3" y1="6" x2="21" y2="6"></line>
         <line class="ai-retro-header__hamburger-line-{{ ai_gen_id }}" x1="3" y1="12" x2="21" y2="12"></line>
         <line class="ai-retro-header__hamburger-line-{{ ai_gen_id }}" x1="3" y1="18" x2="21" y2="18"></line>
@@ -277,32 +206,44 @@ body,
     </button>
 
     <a href="{{ routes.cart_url }}" class="ai-retro-header__cart-icon-{{ ai_gen_id }}" aria-label="View cart">
-      <svg viewBox="0 0 24 24">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
         <line x1="3" y1="6" x2="21" y2="6"></line>
         <path d="M16 10a4 4 0 0 1-8 0"></path>
       </svg>
     </a>
   </div>
-
 </retro-header-{{ ai_gen_id }}>
-
 
 <script>
   (function() {
     class RetroHeader{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
       connectedCallback() {
         this.menuButton = this.querySelector('.ai-retro-header__menu-icon-{{ ai_gen_id }}');
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
         if (this.menuButton) {
           this.menuButton.addEventListener('click', () => {
-            this.dispatchEvent(new CustomEvent('retro-header-menu-click', {
-              bubbles: true,
-              detail: { headerId: '{{ ai_gen_id }}' }
-            }));
+            this.handleMenuClick();
           });
         }
       }
+
+      handleMenuClick() {
+        const event = new CustomEvent('retro-header-menu-click', {
+          bubbles: true,
+          detail: { headerId: '{{ ai_gen_id }}' }
+        });
+        this.dispatchEvent(event);
+      }
     }
+
     customElements.define('retro-header-{{ ai_gen_id }}', RetroHeader{{ ai_gen_id }});
   })();
 </script>
