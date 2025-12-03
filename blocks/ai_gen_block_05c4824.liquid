@@ -4,7 +4,8 @@
   .ai-retro-header-{{ ai_gen_id }} {
     width: 100%;
     position: relative;
-    overflow: hidden;
+    /* IMPORTANT: let stripes overflow outside the block top */
+    overflow: visible;
   }
 
   /* --- FULL-WIDTH STRIPE SECTION (UPDATED) --- */
@@ -14,7 +15,23 @@
     margin-right: calc(50% - 50vw);
     height: {{ block.settings.stripe_height }}px;
     position: relative;
-    overflow: hidden;
+    /* allow pseudo-element to go outside the top */
+    overflow: visible;
+    /* base background removed; moved to ::before so it can extend above */
+    background: transparent;
+  }
+
+  /* pseudo-element draws the stripes and extends ABOVE the block */
+  .ai-retro-header__stripe-section-{{ ai_gen_id }}::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    /* move one stripe-height above the block so it "touches" the outer section top */
+    top: calc(-1 * {{ block.settings.stripe_height }}px);
+    width: 100vw;
+    /* total height = 2x stripe height (half above, half inside original area) */
+    height: calc({{ block.settings.stripe_height }}px * 2);
     background-color: {{ block.settings.stripe_background }};
     background-image: repeating-linear-gradient(
       -45deg,
@@ -27,6 +44,8 @@
       transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px),
       transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px * 2)
     );
+    pointer-events: none;
+    z-index: 0;
   }
 
   .ai-retro-header__edge-bar-{{ ai_gen_id }} {
@@ -55,6 +74,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 {{ block.settings.nav_padding }}px;
+    z-index: 2;
   }
 
   /* --- UPDATED BADGE POSITIONING --- */
@@ -138,6 +158,12 @@
   @media screen and (max-width: 749px) {
     .ai-retro-header__stripe-section-{{ ai_gen_id }} {
       height: {{ block.settings.stripe_height | times: 0.7 }}px;
+    }
+
+    /* keep the top overflow behavior consistent on mobile */
+    .ai-retro-header__stripe-section-{{ ai_gen_id }}::before {
+      top: calc(-1 * {{ block.settings.stripe_height | times: 0.7 }}px);
+      height: calc({{ block.settings.stripe_height | times: 0.7 }}px * 2);
     }
 
     .ai-retro-header__nav-section-{{ ai_gen_id }} {
