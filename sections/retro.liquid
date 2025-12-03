@@ -1,0 +1,532 @@
+{% assign section_id = section.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .retro-header-{{ section_id }} {
+    width: 100%;
+    position: relative;
+    overflow: visible;
+  }
+
+  /* --- FULL-WIDTH STRIPE SECTION --- */
+  .retro-header__stripes-wrap-{{ section_id }} {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    height: {{ section.settings.stripe_height }}px;
+    position: relative;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .retro-header__stripes-wrap-{{ section_id }}::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(-1 * {{ section.settings.stripe_height }}px);
+    width: 100vw;
+    height: calc({{ section.settings.stripe_height }}px * 2);
+    background-color: {{ section.settings.stripe_background }};
+    background-image: repeating-linear-gradient(
+      -45deg,
+      {{ section.settings.stripe_color_1 }},
+      {{ section.settings.stripe_color_1 }} {{ section.settings.stripe_width }}px,
+      transparent {{ section.settings.stripe_width }}px,
+      transparent calc({{ section.settings.stripe_width }}px + {{ section.settings.stripe_spacing }}px),
+      {{ section.settings.stripe_color_2 }} calc({{ section.settings.stripe_width }}px + {{ section.settings.stripe_spacing }}px),
+      {{ section.settings.stripe_color_2 }} calc({{ section.settings.stripe_width }}px * 2 + {{ section.settings.stripe_spacing }}px),
+      transparent calc({{ section.settings.stripe_width }}px * 2 + {{ section.settings.stripe_spacing }}px),
+      transparent calc({{ section.settings.stripe_width }}px * 2 + {{ section.settings.stripe_spacing }}px * 2)
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Edge bars */
+  .retro-header__edge-bar-{{ section_id }} {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: {{ section.settings.edge_bar_width }}px;
+    background-color: {{ section.settings.edge_bar_color }};
+    z-index: 1;
+  }
+  .retro-header__edge-bar--left-{{ section_id }} {
+    left: 0;
+  }
+  .retro-header__edge-bar--right-{{ section_id }} {
+    right: 0;
+  }
+
+  /* --- CENTER BADGE --- */
+  .retro-header__badge-{{ section_id }} {
+    position: absolute;
+    left: 50%;
+    top: calc(
+      {{ section.settings.stripe_height }}px
+      - {{ section.settings.badge_overlap }}px
+    );
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .retro-header__badge-top-{{ section_id }} {
+    width: {{ section.settings.badge_width }}px;
+    height: {{ section.settings.badge_top_height }}px;
+    background-color: {{ section.settings.badge_color }};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: {{ section.settings.badge_text_spacing }}px;
+    padding: {{ section.settings.badge_padding }}px;
+  }
+
+  .retro-header__badge-bottom-{{ section_id }} {
+    width: {{ section.settings.badge_width }}px;
+    height: calc({{ section.settings.badge_width }}px / 2);
+    background-color: {{ section.settings.badge_color }};
+    border-radius: 0 0 {{ section.settings.badge_width }}px {{ section.settings.badge_width }}px;
+  }
+
+  .retro-header__badge-line-{{ section_id }} {
+    width: {{ section.settings.badge_line_width }}px;
+    height: {{ section.settings.badge_line_thickness }}px;
+    background-color: {{ section.settings.badge_text_color }};
+  }
+
+  .retro-header__badge-text-{{ section_id }} {
+    color: {{ section.settings.badge_text_color }};
+    font-size: {{ section.settings.badge_text_size }}px;
+    font-weight: {{ section.settings.badge_text_weight }};
+    letter-spacing: {{ section.settings.badge_letter_spacing }}px;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1;
+    text-align: center;
+  }
+
+  /* --- NAV BAR --- */
+  .retro-header__nav-{{ section_id }} {
+    width: 100%;
+    height: {{ section.settings.nav_height }}px;
+    background-color: {{ section.settings.nav_background }};
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 {{ section.settings.nav_padding }}px;
+    z-index: 2;
+  }
+
+  .retro-header__icon-btn-{{ section_id }} {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+  }
+
+  .retro-header__icon-btn-{{ section_id }} svg {
+    width: 100%;
+    height: 100%;
+    stroke: {{ section.settings.icon_color }};
+    fill: none;
+    stroke-width: {{ section.settings.icon_stroke_width }};
+  }
+
+  .retro-header__hamburger-line-{{ section_id }} {
+    stroke: {{ section.settings.icon_color }};
+    stroke-width: {{ section.settings.icon_stroke_width }};
+    stroke-linecap: round;
+  }
+
+  @media screen and (max-width: 749px) {
+    .retro-header__stripes-wrap-{{ section_id }} {
+      height: {{ section.settings.stripe_height | times: 0.7 }}px;
+    }
+
+    .retro-header__stripes-wrap-{{ section_id }}::before {
+      top: calc(-1 * {{ section.settings.stripe_height | times: 0.7 }}px);
+      height: calc({{ section.settings.stripe_height | times: 0.7 }}px * 2);
+    }
+
+    .retro-header__nav-{{ section_id }} {
+      height: {{ section.settings.nav_height | times: 0.8 }}px;
+      padding: 0 {{ section.settings.nav_padding | times: 0.5 }}px;
+    }
+
+    .retro-header__badge-{{ section_id }} {
+      top: calc(
+        {{ section.settings.stripe_height | times: 0.7 }}px
+        - {{ section.settings.badge_overlap | times: 0.7 }}px
+      );
+    }
+
+    .retro-header__badge-top-{{ section_id }} {
+      width: {{ section.settings.badge_width | times: 0.8 }}px;
+      height: {{ section.settings.badge_top_height | times: 0.8 }}px;
+    }
+
+    .retro-header__badge-bottom-{{ section_id }} {
+      width: {{ section.settings.badge_width | times: 0.8 }}px;
+      height: calc({{ section.settings.badge_width | times: 0.8 }}px / 2);
+      border-radius: 0 0 {{ section.settings.badge_width | times: 0.8 }}px {{ section.settings.badge_width | times: 0.8 }}px;
+    }
+
+    .retro-header__badge-text-{{ section_id }} {
+      font-size: {{ section.settings.badge_text_size | times: 0.8 }}px;
+    }
+
+    .retro-header__badge-line-{{ section_id }} {
+      width: {{ section.settings.badge_line_width | times: 0.8 }}px;
+    }
+
+    .retro-header__icon-btn-{{ section_id }} {
+      width: {{ section.settings.icon_size | times: 0.8 }}px;
+      height: {{ section.settings.icon_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<section class="retro-header-{{ section_id }}" {{ section.shopify_attributes }}>
+  <div class="retro-header__stripes-wrap-{{ section_id }}">
+    {% if section.settings.show_edge_bars %}
+      <div class="retro-header__edge-bar-{{ section_id }} retro-header__edge-bar--left-{{ section_id }}"></div>
+      <div class="retro-header__edge-bar-{{ section_id }} retro-header__edge-bar--right-{{ section_id }}"></div>
+    {% endif %}
+  </div>
+
+  <div class="retro-header__badge-{{ section_id }}">
+    <div class="retro-header__badge-top-{{ section_id }}">
+      <div class="retro-header__badge-line-{{ section_id }}"></div>
+      <h1 class="retro-header__badge-text-{{ section_id }}">{{ section.settings.badge_text }}</h1>
+      <div class="retro-header__badge-line-{{ section_id }}"></div>
+    </div>
+    <div class="retro-header__badge-bottom-{{ section_id }}"></div>
+  </div>
+
+  <div class="retro-header__nav-{{ section_id }}">
+    <button
+      class="retro-header__icon-btn-{{ section_id }} retro-header__icon-btn--menu-{{ section_id }}"
+      type="button"
+      aria-label="Open menu"
+      data-retro-header-menu
+    >
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <line class="retro-header__hamburger-line-{{ section_id }}" x1="3" y1="6" x2="21" y2="6"></line>
+        <line class="retro-header__hamburger-line-{{ section_id }}" x1="3" y1="12" x2="21" y2="12"></line>
+        <line class="retro-header__hamburger-line-{{ section_id }}" x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <a
+      href="{{ routes.cart_url }}"
+      class="retro-header__icon-btn-{{ section_id }} retro-header__icon-btn--cart-{{ section_id }}"
+      aria-label="View cart"
+    >
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var root = document.querySelector('.retro-header-{{ section_id }}');
+    if (!root) return;
+
+    var menuButton = root.querySelector('[data-retro-header-menu]');
+    if (!menuButton) return;
+
+    menuButton.addEventListener('click', function() {
+      var event = new CustomEvent('retro-header-menu-click', {
+        bubbles: true,
+        detail: { headerId: '{{ section_id }}' }
+      });
+      root.dispatchEvent(event);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Retro header (alt)",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Diagonal stripes"
+    },
+    {
+      "type": "range",
+      "id": "stripe_height",
+      "min": 80,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Stripe section height",
+      "default": 150
+    },
+    {
+      "type": "color",
+      "id": "stripe_background",
+      "label": "Stripe background",
+      "default": "#F6F0E1"
+    },
+    {
+      "type": "range",
+      "id": "stripe_width",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Stripe width",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "stripe_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Space between stripes",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "stripe_color_1",
+      "label": "Stripe color 1",
+      "default": "#DC143C"
+    },
+    {
+      "type": "color",
+      "id": "stripe_color_2",
+      "label": "Stripe color 2",
+      "default": "#1E90FF"
+    },
+    {
+      "type": "header",
+      "content": "Edge bars"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_edge_bars",
+      "label": "Show edge bars",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "edge_bar_width",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Edge bar width",
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "edge_bar_color",
+      "label": "Edge bar color",
+      "default": "#DAA520"
+    },
+    {
+      "type": "header",
+      "content": "Center badge"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "TRAM"
+    },
+    {
+      "type": "range",
+      "id": "badge_width",
+      "min": 80,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Badge width",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "badge_top_height",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Badge top height",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "badge_overlap",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Badge overlap",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge background",
+      "default": "#8B1E1E"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "badge_text_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Text size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "badge_text_weight",
+      "min": 400,
+      "max": 900,
+      "step": 100,
+      "label": "Text weight",
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "badge_letter_spacing",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "badge_padding",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Badge padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "badge_text_spacing",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Line spacing",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "badge_line_width",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Line width",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "badge_line_thickness",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Line thickness",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Navigation bar"
+    },
+    {
+      "type": "range",
+      "id": "nav_height",
+      "min": 50,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Navigation height",
+      "default": 70
+    },
+    {
+      "type": "color",
+      "id": "nav_background",
+      "label": "Navigation background",
+      "default": "#F6F0E1"
+    },
+    {
+      "type": "range",
+      "id": "nav_padding",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Navigation padding",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Navigation icons"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 28
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#8B1E1E"
+    },
+    {
+      "type": "range",
+      "id": "icon_stroke_width",
+      "min": 1,
+      "max": 4,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Icon stroke width",
+      "default": 2
+    }
+  ],
+  "presets": [
+    {
+      "name": "Retro header (alt)"
+    }
+  ]
+}
+{% endschema %}
