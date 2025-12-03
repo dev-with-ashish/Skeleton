@@ -4,7 +4,7 @@
   .ai-retro-header-{{ ai_gen_id }} {
     width: 100%;
     position: relative;
-    /* allow the top stripes to overflow outside the section */
+    /* IMPORTANT: let stripes overflow outside the block top */
     overflow: visible;
   }
 
@@ -15,9 +15,23 @@
     margin-right: calc(50% - 50vw);
     height: {{ block.settings.stripe_height }}px;
     position: relative;
+    /* allow pseudo-element to go outside the top */
     overflow: visible;
+    /* base background removed; moved to ::before so it can extend above */
+    background: transparent;
+  }
 
-    /* INSIDE AREA: solid background + stripes (same as your original) */
+  /* pseudo-element draws the stripes and extends ABOVE the block */
+  .ai-retro-header__stripe-section-{{ ai_gen_id }}::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    /* move one stripe-height above the block so it "touches" the outer section top */
+    top: calc(-1 * {{ block.settings.stripe_height }}px);
+    width: 100vw;
+    /* total height = 2x stripe height (half above, half inside original area) */
+    height: calc({{ block.settings.stripe_height }}px * 2);
     background-color: {{ block.settings.stripe_background }};
     background-image: repeating-linear-gradient(
       -45deg,
@@ -30,34 +44,8 @@
       transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px),
       transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px * 2)
     );
-    z-index: 0;
-  }
-
-  /* OUTSIDE (TOP OVERFLOW): ONLY STRIPES, TRANSPARENT BACKGROUND */
-  .ai-retro-header__stripe-section-{{ ai_gen_id }}::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: calc(-1 * {{ block.settings.stripe_height }}px);
-    width: 100vw;
-    height: {{ block.settings.stripe_height }}px;
-
-    /* No background-color here → transparent outside area */
-    background-image: repeating-linear-gradient(
-      -45deg,
-      {{ block.settings.stripe_color_1 }},
-      {{ block.settings.stripe_color_1 }} {{ block.settings.stripe_width }}px,
-      transparent {{ block.settings.stripe_width }}px,
-      transparent calc({{ block.settings.stripe_width }}px + {{ block.settings.stripe_spacing }}px),
-      {{ block.settings.stripe_color_2 }} calc({{ block.settings.stripe_width }}px + {{ block.settings.stripe_spacing }}px),
-      {{ block.settings.stripe_color_2 }} calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px),
-      transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px),
-      transparent calc({{ block.settings.stripe_width }}px * 2 + {{ block.settings.stripe_spacing }}px * 2)
-    );
-
     pointer-events: none;
-    z-index: -1; /* sit behind nav/badge but still visible */
+    z-index: 0;
   }
 
   .ai-retro-header__edge-bar-{{ ai_gen_id }} {
@@ -89,7 +77,7 @@
     z-index: 2;
   }
 
-  /* --- BADGE POSITIONING --- */
+  /* --- UPDATED BADGE POSITIONING --- */
   .ai-retro-header__badge-{{ ai_gen_id }} {
     position: absolute;
     left: 50%;
@@ -172,9 +160,10 @@
       height: {{ block.settings.stripe_height | times: 0.7 }}px;
     }
 
+    /* keep the top overflow behavior consistent on mobile */
     .ai-retro-header__stripe-section-{{ ai_gen_id }}::before {
       top: calc(-1 * {{ block.settings.stripe_height | times: 0.7 }}px);
-      height: {{ block.settings.stripe_height | times: 0.7 }}px;
+      height: calc({{ block.settings.stripe_height | times: 0.7 }}px * 2);
     }
 
     .ai-retro-header__nav-section-{{ ai_gen_id }} {
@@ -281,7 +270,7 @@
       }
     }
 
-    customElements.define('retro-header-{{ ai_gen_id }}, RetroHeader{{ ai_gen_id }});
+    customElements.define('retro-header-{{ ai_gen_id }}', RetroHeader{{ ai_gen_id }});
   })();
 </script>
 
