@@ -11,55 +11,6 @@
   "sections": {
     "custom_section_CfNaBt": {
       "type": "custom-section",
-      "blocks": {
-        "ai_gen_block_05c4824_YKU9N4": {
-          "type": "ai_gen_block_05c4824",
-          "name": "Retro header",
-          "settings": {
-            "stripe_height": 150,
-            "stripe_background": "#F6F0E1",
-            "stripe_width": 16,
-            "stripe_spacing": 8,
-            "stripe_color_1": "#DC143C",
-            "stripe_color_2": "#1E90FF",
-            "show_edge_bars": true,
-            "edge_bar_width": 6,
-            "edge_bar_color": "#DAA520",
-            "badge_text": "TRAM",
-            "badge_width": 120,
-            "badge_top_height": 70,
-            "badge_overlap": 40,
-            "badge_color": "#8B1E1E",
-            "badge_text_color": "#FFFFFF",
-            "badge_text_size": 28,
-            "badge_text_weight": 700,
-            "badge_letter_spacing": 2,
-            "badge_padding": 12,
-            "badge_text_spacing": 8,
-            "badge_line_width": 60,
-            "badge_line_thickness": 2,
-            "nav_height": 70,
-            "nav_background": "#F6F0E1",
-            "nav_padding": 30,
-            "icon_size": 28,
-            "icon_color": "#8B1E1E",
-            "icon_stroke_width": 2
-          },
-          "blocks": {}
-        },
-        "ai_gen_block_0d98599_HdRXEM": {
-          "type": "ai_gen_block_0d98599",
-          "settings": {
-            "image": "shopify://shop_images/TRAM_WEBSITE_HOMEPAGE.png",
-            "background_color": "#f4f4f4"
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_05c4824_YKU9N4",
-        "ai_gen_block_0d98599_HdRXEM"
-      ],
       "name": "t:general.custom_section",
       "settings": {
         "theme": "dark",
