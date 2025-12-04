@@ -94,7 +94,6 @@
     border-radius: 999px;
     text-decoration: none;
     cursor: pointer;
-    /* background + color come inline via style attribute from settings */
   }
 
   .ai-full-width-responsive__nav-icon-{{ ai_gen_id }} svg,
@@ -110,7 +109,8 @@
     {% if block.settings.image %}
       {% assign aspect_ratio = block.settings.image.height | times: 100.0 | divided_by: block.settings.image.width %}
       <div 
-        class="ai-full-width-responsive__image-wrapper-{{ ai_gen_id }}"
+        class="ai-full-width-responsive__image-wrapper-{{ ai_gen_id }}
+"
         style="--ai-image-aspect-ratio-{{ ai_gen_id }}: {{ aspect_ratio }}%;"
       >
         <img
@@ -150,7 +150,6 @@
         "
         aria-label="Navigation"
       >
-        <!-- Simple hamburger icon -->
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <rect x="3" y="6" width="18" height="2" fill="currentColor" />
           <rect x="3" y="11" width="18" height="2" fill="currentColor" />
@@ -176,7 +175,6 @@
         "
         aria-label="Cart"
       >
-        <!-- Simple cart icon -->
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
             fill="currentColor"
@@ -256,21 +254,15 @@
       "label": "Navigation icon link"
     },
     {
-      "type": "range",
+      "type": "number",
       "id": "nav_icon_top",
       "label": "Nav icon offset from top (vh)",
-      "min": 0,
-      "max": 100,
-      "step": 1,
       "default": 4
     },
     {
-      "type": "range",
+      "type": "number",
       "id": "nav_icon_left",
       "label": "Nav icon offset from left (vh)",
-      "min": 0,
-      "max": 100,
-      "step": 1,
       "default": 4
     },
 
@@ -290,21 +282,15 @@
       "label": "Cart icon link"
     },
     {
-      "type": "range",
+      "type": "number",
       "id": "cart_icon_top",
       "label": "Cart icon offset from top (vh)",
-      "min": 0,
-      "max": 100,
-      "step": 1,
       "default": 4
     },
     {
-      "type": "range",
+      "type": "number",
       "id": "cart_icon_right",
       "label": "Cart icon offset from right (vh)",
-      "min": 0,
-      "max": 100,
-      "step": 1,
       "default": 4
     }
   ],
