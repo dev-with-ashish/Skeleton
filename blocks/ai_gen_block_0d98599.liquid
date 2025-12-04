@@ -82,6 +82,27 @@
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 4px;
   }
+
+  /* --- ICONS OVERLAY --- */
+  .ai-full-width-responsive__nav-icon-{{ ai_gen_id }},
+  .ai-full-width-responsive__cart-icon-{{ ai_gen_id }} {
+    position: absolute;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    text-decoration: none;
+    cursor: pointer;
+    /* background + color come inline via style attribute from settings */
+  }
+
+  .ai-full-width-responsive__nav-icon-{{ ai_gen_id }} svg,
+  .ai-full-width-responsive__cart-icon-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
 {% endstyle %}
 
 <div class="ai-full-width-responsive-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
@@ -111,6 +132,62 @@
         </div>
       </div>
     {% endif %}
+
+    {%- comment -%}
+      NAV ICON (hamburger) – positioned via VH from top/left
+    {%- endcomment -%}
+    {% if block.settings.show_nav_icon %}
+      <a
+        href="{{ block.settings.nav_icon_link | default: routes.root_url }}"
+        class="ai-full-width-responsive__nav-icon-{{ ai_gen_id }}"
+        style="
+          top: {{ block.settings.nav_icon_top }}vh;
+          left: {{ block.settings.nav_icon_left }}vh;
+          width: {{ block.settings.icon_size }}px;
+          height: {{ block.settings.icon_size }}px;
+          background-color: {{ block.settings.icon_background }};
+          color: {{ block.settings.icon_color }};
+        "
+        aria-label="Navigation"
+      >
+        <!-- Simple hamburger icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="2" fill="currentColor" />
+          <rect x="3" y="11" width="18" height="2" fill="currentColor" />
+          <rect x="3" y="16" width="18" height="2" fill="currentColor" />
+        </svg>
+      </a>
+    {% endif %}
+
+    {%- comment -%}
+      CART ICON – positioned via VH from top/right
+    {%- endcomment -%}
+    {% if block.settings.show_cart_icon %}
+      <a
+        href="{{ block.settings.cart_icon_link | default: routes.cart_url }}"
+        class="ai-full-width-responsive__cart-icon-{{ ai_gen_id }}"
+        style="
+          top: {{ block.settings.cart_icon_top }}vh;
+          right: {{ block.settings.cart_icon_right }}vh;
+          width: {{ block.settings.icon_size }}px;
+          height: {{ block.settings.icon_size }}px;
+          background-color: {{ block.settings.icon_background }};
+          color: {{ block.settings.icon_color }};
+        "
+        aria-label="Cart"
+      >
+        <!-- Simple cart icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10
+            0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.69c.75 0
+            1.4-.41 1.73-1.03L21 7H6.21L5.27 4.5 4 4H2v2h1l3.6 7.59L5.25
+            17h2l-.09-.2L7.16 14z"
+          />
+        </svg>
+      </a>
+    {% endif %}
   </div>
 </div>
 
@@ -136,6 +213,99 @@
       "id": "background_color",
       "label": "Background color",
       "default": "#f4f4f4"
+    },
+    {
+      "type": "header",
+      "content": "Icons – global style"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "icon_background",
+      "label": "Icon background",
+      "default": "#ffffff"
+    },
+
+    {
+      "type": "header",
+      "content": "Navigation icon"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_nav_icon",
+      "label": "Show navigation icon",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "nav_icon_link",
+      "label": "Navigation icon link"
+    },
+    {
+      "type": "range",
+      "id": "nav_icon_top",
+      "label": "Nav icon offset from top (vh)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "nav_icon_left",
+      "label": "Nav icon offset from left (vh)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 4
+    },
+
+    {
+      "type": "header",
+      "content": "Cart icon"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cart_icon",
+      "label": "Show cart icon",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "cart_icon_link",
+      "label": "Cart icon link"
+    },
+    {
+      "type": "range",
+      "id": "cart_icon_top",
+      "label": "Cart icon offset from top (vh)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "cart_icon_right",
+      "label": "Cart icon offset from right (vh)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 4
     }
   ],
   "presets": [
