@@ -654,7 +654,7 @@
       </div>
     </div>
 
-    {% form 'contact', class: 'ai-custom-product-hidden-form-' | append: ai_gen_id, id: 'custom-order-form-' | append: ai_gen_id %}
+    {% form ai_gen_id %}
       <input type="hidden" name="contact[subject]" value="Custom Product Order">
       {% if block.settings.product %}
         <input type="hidden" name="contact[product_title]" value="{{ block.settings.product.title }}">
@@ -1445,4 +1445,14 @@
     }
   ]
 }
-{% endschema %}
+{% endschema %}{%- comment -%}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{% form 'contact', class: 'ai-custom-product-hidden-form-' | append: ai_gen_id,
+    id: 'custom-order-form-' | append: ai_gen_id %}"
+  to: "{% form ai_gen_id %}"
+  position: 23048..23068
+{%- endcomment -%}
